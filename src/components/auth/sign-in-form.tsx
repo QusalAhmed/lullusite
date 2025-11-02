@@ -3,6 +3,9 @@
 import React from "react"
 import Link from "next/link"
 
+// Auth
+import { authClient } from "@/lib/auth-client";
+
 // React Form
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
@@ -60,9 +63,41 @@ export default function SignInForm() {
         },
     })
 
-    async function onSubmit(data: z.infer<typeof formSchema>) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log("Form submitted:", data);
+    async function onSubmit(formData: z.infer<typeof formSchema>) {
+        const { email, password } = formData;
+        const { data, error } = await authClient.signIn.email({
+            /**
+             * The user email
+             */
+            email,
+            /**
+             * The user password
+             */
+            password,
+            /**
+             * A URL to redirect to after the user verifies their email (optional)
+             */
+            callbackURL: "/dashboard",
+            /**
+             * remember the user session after the browser is closed.
+             * @default true
+             */
+            rememberMe: false
+        }, {
+            onRequest: (ctx) => {
+                //show loading
+                console.log("Signing up...", ctx);
+            },
+            onSuccess: (ctx) => {
+                //redirect to the dashboard or sign in page
+                console.log("Sign up successful!", ctx);
+            },
+            onError: (ctx) => {
+                // display the error message
+                alert(ctx.error.message);
+            },
+        })
+        console.log("Sign In Response:", { data, error });
     }
 
     return (
