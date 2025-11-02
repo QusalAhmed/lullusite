@@ -70,7 +70,7 @@ export default function SignInForm() {
             <CardHeader>
                 <CardTitle>Sign In</CardTitle>
                 <CardDescription>
-                    Please provide valid information to sign in to your account.
+                    <Link href={'/auth/sign-up'}>Don&#39;t have an account?</Link>
                 </CardDescription>
             </CardHeader>
             <CardContent>
