@@ -5,7 +5,7 @@ import "./globals.css";
 
 // Local
 import { ThemeProvider } from "@/components/theme/theme-provider";
-import ThemeToggle from "@/components/theme/themeToggle";
+import Navbar from "@/components/nav/navbar";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -38,7 +38,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
-            <ThemeToggle />
+            <Navbar />
             {children}
         </ThemeProvider>
         </body>
