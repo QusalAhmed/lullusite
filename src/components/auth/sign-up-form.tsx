@@ -2,6 +2,10 @@
 
 import React, { useState } from "react"
 import Link from "next/link"
+import { redirect } from 'next/navigation'
+
+// Auth
+import { authClient } from "@/lib/auth-client";
 
 // React Form
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -46,11 +50,9 @@ import { BsFacebook } from "react-icons/bs";
 
 const formSchema = z.object({
     name: z
-        .optional(
-            z
-                .string()
-                .max(50, 'Name cannot exceed 50 characters.')
-        ),
+        .string()
+        .min(2, 'Name must be at least 2 characters long.')
+        .max(50, 'Name cannot exceed 50 characters.'),
     email: z
         .email('Please enter a valid email address.')
         .endsWith('@gmail.com', 'Email must be a Gmail address.'),
@@ -89,14 +91,29 @@ export default function SignInForm() {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-    async function onSubmit(data: z.infer<typeof formSchema>) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        const d = z.safeParse(formSchema, data);
-        if (d.success) {
-            console.log("Form Data:", d.data);
-        } else {
-            console.log("Validation Errors:", d.error);
-        }
+    async function onSubmit(formData: z.infer<typeof formSchema>) {
+        const { name, email, password } = formData;
+        const { data, error } = await authClient.signUp.email({
+            email, // user email address
+            password, // user password -> min 8 characters by default
+            name, // user display name
+            callbackURL: "/dashboard" // A URL to redirect to after the user verifies their email (optional)
+        }, {
+            onRequest: (ctx) => {
+                //show loading
+                console.log("Signing up...", ctx);
+            },
+            onSuccess: (ctx) => {
+                //redirect to the dashboard or sign in page
+                console.log("Sign up successful!", ctx);
+                redirect('/dashboard');
+            },
+            onError: (ctx) => {
+                // display the error message
+                alert(ctx.error.message);
+            },
+        });
+        console.log("Sign up data:", data, "Error:", error);
     }
 
     return (
