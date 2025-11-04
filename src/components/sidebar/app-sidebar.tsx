@@ -1,67 +1,167 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+"use client"
 
+import React from "react"
+import Link from "next/link"
+
+// Icon
+import {
+    BookOpen,
+    Bot,
+    Frame,
+    GalleryVerticalEnd,
+    Map,
+    PieChart,
+    Settings2,
+    SquareTerminal,
+} from "lucide-react"
+
+
+// ShadCN
+import { NavMain } from "@/components/sidebar/nav-main"
 import {
     Sidebar,
     SidebarContent,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarGroupLabel,
+    SidebarFooter,
+    SidebarHeader,
+    SidebarRail,
+} from "@/components/ui/sidebar"
+import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-// Menu items.
-const items = [
-    {
-        title: "Home",
-        url: "#",
-        icon: Home,
-    },
-    {
-        title: "Inbox",
-        url: "#",
-        icon: Inbox,
-    },
-    {
-        title: "Calendar",
-        url: "#",
-        icon: Calendar,
-    },
-    {
-        title: "Search",
-        url: "#",
-        icon: Search,
-    },
-    {
-        title: "Settings",
-        url: "#",
-        icon: Settings,
-    },
-]
+// This is sample data.
+const data = {
+    navMain: [
+        {
+            title: "Playground",
+            icon: SquareTerminal,
+            isActive: true,
+            items: [
+                {
+                    title: "History",
+                    url: "#",
+                },
+                {
+                    title: "Starred",
+                    url: "#",
+                },
+                {
+                    title: "Settings",
+                    url: "#",
+                },
+            ],
+        },
+        {
+            title: "Models",
+            icon: Bot,
+            items: [
+                {
+                    title: "Genesis",
+                    url: "#",
+                },
+                {
+                    title: "Explorer",
+                    url: "#",
+                },
+                {
+                    title: "Quantum",
+                    url: "#",
+                },
+            ],
+        },
+        {
+            title: "Documentation",
+            icon: BookOpen,
+            items: [
+                {
+                    title: "Introduction",
+                    url: "#",
+                },
+                {
+                    title: "Get Started",
+                    url: "#",
+                },
+                {
+                    title: "Tutorials",
+                    url: "#",
+                },
+                {
+                    title: "Changelog",
+                    url: "#",
+                },
+            ],
+        },
+        {
+            title: "Settings",
+            icon: Settings2,
+            items: [
+                {
+                    title: "General",
+                    url: "#",
+                },
+                {
+                    title: "Team",
+                    url: "#",
+                },
+                {
+                    title: "Billing",
+                    url: "#",
+                },
+                {
+                    title: "Limits",
+                    url: "#",
+                },
+            ],
+        },
+    ],
+    projects: [
+        {
+            name: "Design Engineering",
+            url: "#",
+            icon: Frame,
+        },
+        {
+            name: "Sales & Marketing",
+            url: "#",
+            icon: PieChart,
+        },
+        {
+            name: "Travel",
+            url: "#",
+            icon: Map,
+        },
+    ],
+}
 
-export function AppSidebar() {
+export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
     return (
-        <Sidebar>
+        <Sidebar collapsible="icon" {...props}>
+            <SidebarHeader>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size="lg" asChild>
+                            <Link href="/dashboard" className="flex items-center gap-3">
+                                <div
+                                    className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                                    <GalleryVerticalEnd className="size-4"/>
+                                </div>
+                                <div className="flex flex-col gap-0.5 leading-none">
+                                    <span className="font-medium">Lullu Site</span>
+                                    <span className="">v1.0.0</span>
+                                </div>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarHeader>
             <SidebarContent>
-                <SidebarGroup>
-                    <SidebarGroupLabel>Application</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {items.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
-                                        <a href={item.url}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </a>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
+                <NavMain items={data.navMain}/>
             </SidebarContent>
+            <SidebarFooter>
+            </SidebarFooter>
+            <SidebarRail/>
         </Sidebar>
     )
 }

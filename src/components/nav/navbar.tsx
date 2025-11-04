@@ -7,14 +7,18 @@ import Link from 'next/link';
 import ThemeToggle from "@/components/theme/themeToggle";
 import User from "@/components/nav/user";
 import ThreeBar from "@/components/nav/three-bar";
+import Notification from "@/components/nav/notification";
 
 const Navbar = () => {
     return (
-        <nav className="w-full h-16 flex items-center justify-between px-4">
+        <nav className="w-full flex items-center justify-between py-2 md:px-4">
             <ThreeBar/>
-            <Link href={'/'}>Lullu Site</Link>
+            <div className={'hidden md:block'}>
+                <Link href={'/'} className={'font-semibold text-2xl'}>Lullu Site</Link>
+            </div>
             <div className="flex items-center gap-4">
                 <ThemeToggle/>
+                <Notification/>
                 <User/>
             </div>
         </nav>
