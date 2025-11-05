@@ -1,6 +1,8 @@
 import React from 'react';
 
-const Page = () => {
+const DashBoardPage = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
     return (
         <div>
             Dashboard
@@ -8,4 +10,4 @@ const Page = () => {
     );
 };
 
-export default Page;
+export default DashBoardPage;

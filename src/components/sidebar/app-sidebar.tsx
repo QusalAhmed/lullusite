@@ -5,14 +5,12 @@ import Link from "next/link"
 
 // Icon
 import {
-    BookOpen,
-    Bot,
-    Frame,
+    ShoppingBag,
+    Package,
     GalleryVerticalEnd,
-    Map,
-    PieChart,
     Settings2,
     SquareTerminal,
+    Store
 } from "lucide-react"
 
 
@@ -31,6 +29,15 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
+// Font
+import { Coiny } from 'next/font/google'
+
+const coiny = Coiny({
+    subsets: ['latin'], // required
+    weight: ['400'],    // Coiny only has one weight
+})
+
+
 // This is sample data.
 const data = {
     navMain: [
@@ -40,43 +47,43 @@ const data = {
             isActive: true,
             items: [
                 {
-                    title: "History",
+                    title: "Dashboard",
+                    url: "/dashboard",
+                },
+                {
+                    title: "Customers",
                     url: "#",
                 },
                 {
-                    title: "Starred",
+                    title: "Analytics",
+                    url: "#",
+                }
+            ],
+        },
+        {
+            title: "Product",
+            icon: Package,
+            items: [
+                {
+                    title: "Manage Product",
                     url: "#",
                 },
                 {
-                    title: "Settings",
+                    title: "Add Product",
+                    url: "#",
+                },
+                {
+                    title: "Category Management",
                     url: "#",
                 },
             ],
         },
         {
-            title: "Models",
-            icon: Bot,
+            title: "Order",
+            icon: ShoppingBag,
             items: [
                 {
-                    title: "Genesis",
-                    url: "#",
-                },
-                {
-                    title: "Explorer",
-                    url: "#",
-                },
-                {
-                    title: "Quantum",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "Documentation",
-            icon: BookOpen,
-            items: [
-                {
-                    title: "Introduction",
+                    title: "All Orders",
                     url: "#",
                 },
                 {
@@ -94,6 +101,20 @@ const data = {
             ],
         },
         {
+            title: "Store",
+            icon: Store,
+            items: [
+                {
+                    title: "Manage Stores",
+                    url: "#",
+                },
+                {
+                    title: "Add Landing Page",
+                    url: "#",
+                }
+            ],
+        },
+        {
             title: "Settings",
             icon: Settings2,
             items: [
@@ -102,11 +123,11 @@ const data = {
                     url: "#",
                 },
                 {
-                    title: "Team",
+                    title: "Courier",
                     url: "#",
                 },
                 {
-                    title: "Billing",
+                    title: "User & Permission",
                     url: "#",
                 },
                 {
@@ -115,24 +136,7 @@ const data = {
                 },
             ],
         },
-    ],
-    projects: [
-        {
-            name: "Design Engineering",
-            url: "#",
-            icon: Frame,
-        },
-        {
-            name: "Sales & Marketing",
-            url: "#",
-            icon: PieChart,
-        },
-        {
-            name: "Travel",
-            url: "#",
-            icon: Map,
-        },
-    ],
+    ]
 }
 
 export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
@@ -148,8 +152,10 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
                                     <GalleryVerticalEnd className="size-4"/>
                                 </div>
                                 <div className="flex flex-col gap-0.5 leading-none">
-                                    <span className="font-medium">Lullu Site</span>
-                                    <span className="">v1.0.0</span>
+                                    <span className={coiny.className + " font-normal text-lg p-0 m-0"}>
+                                        User Panel
+                                    </span>
+                                    <span className="text-gray-300">v1.0.0</span>
                                 </div>
                             </Link>
                         </SidebarMenuButton>
@@ -160,6 +166,11 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
                 <NavMain items={data.navMain}/>
             </SidebarContent>
             <SidebarFooter>
+                <div className="p-4 text-sm text-center text-gray-400">
+                    &copy; {new Date().getFullYear()}
+                    <span className={'text-muted px-2'}>Lullu Site.</span>
+                    All rights reserved.
+                </div>
             </SidebarFooter>
             <SidebarRail/>
         </Sidebar>
