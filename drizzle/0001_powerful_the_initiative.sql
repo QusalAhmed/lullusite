@@ -1,0 +1,1 @@
+ALTER TABLE "categories" ADD COLUMN "url" varchar(2048);

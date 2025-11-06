@@ -87,10 +87,10 @@ const User = () => {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator/>
                 <DropdownMenuItem asChild>
-                    <Link href="/profile">Profile</Link>
+                    <Link href="/merchant/profile">Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link href="/dashboard">Dashboard</Link>
+                    <Link href="/merchant/dashboard">Dashboard</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator/>
                 <DropdownMenuItem onSelect={(e) => {

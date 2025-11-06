@@ -21,6 +21,7 @@ const Navbar = () => {
                         width={120}
                         height={50}
                         alt="Float UI logo"
+                        preload={true}
                     />
                 </Link>
             </div>

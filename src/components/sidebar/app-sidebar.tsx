@@ -48,7 +48,7 @@ const data = {
             items: [
                 {
                     title: "Dashboard",
-                    url: "/dashboard",
+                    url: "dashboard",
                 },
                 {
                     title: "Customers",
@@ -74,7 +74,7 @@ const data = {
                 },
                 {
                     title: "Category Management",
-                    url: "#",
+                    url: "category",
                 },
             ],
         },
@@ -146,7 +146,7 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" className="flex items-center gap-3">
+                            <Link href="/merchant/dashboard" className="flex items-center gap-3">
                                 <div
                                     className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                                     <GalleryVerticalEnd className="size-4"/>
@@ -166,11 +166,6 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
                 <NavMain items={data.navMain}/>
             </SidebarContent>
             <SidebarFooter>
-                <div className="p-4 text-sm text-center text-gray-400">
-                    &copy; {new Date().getFullYear()}
-                    <span className={'text-muted px-2'}>Lullu Site.</span>
-                    All rights reserved.
-                </div>
             </SidebarFooter>
             <SidebarRail/>
         </Sidebar>

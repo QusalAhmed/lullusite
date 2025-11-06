@@ -77,7 +77,7 @@ export default function SignInForm() {
             /**
              * A URL to redirect to after the user verifies their email (optional)
              */
-            callbackURL: "/dashboard",
+            callbackURL: "/merchant/dashboard",
             /**
              * remember the user session after the browser is closed.
              * @default true

@@ -54,7 +54,7 @@ export default function Home() {
                         at its layout. The point of using Lorem Ipsum
                     </p>
                     <div className="pt-10 items-center justify-center space-y-3 sm:space-x-6 sm:space-y-0 sm:flex lg:justify-start">
-                        <Link href="/dashboard"
+                        <Link href="/merchant/dashboard"
                            className="px-7 py-3 w-full bg-white text-gray-800 text-center rounded-md shadow-md block sm:w-auto">
                             Get started
                         </Link>
