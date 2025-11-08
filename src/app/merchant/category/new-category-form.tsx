@@ -1,14 +1,17 @@
 "use client"
 
-import React from "react"
+import React, {useState, useEffect} from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
-import z from "zod"
 
 // Local
 import DropZone from "@/components/upload-file/ui"
+import saveCategory from "@/actions/save-category"
 
+// Zod
+import * as z from "zod"
+import {categoryFormSchema as formSchema} from "@/lib/zod/category.schema"
 
 // ShadCN
 import {
@@ -27,44 +30,37 @@ import {
 } from "@/components/ui/input-group"
 import { Button } from "@/components/ui/button"
 
-const formSchema = z.object({
-    name: z
-        .string()
-        .min(1, "Bug title must be at least 1 character.")
-        .max(128, "Bug title must be at most 128 characters."),
-    description: z
-        .string()
-        .max(1024, "Description must be at most 100 characters.")
-        .optional(),
-    image: z
-        .url()
-})
+
 
 export default function NewCategoryForm() {
+    const [imageUrl, setImageUrl] = useState<string>('');
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
             description: "",
+            image: "",
         },
     })
 
-    function onSubmit(data: z.infer<typeof formSchema>) {
-        toast("You submitted the following values:", {
-            description: (
-                <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-            ),
-            position: "bottom-right",
-            classNames: {
-                content: "flex flex-col gap-2",
-            },
-            style: {
-                "--border-radius": "calc(var(--radius)  + 4px)",
-            } as React.CSSProperties,
-            duration: 1000,
-        })
+    useEffect(() => {
+        if (imageUrl) {
+            form.setValue("image", imageUrl);
+        } else {
+            form.setValue("image", "");
+        }
+    }, [imageUrl, form]);
+
+    async function onSubmit(data: z.infer<typeof formSchema>) {
+        const submitData = await saveCategory(data);
+        console.log("New category created:", submitData);
+        if (submitData?.error) {
+            toast.error(submitData.error);
+            return;
+        }
+        toast.success("Category created successfully!");
+        form.reset();
+        setImageUrl('');
     }
 
     return (
@@ -127,24 +123,15 @@ export default function NewCategoryForm() {
                 <Controller
                     name="image"
                     control={form.control}
-                    render={({field, fieldState}) => (
+                    render={({fieldState}) => (
                         <Field data-invalid={fieldState.invalid}>
                             <FieldLabel htmlFor="form-new-category-image-upload">
                                 Upload Image
                             </FieldLabel>
-                            <InputGroup>
-                                <Input
-                                    {...field}
-                                    id="form-new-category-image-upload"
-                                    aria-invalid={fieldState.invalid}
-                                    placeholder="Upload cetegory logo"
-                                    autoComplete="off"
-                                />
-                            </InputGroup>
                             <FieldDescription>
                                 Image url for the category (optional).
                             </FieldDescription>
-                            <DropZone maxFiles={1}/>
+                            <DropZone maxFiles={1} setImageUrl={setImageUrl} />
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]}/>
                             )}

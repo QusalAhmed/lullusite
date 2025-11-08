@@ -29,6 +29,27 @@
       "when": 1762400878723,
       "tag": "0003_odd_the_santerians",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1762534388555,
+      "tag": "0004_abandoned_randall_flagg",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1762551434117,
+      "tag": "0005_strong_the_initiative",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1762559639862,
+      "tag": "0006_absent_power_man",
+      "breakpoints": true
     }
   ]
 }

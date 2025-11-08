@@ -40,7 +40,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
-            <Toaster position="top-right" richColors />
+            <Toaster position="top-right" richColors closeButton expand={false} />
             {children}
         </ThemeProvider>
         </body>
