@@ -62,6 +62,15 @@ const CategoryList = async () => {
 
                                 <td className="px-4 py-2 font-semibold text-md dark:text-gray-100">
                                     {category.name}
+                                    {category.subCategories && category.subCategories.length > 0 && (
+                                        <div className="text-xs text-gray-500 dark:text-gray-400 indent-1">
+                                            <ul>
+                                                {category.subCategories.map((subCategory) => (
+                                                    <li key={subCategory.id}>- {subCategory.name}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
                                 </td>
 
                                 <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">

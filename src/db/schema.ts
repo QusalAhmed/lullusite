@@ -1,40 +1,8 @@
-import { pgTable, uuid, varchar, text, integer } from "drizzle-orm/pg-core";
-import {relations} from "drizzle-orm";
-
-// Local
-import { user } from "@/db/index.schema";
-
-// Helper
-import timestamps from "./columns.helpers";
-
-export const categoriesTable = pgTable("categories", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: text("user_id").references(() =>
-            user.id,
-        {
-            onDelete: "cascade",
-            onUpdate: "cascade"
-        }
-    ).notNull(),
-    name: varchar("name", {length: 255}).notNull(),
-    description: varchar("description", {length: 1024}),
-    image: uuid('image_id').references(() =>
-            imageTable.id,
-        {
-            onDelete: "cascade",
-            onUpdate: "cascade"
-        }
-    ),
-
-    ...timestamps
-});
-
-export const categoryRelations = relations(categoriesTable, ({ one }) => ({
-    image: one(imageTable, {
-        fields: [categoriesTable.image],
-        references: [imageTable.id]
-    })
-}));
+import { integer, pgTable, text, uuid, varchar } from "drizzle-orm/pg-core";
+import { user } from "../../auth-schema";
+import timestamps from "@/db/columns.helpers";
+import { relations } from "drizzle-orm";
+import { categoriesTable } from "@/db/category.schema";
 
 export const imageTable = pgTable("image", {
     id: uuid("id").primaryKey().defaultRandom(),

@@ -1,1 +1,0 @@
-ALTER TABLE "image" ADD CONSTRAINT "image_hash_unique" UNIQUE("hash");

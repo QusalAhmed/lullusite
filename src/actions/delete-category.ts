@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 
 // db
 import db from '@/lib/drizzle-agent'
-import { categoriesTable } from '@/db/schema'
+import { categoriesTable } from '@/db/category.schema'
 import { eq, and } from 'drizzle-orm'
 
 // Auth

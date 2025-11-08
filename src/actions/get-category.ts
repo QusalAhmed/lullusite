@@ -16,7 +16,8 @@ async function getCategory() {
         .categoriesTable
         .findMany({
             with: {
-                image: true
+                image: true,
+                subCategories: true
             },
             where: eq(categoriesTable.userId, session.user.id)
         });

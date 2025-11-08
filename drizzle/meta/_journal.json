@@ -5,57 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1762395341184,
-      "tag": "0000_magical_wolf_cub",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1762398686111,
-      "tag": "0001_powerful_the_initiative",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1762400843694,
-      "tag": "0002_amused_mystique",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1762400878723,
-      "tag": "0003_odd_the_santerians",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1762534388555,
-      "tag": "0004_abandoned_randall_flagg",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1762551434117,
-      "tag": "0005_strong_the_initiative",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1762559639862,
-      "tag": "0006_absent_power_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1762575150177,
-      "tag": "0007_breezy_red_skull",
+      "when": 1762585664516,
+      "tag": "0000_lively_snowbird",
       "breakpoints": true
     }
   ]
