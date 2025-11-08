@@ -4,11 +4,7 @@ import Image from 'next/image';
 // Local
 import getCategories from '@/actions/get-category';
 import ConfirmDelete from "./confirm-delete"
-
-// Actions
-
-// Icon
-import { Pencil } from 'lucide-react';
+import UpdateCategoryDialog from "./category-update-dialog"
 
 
 const CategoryList = async () => {
@@ -73,7 +69,12 @@ const CategoryList = async () => {
                                 </td>
                                 <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-4">
                                     <ConfirmDelete categoryId={category.id}/>
-                                    <Pencil size={16}/>
+                                    <UpdateCategoryDialog
+                                        name={category.name}
+                                        description={category.description || ''}
+                                        image={category.image ? category.image.url : ''}
+                                        categoryId={category.id}
+                                    />
                                 </td>
                             </tr>
                         ))}

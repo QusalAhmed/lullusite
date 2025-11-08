@@ -8,8 +8,10 @@ import db from "@/lib/drizzle-agent";
 import { categoriesTable } from "@/db/index.schema";
 import getSession from "@/lib/get-session";
 
-export default async function saveCategory(data: z.infer<typeof categoryFormSchema>) {
-    const { name, description, image } = data;
+export default async function saveCategory(
+    data: z.infer<typeof categoryFormSchema> & { categoryId: string }
+) {
+    const { name, description, image, categoryId } = data;
     const session = await getSession();
 
     // Check if category already exists
@@ -27,21 +29,25 @@ export default async function saveCategory(data: z.infer<typeof categoryFormSche
         return { error: "Category with this name already exists." };
     }
 
-    // Insert new category
-    const insertionData = await db
-        .insert(categoriesTable)
-        .values({
-            name: name.split(" ")
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(" "),
-            description: description || null,
+    // Update category
+    const updateData = await db
+        .update(categoriesTable)
+        .set({
+            name,
+            description,
             image: image || null,
-            userId: session.user.id,
+            updatedAt: new Date(),
         })
-        .returning();
+        .where(
+            and(
+                eq(categoriesTable.id, categoryId),
+                eq(categoriesTable.userId, session.user.id)
+            )
+        )
+        .returning({ updatedId: categoriesTable.id })
 
     // Revalidate cache after insert
     revalidatePath("/merchant/category");
 
-    return { error: null, data: insertionData };
+    return { error: null, data: updateData };
 }

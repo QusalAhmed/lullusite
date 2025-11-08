@@ -50,6 +50,13 @@
       "when": 1762559639862,
       "tag": "0006_absent_power_man",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1762575150177,
+      "tag": "0007_breezy_red_skull",
+      "breakpoints": true
     }
   ]
 }

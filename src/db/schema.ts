@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, integer } from "drizzle-orm/pg-core";
 import {relations} from "drizzle-orm";
 
 // Local
@@ -48,9 +48,9 @@ export const imageTable = pgTable("image", {
     url: varchar("url", {length: 2048}).notNull(),
     thumbnailUrl: varchar("thumbnail_url", {length: 2048}),
     altText: varchar("alt_text", {length: 512}),
-    width: varchar("width", {length: 10}),
-    height: varchar("height", {length: 10}),
-    size: varchar("size", {length: 20}),    // Size in kb
+    width: integer("width"),
+    height: integer("height"),
+    size: integer("size"),    // Size in kb
     hash: text().notNull().unique(),
 
     ...timestamps

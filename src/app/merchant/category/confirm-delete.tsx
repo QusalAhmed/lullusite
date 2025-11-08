@@ -19,7 +19,7 @@ import { toast } from "sonner";
 const ConfirmDelete = ({categoryId}: {categoryId: string}) => {
     return (
         <AlertDialog>
-            <AlertDialogTrigger>
+            <AlertDialogTrigger className="cursor-pointer">
                 <Trash size={16}/>
             </AlertDialogTrigger>
             <AlertDialogContent>
