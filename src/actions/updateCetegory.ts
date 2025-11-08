@@ -26,7 +26,26 @@ export default async function saveCategory(
         });
 
     if (existingCategory) {
-        return { error: "Category with this name already exists." };
+        // Update category
+        const updateData = await db
+            .update(categoriesTable)
+            .set({
+                description,
+                image: image || null,
+                updatedAt: new Date(),
+            })
+            .where(
+                and(
+                    eq(categoriesTable.id, categoryId),
+                    eq(categoriesTable.userId, session.user.id)
+                )
+            )
+            .returning({ updatedId: categoriesTable.id })
+
+        // Revalidate cache after insert
+        revalidatePath("/merchant/category");
+
+        return { error: null, data: updateData };
     }
 
     // Update category

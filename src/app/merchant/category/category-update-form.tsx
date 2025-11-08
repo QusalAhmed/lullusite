@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useState, useEffect} from "react"
+import React, { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -11,7 +11,7 @@ import updateCategory from "@/actions/updateCetegory"
 
 // Zod
 import * as z from "zod"
-import {categoryFormSchema as formSchema} from "@/lib/zod/category.schema"
+import { categoryFormSchema as formSchema } from "@/lib/zod/category.schema"
 
 // ShadCN
 import {
@@ -31,11 +31,10 @@ import {
 import { Button } from "@/components/ui/button"
 
 
-
 export default function UpdateCategoryForm(
-    {name, description, image, categoryId}: {name: string, description: string, image: string, categoryId: string}
+    {name, description, image, categoryId}: { name: string, description: string, image: string, categoryId: string }
 ) {
-    const [imageUrl, setImageUrl] = useState<string>('');
+    const [imageUrl, setImageUrl] = useState<string>(image || "");
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -134,7 +133,7 @@ export default function UpdateCategoryForm(
                             <FieldDescription>
                                 Image url for the category (optional).
                             </FieldDescription>
-                            <DropZone maxFiles={1} setImageUrl={setImageUrl} />
+                            <DropZone maxFiles={1} setImageUrl={setImageUrl}/>
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]}/>
                             )}

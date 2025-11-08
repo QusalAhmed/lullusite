@@ -72,7 +72,7 @@ const CategoryList = async () => {
                                     <UpdateCategoryDialog
                                         name={category.name}
                                         description={category.description || ''}
-                                        image={category.image ? category.image.url : ''}
+                                        image={category.image ? category.image.id : ''}
                                         categoryId={category.id}
                                     />
                                 </td>
