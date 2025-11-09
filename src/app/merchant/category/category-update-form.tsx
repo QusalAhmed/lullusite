@@ -7,7 +7,7 @@ import { toast } from "sonner"
 
 // Local
 import DropZone from "@/components/upload-file/ui"
-import updateCategory from "@/actions/updateCategory"
+import updateCategory from "@/actions/category/updateCategory"
 
 // Zod
 import * as z from "zod"

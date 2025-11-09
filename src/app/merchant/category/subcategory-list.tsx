@@ -6,9 +6,13 @@ import { Trash } from "lucide-react";
 
 // Local
 import DeleteSubcategoryAlert from './delete-subcategory-alert';
+import UpdateSubcategoryDialog from './update-subcategory-dialog';
 
 const SubcategoryList = (
-    {subCategories}: { subCategories: { id: string; name: string }[] }
+    {subCategories, categoryId}: {
+        subCategories: { id: string; name: string; description: string | null }[],
+        categoryId: string
+    }
 ) => {
     return (
         <div>
@@ -23,10 +27,24 @@ const SubcategoryList = (
                                 <div className="w-8 h-12 border-b-2 border-l-2 rounded-bl-md -translate-y-1/2"></div>
                                 <div
                                     className="flex justify-between items-center w-full px-2 py-1 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
-                                    {subCategory.name}
-                                    <DeleteSubcategoryAlert subcategoryId={subCategory.id}>
-                                        <Trash size={16}/>
-                                    </DeleteSubcategoryAlert>
+                                    <div>
+                                        {subCategory.name}
+                                        {subCategory.description && (
+                                            <div className="text-xs text-gray-400 dark:text-gray-600 italic">
+                                                {subCategory.description}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <DeleteSubcategoryAlert subcategoryId={subCategory.id}>
+                                            <Trash size={16}/>
+                                        </DeleteSubcategoryAlert>
+                                        <UpdateSubcategoryDialog defaultCategory={categoryId}
+                                                                 name={subCategory.name}
+                                                                 description={subCategory.description || ''}
+                                                                 categoryId={subCategory.id}
+                                        />
+                                    </div>
                                 </div>
                             </li>
                         ))}

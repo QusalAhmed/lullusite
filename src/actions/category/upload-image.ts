@@ -8,8 +8,8 @@ import {
     upload,
 } from "@imagekit/next";
 import { toast } from "sonner";
-import setImage from "@/actions/set-image";
-import getImage from "@/actions/get-image";
+import setImage from "@/actions/category/set-image";
+import getImage from "@/actions/category/get-image";
 
 // Authentication helper for ImageKit
 const authenticator = async () => {

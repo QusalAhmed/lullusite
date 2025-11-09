@@ -12,7 +12,7 @@ import { X, Upload, LoaderCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Upload image
-import uploadImage from "@/actions/upload-image"
+import uploadImage from "@/actions/category/upload-image"
 
 // ShadCN
 import { Button } from "@/components/ui/button"

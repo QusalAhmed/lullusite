@@ -25,7 +25,7 @@ import { Spinner } from "@/components/ui/spinner"
 import {toast} from "sonner"
 
 // Action
-import deleteSubCategory from "@/actions/delete-subcategory"
+import deleteSubCategory from "@/actions/category/delete-subcategory"
 
 export default function DeleteSubcategoryAlert(
     {children, subcategoryId}: {children: React.ReactNode, subcategoryId: string}

@@ -16,15 +16,22 @@ import SubCategoryForm from "./sub-category-form"
 import getCategories from "@/actions/category/get-category";
 
 // Icon
-import { BadgePlus } from "lucide-react";
+import { Edit } from "lucide-react";
 
-export default async function SubCategoryDialog({defaultCategory}: { defaultCategory?: string }) {
+export default async function UpdateSubcategoryDialog(
+    {defaultCategory, name, description, categoryId}: {
+        defaultCategory?: string,
+        name?: string,
+        description?: string,
+        categoryId?: string
+    }
+) {
     const categories = await getCategories();
 
     return (
         <Dialog>
             <DialogTrigger>
-                <BadgePlus size={16} className={'cursor-pointer'}/>
+                <Edit size={16}/>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] px-0 md:px-2">
                 <DialogHeader>
@@ -35,10 +42,15 @@ export default async function SubCategoryDialog({defaultCategory}: { defaultCate
                 </DialogHeader>
 
                 {/* Scroll only the dialog body so header/footer remain visible */}
-                <ScrollArea className="max-h-[60vh]" >
+                <ScrollArea className="max-h-[60vh]">
                     <SubCategoryForm categories={categories.map(category => {
                         return {label: category.name, value: category.id}
-                    })} defaultCategory={defaultCategory}/>
+                    })}
+                                     defaultCategory={defaultCategory}
+                                     name={name}
+                                     description={description}
+                                     categoryId={categoryId}
+                    />
                 </ScrollArea>
             </DialogContent>
         </Dialog>

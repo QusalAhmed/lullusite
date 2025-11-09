@@ -4,9 +4,8 @@ import {startCase} from "lodash";
 const categoryFormSchema = z.object({
     name: z
         .string()
-        .min(1, "Bug title must be at least 1 character.")
-        .max(128, "Bug title must be at most 128 characters.")
-        .trim()
+        .min(1, "Must be at least 1 character.")
+        .max(128, "Must be at most 128 characters.")
         .nonempty("Name is required.")
         .transform((val) => startCase(val.toLowerCase())),
     description: z

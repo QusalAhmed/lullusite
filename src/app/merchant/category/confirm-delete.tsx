@@ -11,7 +11,7 @@ import {
     AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { Trash } from "lucide-react";
-import deleteCategory from "@/actions/delete-category";
+import deleteCategory from "@/actions/category/delete-category";
 
 // Sonner
 import { toast } from "sonner";

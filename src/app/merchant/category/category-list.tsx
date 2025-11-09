@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 
 // Local
-import getCategories from '@/actions/get-category';
+import getCategories from '@/actions/category/get-category';
 import ConfirmDelete from "./confirm-delete"
 import UpdateCategoryDialog from "./category-update-dialog"
 
@@ -71,7 +71,7 @@ const CategoryList = async () => {
                             >
                                 <td className="px-4 py-2">
                                     {category.image ? (
-                                        <div className="relative h-8 w-8 overflow-hidden rounded-md">
+                                        <div className="relative h-16 w-16 overflow-hidden rounded-md">
                                             <Image
                                                 src={category.image.thumbnailUrl || category.image.url}
                                                 alt={category.image.altText || category.name}
@@ -94,7 +94,7 @@ const CategoryList = async () => {
                                             <div className={'text-sm'}>Sub Categories:</div>
                                             <SubCategoryDialog defaultCategory={category.id}/>
                                         </div>
-                                        <SubcategoryList subCategories={category.subCategories}/>
+                                        <SubcategoryList subCategories={category.subCategories} categoryId={category.id}/>
                                     </div>
                                 </td>
 

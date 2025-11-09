@@ -1,7 +1,7 @@
 import React from "react";
 
 // Action
-import deleteCategory from '@/actions/delete-category';
+import deleteCategory from '@/actions/category/delete-category';
 
 // ShadCN
 import {
