@@ -31,9 +31,7 @@ export default async function saveCategory(data: z.infer<typeof categoryFormSche
     const insertionData = await db
         .insert(categoriesTable)
         .values({
-            name: name.split(" ")
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(" "),
+            name,
             description: description || null,
             image: image || null,
             userId: session.user.id,

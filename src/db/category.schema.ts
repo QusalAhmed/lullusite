@@ -46,6 +46,13 @@ export const subCategoriesTable = pgTable("sub_categories", {
             onUpdate: "cascade"
         }
     ).notNull(),
+    userId: text("user_id").references(() =>
+            user.id,
+        {
+            onDelete: "cascade",
+            onUpdate: "cascade"
+        }
+    ).notNull(),
     name: varchar("name", {length: 255}).notNull(),
     description: varchar("description", {length: 1024}),
 
@@ -56,5 +63,9 @@ export const subCategoryRelations = relations(subCategoriesTable, ({one}) => ({
     category: one(categoriesTable, {
         fields: [subCategoriesTable.categoryId],
         references: [categoriesTable.id]
+    }),
+    user: one(user, {
+        fields: [subCategoriesTable.userId],
+        references: [user.id]
     })
 }));

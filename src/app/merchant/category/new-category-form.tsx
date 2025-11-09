@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useState, useEffect} from "react"
+import React, { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -11,7 +11,7 @@ import saveCategory from "@/actions/save-category"
 
 // Zod
 import * as z from "zod"
-import {categoryFormSchema as formSchema} from "@/lib/zod/category.schema"
+import { categoryFormSchema as formSchema } from "@/lib/zod/category.schema"
 
 // ShadCN
 import {
@@ -29,7 +29,6 @@ import {
     InputGroupTextarea,
 } from "@/components/ui/input-group"
 import { Button } from "@/components/ui/button"
-
 
 
 export default function NewCategoryForm() {
@@ -131,7 +130,7 @@ export default function NewCategoryForm() {
                             <FieldDescription>
                                 Image url for the category (optional).
                             </FieldDescription>
-                            <DropZone maxFiles={1} setImageUrl={setImageUrl} />
+                            <DropZone maxFiles={1} setImageUrl={setImageUrl}/>
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]}/>
                             )}

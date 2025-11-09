@@ -6,6 +6,24 @@ import getCategories from '@/actions/get-category';
 import ConfirmDelete from "./confirm-delete"
 import UpdateCategoryDialog from "./category-update-dialog"
 
+// ShadCN
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty"
+
+// Icon
+import { PiEmptyBold } from "react-icons/pi";
+
+// Local
+import NewCategoryDialog from "@/app/merchant/category/new-category-dialog";
+import SubCategoryDialog from "@/app/merchant/category/subcategory-dialog";
+import SubcategoryList from "./subcategory-list";
+
 
 const CategoryList = async () => {
     const categories = await getCategories();
@@ -14,9 +32,18 @@ const CategoryList = async () => {
         <div
             className="m-4 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
             {categories.length === 0 ? (
-                <div className="flex h-48 items-center justify-center text-gray-500 dark:text-gray-400">
-                    No categories found.
-                </div>
+                <Empty>
+                    <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                            <PiEmptyBold size={56}/>
+                        </EmptyMedia>
+                        <EmptyTitle>No Category</EmptyTitle>
+                        <EmptyDescription>No category found</EmptyDescription>
+                    </EmptyHeader>
+                    <EmptyContent>
+                        <NewCategoryDialog/>
+                    </EmptyContent>
+                </Empty>
             ) : (
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -60,30 +87,30 @@ const CategoryList = async () => {
                                     )}
                                 </td>
 
-                                <td className="px-4 py-2 font-semibold text-md dark:text-gray-100">
-                                    {category.name}
-                                    {category.subCategories && category.subCategories.length > 0 && (
-                                        <div className="text-xs text-gray-500 dark:text-gray-400 indent-1">
-                                            <ul>
-                                                {category.subCategories.map((subCategory) => (
-                                                    <li key={subCategory.id}>- {subCategory.name}</li>
-                                                ))}
-                                            </ul>
+                                <td className="px-4 py-2 flex flex-col min-w-[300px]">
+                                    <div className={'font-semibold text-md dark:text-gray-100'}>{category.name}</div>
+                                    <div className="indent-3 mt-1">
+                                        <div className={'flex items-center gap-1'}>
+                                            <div className={'text-sm'}>Sub Categories:</div>
+                                            <SubCategoryDialog defaultCategory={category.id}/>
                                         </div>
-                                    )}
+                                        <SubcategoryList subCategories={category.subCategories}/>
+                                    </div>
                                 </td>
 
                                 <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
                                     {category.description || "—"}
                                 </td>
-                                <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-4">
-                                    <ConfirmDelete categoryId={category.id}/>
-                                    <UpdateCategoryDialog
-                                        name={category.name}
-                                        description={category.description || ''}
-                                        image={category.image ? category.image.id : ''}
-                                        categoryId={category.id}
-                                    />
+                                <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
+                                    <div className={'flex gap-2'}>
+                                        <ConfirmDelete categoryId={category.id}/>
+                                        <UpdateCategoryDialog
+                                            name={category.name}
+                                            description={category.description || ''}
+                                            image={category.image ? category.image.id : ''}
+                                            categoryId={category.id}
+                                        />
+                                    </div>
                                 </td>
                             </tr>
                         ))}
