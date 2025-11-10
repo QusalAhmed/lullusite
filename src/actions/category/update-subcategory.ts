@@ -8,7 +8,7 @@ import z from 'zod';
 
 // Database
 import db from "@/lib/drizzle-agent";
-import { eq, and } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import { subCategoriesTable } from "@/db/category.schema";
 
 // Auth
@@ -47,7 +47,7 @@ export default async function updateSubcategory({data}: { data: z.infer<typeof s
         .subCategoriesTable
         .findFirst({
             where: and(
-                eq(subCategoriesTable.id, id),
+                ne(subCategoriesTable.id, id),
                 eq(subCategoriesTable.categoryId, category),
                 eq(subCategoriesTable.name, name),
                 eq(subCategoriesTable.userId, session.user.id)
