@@ -23,14 +23,14 @@ export default async function Layout({children}: { children: React.ReactNode }) 
         <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar/>
             <SidebarInset>
-                <header className="w-full sticky top-0">
+                <header className="w-full sticky top-0 z-50 bg-white">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1"/>
                         <Navbar/>
                     </div>
                 </header>
                 <Suspense fallback={<Loading/>}>
-                    {children}
+                    <div className={'p-4'}>{children}</div>
                 </Suspense>
             </SidebarInset>
         </SidebarProvider>

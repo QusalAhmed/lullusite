@@ -2,13 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from "next/image";
 
 // Local
 import ThemeToggle from "@/components/theme/themeToggle";
 import User from "@/components/nav/user";
 // import ThreeBar from "@/components/nav/three-bar";
 import Notification from "@/components/nav/notification";
-import Image from "next/image";
+import BugReport from "@/components/nav/bug-report";
 
 const Navbar = () => {
     return (
@@ -26,6 +27,7 @@ const Navbar = () => {
                 </Link>
             </div>
             <div className="flex items-center justify-between gap-4">
+                <BugReport/>
                 <ThemeToggle/>
                 <Notification/>
                 <User/>

@@ -64,8 +64,8 @@ export default function SignInForm() {
     })
 
     async function onSubmit(formData: z.infer<typeof formSchema>) {
-        const { email, password } = formData;
-        const { data, error } = await authClient.signIn.email({
+        const {email, password} = formData;
+        const {data, error} = await authClient.signIn.email({
             /**
              * The user email
              */
@@ -97,7 +97,7 @@ export default function SignInForm() {
                 alert(ctx.error.message);
             },
         })
-        console.log("Sign In Response:", { data, error });
+        console.log("Sign In Response:", {data, error});
     }
 
     return (
@@ -131,7 +131,8 @@ export default function SignInForm() {
                                             autoComplete="email"
                                         />
                                         <InputGroupAddon align="inline-end">
-                                            <InputGroupText>@gmail.com</InputGroupText>
+                                            {form.getValues("email") && !form.getValues("email").endsWith("@") &&
+                                                <InputGroupText>@gmail.com</InputGroupText>}
                                         </InputGroupAddon>
                                     </InputGroup>
                                     {fieldState.invalid && (

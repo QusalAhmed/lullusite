@@ -3,7 +3,7 @@
 // Drizzle DB
 import db from "@/lib/drizzle-agent"
 import { categoriesTable } from "@/db/index.schema"
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 
 // Auth
 import getSession from "@/lib/get-session"
@@ -17,8 +17,11 @@ async function getCategory() {
         .findMany({
             with: {
                 image: true,
-                subCategories: true
+                subCategories: {
+                    orderBy: [asc(categoriesTable.name)],
+                }
             },
+            orderBy: [asc(categoriesTable.name)],
             where: eq(categoriesTable.userId, session.user.id)
         });
 }
