@@ -49,11 +49,8 @@ export function UserProfileForm({userProfile}: { userProfile: GetUserType }) {
         if (userProfile) {
             form.reset({
                 name: userProfile.name || "",
-                // // @ts-expect-error unavoidable as better-auth pre build column
                 // businessName: userProfile?.additionalInfo?.businessName || "",
-                // // @ts-expect-error unavoidable as better-auth pre build column
                 // details: userProfile?.additionalInfo?.details || "",
-                // // @ts-expect-error unavoidable as better-auth pre build column
                 // address: userProfile?.additionalInfo?.address || "",
             });
         }
