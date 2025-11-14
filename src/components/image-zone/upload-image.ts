@@ -1,5 +1,4 @@
-"use client";
-
+import React, { SetStateAction } from "react";
 import {
     ImageKitAbortError,
     ImageKitInvalidRequestError,
@@ -7,9 +6,11 @@ import {
     ImageKitUploadNetworkError,
     upload,
 } from "@imagekit/next";
-import { toast } from "sonner";
 import setImage from "@/actions/category/set-image";
 import getImage from "@/actions/category/get-image";
+
+// Type
+import type { ImageZoneType } from "@/types/image-zone";
 
 // Authentication helper for ImageKit
 const authenticator = async () => {
@@ -17,7 +18,7 @@ const authenticator = async () => {
         const response = await fetch("/api/upload-auth");
         if (!response.ok) {
             const errorText = await response.text();
-            toast.error(errorText || "Authentication failed");
+            return Promise.reject(new Error(`Authentication failed: ${errorText}`));
         }
 
         const data = await response.json();
@@ -29,7 +30,9 @@ const authenticator = async () => {
     }
 };
 
-export default async function uploadImage({ image }: { image: File }) {
+export default async function uploadImage(
+    { image, setImages }: { image: ImageZoneType, setImages?: React.Dispatch<SetStateAction<ImageZoneType[]>>; }
+) {
     try {
         // ✅ Generate hash for deduplication
         const arrayBuffer = await image.arrayBuffer();
@@ -40,8 +43,11 @@ export default async function uploadImage({ image }: { image: File }) {
         // ✅ Check if image with the same hash already exists
         const serverImage = await getImage({ hash: hash });
         if(serverImage.length >= 1) {
-            toast.success("Image uploaded successfully!");
-            return serverImage[0].id;
+            return {
+                success: true,
+                message: "Image already exists",
+                imageId: serverImage[0].id,
+            }
         }
 
         // ✅ Authenticate with ImageKit
@@ -56,7 +62,18 @@ export default async function uploadImage({ image }: { image: File }) {
             file: image,
             fileName: image.name,
             onProgress: (event) => {
-                console.log("Upload progress:", (event.loaded / event.total) * 100, "%");
+                if (setImages) {
+                    setImages((prevState) =>
+                        prevState.map((img) =>
+                            img.imageId === image.imageId
+                                ? {
+                                    ...img,
+                                    progress: Math.round((event.loaded / event.total) * 100),
+                                }
+                                : img
+                        )
+                    );
+                }
             },
         });
 
@@ -76,20 +93,22 @@ export default async function uploadImage({ image }: { image: File }) {
             hash,
         });
 
-        toast.success("Image uploaded successfully!");
-        return data[0].image_id;
+        return {
+            success: true,
+            message: "Image uploaded successfully",
+            imageId: data[0].image_id,
+        }
     } catch (error) {
         if (error instanceof ImageKitAbortError) {
-            toast.error("Upload aborted");
+            return { success: false, message: "Upload aborted by user" };
         } else if (error instanceof ImageKitInvalidRequestError) {
-            toast.error("Invalid request");
+            return { success: false, message: "Invalid upload request" };
         } else if (error instanceof ImageKitUploadNetworkError) {
-            toast.error("Network error");
+            return { success: false, message: "Network error during upload" };
         } else if (error instanceof ImageKitServerError) {
-            toast.error("Server error");
+            return { success: false, message: "Server error during upload" };
         } else {
-            toast.error("Unknown error occurred during upload");
+            return { success: false, message: "An unexpected error occurred" };
         }
-        console.error("Upload error:", error);
     }
 }

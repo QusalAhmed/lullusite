@@ -101,16 +101,16 @@ const data = {
             ],
         },
         {
-            title: "Store",
+            title: "Page",
             icon: Store,
             items: [
                 {
-                    title: "Manage Stores",
-                    url: "#",
+                    title: "Manage Page",
+                    url: "page",
                 },
                 {
                     title: "Add Landing Page",
-                    url: "#",
+                    url: "store/add-landing-page",
                 }
             ],
         },
@@ -118,6 +118,10 @@ const data = {
             title: "Settings",
             icon: Settings2,
             items: [
+                {
+                    title: "Profile",
+                    url: "profile",
+                },
                 {
                     title: "General",
                     url: "#",

@@ -41,7 +41,7 @@ export default function DeleteSubcategoryAlert(
                         {children}
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Add to library</p>
+                        <p>Delete</p>
                     </TooltipContent>
                 </Tooltip>
             </AlertDialogTrigger>

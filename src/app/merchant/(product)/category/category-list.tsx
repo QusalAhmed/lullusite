@@ -20,8 +20,8 @@ import {
 import { PiEmptyBold } from "react-icons/pi";
 
 // Local
-import NewCategoryDialog from "@/app/merchant/category/new-category-dialog";
-import SubCategoryDialog from "@/app/merchant/category/subcategory-dialog";
+import NewCategoryDialog from "@/app/merchant/(product)/category/new-category-dialog";
+import SubCategoryDialog from "@/app/merchant/(product)/category/subcategory-dialog";
 import SubcategoryList from "./subcategory-list";
 
 

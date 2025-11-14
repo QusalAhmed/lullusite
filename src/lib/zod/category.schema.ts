@@ -1,5 +1,4 @@
 import z from "zod"
-import {startCase} from "lodash";
 
 const categoryFormSchema = z.object({
     name: z
@@ -7,7 +6,9 @@ const categoryFormSchema = z.object({
         .min(1, "Must be at least 1 character.")
         .max(128, "Must be at most 128 characters.")
         .nonempty("Name is required.")
-        .transform((val) => startCase(val.toLowerCase())),
+        .transform((val) => (
+            val.trim().replace(/\b\w/g, char => char.toUpperCase())
+        )),
     description: z
         .string()
         .max(1024, "Description must be at most 100 characters.")

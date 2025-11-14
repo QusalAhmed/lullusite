@@ -10,28 +10,33 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 // Local
 import SubCategoryForm from "./sub-category-form"
 import getCategories from "@/actions/category/get-category";
 
 // Icon
-import { Edit } from "lucide-react";
+import { BadgePlus } from "lucide-react";
 
-export default async function UpdateSubcategoryDialog(
-    {defaultCategory, name, description, categoryId}: {
-        defaultCategory?: string,
-        name?: string,
-        description?: string,
-        categoryId?: string
-    }
-) {
+export default async function SubCategoryDialog({defaultCategory}: { defaultCategory?: string }) {
     const categories = await getCategories();
 
     return (
         <Dialog>
             <DialogTrigger>
-                <Edit size={16}/>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <BadgePlus size={16} className={'cursor-pointer'}/>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Add subcategory</p>
+                    </TooltipContent>
+                </Tooltip>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] px-0 md:px-2">
                 <DialogHeader>
@@ -42,15 +47,10 @@ export default async function UpdateSubcategoryDialog(
                 </DialogHeader>
 
                 {/* Scroll only the dialog body so header/footer remain visible */}
-                <ScrollArea className="max-h-[60vh]">
+                <ScrollArea className="max-h-[60vh]" >
                     <SubCategoryForm categories={categories.map(category => {
                         return {label: category.name, value: category.id}
-                    })}
-                                     defaultCategory={defaultCategory}
-                                     name={name}
-                                     description={description}
-                                     categoryId={categoryId}
-                    />
+                    })} defaultCategory={defaultCategory}/>
                 </ScrollArea>
             </DialogContent>
         </Dialog>

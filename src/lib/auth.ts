@@ -10,6 +10,15 @@ export const auth = betterAuth({
             ...schema,
         },
     }),
+    user: {
+        additionalFields: {
+            additionalInfo: {
+                type: "json",
+                required: false,
+                defaultValue: () => JSON.stringify({ businessName: "", address: "", details: "" })
+            },
+        },
+    },
     emailAndPassword: {
         enabled: true,
     },

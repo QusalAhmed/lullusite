@@ -15,6 +15,13 @@
       "when": 1762718075359,
       "tag": "0001_tough_cannonball",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1762830471779,
+      "tag": "0002_sticky_the_hood",
+      "breakpoints": true
     }
   ]
 }
