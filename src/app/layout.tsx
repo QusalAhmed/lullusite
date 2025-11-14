@@ -20,8 +20,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "Home",
-    description: "Lullu Site | Website builder and business automation",
+    title: "Lullu Site - Website Builder & Business Automation Platform",
+    description: "Build stunning websites and automate your business processes with Lullu Site. No coding required. Start your free trial today!",
 };
 
 export default function RootLayout({
