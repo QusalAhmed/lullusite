@@ -44,17 +44,17 @@ export function UserProfileForm({userProfile}: { userProfile: GetUserType }) {
         },
     })
 
-    useEffect(() => {
-        console.log(userProfile);
-        if (userProfile) {
-            form.reset({
-                name: userProfile.name || "",
-                // businessName: userProfile?.additionalInfo?.businessName || "",
-                // details: userProfile?.additionalInfo?.details || "",
-                // address: userProfile?.additionalInfo?.address || "",
-            });
-        }
-    }, [userProfile, form]);
+    // useEffect(() => {
+    //     console.log(userProfile);
+    //     if (userProfile) {
+    //         form.reset({
+    //             name: userProfile.name || "",
+    //             // businessName: userProfile?.additionalInfo?.businessName || "",
+    //             // details: userProfile?.additionalInfo?.details || "",
+    //             // address: userProfile?.additionalInfo?.address || "",
+    //         });
+    //     }
+    // }, [userProfile, form]);
 
     function onSubmit(data: z.infer<typeof userSchema>) {
         if (userProfile && data.name == userProfile.name) {
