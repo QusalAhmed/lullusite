@@ -265,7 +265,7 @@ export default function Home() {
                                         <p className="text-gray-400 text-sm">{item.title}</p>
                                     </div>
                                 </div>
-                                <p className="text-gray-300 italic">"{item.quote}"</p>
+                                <p className="text-gray-300 italic">&quot;{item.quote}&quot;</p>
                             </div>
                         ))}
                     </div>
@@ -304,9 +304,9 @@ export default function Home() {
                         <div>
                             <h4 className="text-white font-semibold mb-4">Product</h4>
                             <ul className="space-y-2">
-                                <li><a href="#features" className="text-gray-400 hover:text-indigo-400 transition-colors">Features</a></li>
-                                <li><a href="/merchant/dashboard" className="text-gray-400 hover:text-indigo-400 transition-colors">Dashboard</a></li>
-                                <li><a href="/store" className="text-gray-400 hover:text-indigo-400 transition-colors">Stores</a></li>
+                                <li><Link href="#features" className="text-gray-400 hover:text-indigo-400 transition-colors">Features</Link></li>
+                                <li><Link href="/merchant/dashboard" className="text-gray-400 hover:text-indigo-400 transition-colors">Dashboard</Link></li>
+                                <li><Link href="/store" className="text-gray-400 hover:text-indigo-400 transition-colors">Stores</Link></li>
                             </ul>
                         </div>
                         <div>
