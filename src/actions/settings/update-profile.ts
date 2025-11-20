@@ -9,7 +9,7 @@ import { eq } from "drizzle-orm"
 import { user } from "@/db/index.schema"
 
 // Zod schema
-import userSchema from "@/lib/zod/user.schema"
+import userSchema from "@/lib/validations/user.schema"
 
 // Auth
 import getSession from "@/lib/get-session"

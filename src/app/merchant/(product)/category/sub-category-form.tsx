@@ -8,7 +8,7 @@ import * as z from "zod"
 
 
 // Zod schema
-import subcategoryFormSchema from "@/lib/zod/subcategory.schema"
+import subcategoryFormSchema from "@/lib/validations/subcategory.schema"
 
 // Action
 import addSubCategory from "@/actions/category/add-subcategory"

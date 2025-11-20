@@ -36,7 +36,7 @@ export function NavMain({
         }[]
     }[]
 }) {
-    const pathname = usePathname().replace('/merchant/', '');
+    const pathname = usePathname();
 
     return (
         <SidebarGroup>

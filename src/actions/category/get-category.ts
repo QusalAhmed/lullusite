@@ -27,3 +27,6 @@ async function getCategory() {
 }
 
 export default getCategory;
+
+// Export type of getCategory
+export type GetCategoryType = Awaited<ReturnType<typeof getCategory>>;

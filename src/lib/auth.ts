@@ -11,6 +11,7 @@ export const auth = betterAuth({
         },
     }),
     user: {
+        // modelName: "merchant",
         additionalFields: {
             additionalInfo: {
                 type: "json",

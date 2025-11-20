@@ -1,7 +1,7 @@
 'use server';
 
 // Zod Schema
-import subcategorySchema from "@/lib/zod/subcategory.schema";
+import subcategorySchema from "@/lib/validations/subcategory.schema";
 
 // Zod
 import z from 'zod';

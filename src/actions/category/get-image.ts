@@ -3,7 +3,7 @@
 // db
 import { eq } from 'drizzle-orm'
 import db from '@/lib/drizzle-agent'
-import { imageTable } from "@/db/schema";
+import { imageTable } from "@/db/image.schema";
 
 async function getImage(data: { hash: string }) {
     return db.query.imageTable.findMany({

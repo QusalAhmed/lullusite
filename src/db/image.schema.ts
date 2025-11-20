@@ -2,7 +2,7 @@ import { integer, pgTable, text, uuid, varchar } from "drizzle-orm/pg-core";
 import { user } from "../../auth-schema";
 import timestamps from "@/db/columns.helpers";
 import { relations } from "drizzle-orm";
-import { categoriesTable } from "@/db/category.schema";
+import { categoriesTable, productImageTable } from "@/db/index.schema";
 
 export const imageTable = pgTable("image", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -24,9 +24,11 @@ export const imageTable = pgTable("image", {
     ...timestamps
 });
 
-export const imageRelations = relations(imageTable, ({ one }) => ({
+export const imageRelations = relations(imageTable, ({ one, many }) => ({
     category: one(categoriesTable, {
         fields: [imageTable.id],
         references: [categoriesTable.image]
-    })
+    }),
+    product: many(productImageTable),
+    // user: many(user)
 }));

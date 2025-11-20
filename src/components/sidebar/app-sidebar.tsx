@@ -48,7 +48,7 @@ const data = {
             items: [
                 {
                     title: "Dashboard",
-                    url: "dashboard",
+                    url: "/merchant/dashboard",
                 },
                 {
                     title: "Customers",
@@ -66,15 +66,15 @@ const data = {
             items: [
                 {
                     title: "Manage Product",
-                    url: "#",
+                    url: "/merchant/products",
                 },
                 {
                     title: "Add Product",
-                    url: "#",
+                    url: "/merchant/add-product",
                 },
                 {
                     title: "Category Management",
-                    url: "category",
+                    url: "/merchant/category",
                 },
             ],
         },
@@ -106,11 +106,11 @@ const data = {
             items: [
                 {
                     title: "Manage Page",
-                    url: "page",
+                    url: "/merchant/page",
                 },
                 {
                     title: "Add Landing Page",
-                    url: "store/add-landing-page",
+                    url: "/merchant/store/add-landing-page",
                 }
             ],
         },
@@ -120,7 +120,7 @@ const data = {
             items: [
                 {
                     title: "Profile",
-                    url: "profile",
+                    url: "/merchant/profile",
                 },
                 {
                     title: "General",

@@ -88,7 +88,12 @@ const CategoryList = async () => {
                                 </td>
 
                                 <td className="px-4 py-2 flex flex-col min-w-[300px]">
-                                    <div className={'font-semibold text-md dark:text-gray-100'}>{category.name}</div>
+                                    <div className={'font-semibold text-md dark:text-gray-100'}>
+                                        {category.name}
+                                        <span className='text-xs font-normal text-gray-500 dark:text-gray-400 ml-2'>
+                                            Modified at: {category.updatedAt.toLocaleString()}
+                                        </span>
+                                    </div>
                                     <div className="indent-3 mt-1">
                                         <div className={'flex items-center gap-1'}>
                                             <div className={'text-sm'}>Sub Categories:</div>

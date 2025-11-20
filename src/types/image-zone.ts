@@ -6,6 +6,7 @@ interface ImageZoneType extends File {
     progress: number;
     byteLength: number;
     status: 'pending' | 'uploading' | 'uploaded' | 'error';
+    identifier?: string;
 }
 
 export type { ImageZoneType };

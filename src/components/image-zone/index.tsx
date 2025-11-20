@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect, ReactNode } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, ReactNode } from 'react';
 import Dropzone from 'react-dropzone';
 
 // Type
@@ -8,10 +8,12 @@ import type { ImageZoneType } from "@/types/image-zone";
 import uploadImage from './upload-image';
 
 const ImageZone = (
-    {setImage, dropComponent, dragComponent}: {
+    {setImage, dropComponent, dragComponent, identifier, maxFiles}: {
         setImage: Dispatch<SetStateAction<ImageZoneType[]>>,
         dropComponent: ReactNode,
-        dragComponent: ReactNode
+        dragComponent: ReactNode,
+        identifier?: string,
+        maxFiles?: number,
     }
 ) => {
     const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -23,6 +25,7 @@ const ImageZone = (
                 status: 'pending',
                 byteLength: file.size,
                 preview: URL.createObjectURL(file),
+                identifier: identifier || '',
             } as ImageZoneType)
         );
 
@@ -30,7 +33,6 @@ const ImageZone = (
 
         // Start upload for each image
         newImages.forEach(async (image) => {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
             setImage((prevState) =>
                 prevState.map((img) =>
                     img.imageId === image.imageId ? {...img, status: 'uploading'} : img
@@ -63,20 +65,11 @@ const ImageZone = (
                 );
             }
         });
-    }, [setImage]);
-
-    useEffect(() => {
-        return () => {
-            setImage((images) => {
-                images.forEach((img) => URL.revokeObjectURL(img.preview));
-                return [];
-            });
-        };
-    }, [setImage]);
+    }, [setImage, identifier]);
 
 
     return (
-        <Dropzone onDrop={onDrop} accept={{'image/*': []}} maxFiles={1}>
+        <Dropzone onDrop={onDrop} accept={{'image/*': []}} maxFiles={maxFiles}>
             {({getRootProps, getInputProps, isDragActive}) => (
                 <section>
                     <div

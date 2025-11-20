@@ -11,7 +11,7 @@ import saveCategory from "@/actions/category/save-category"
 
 // Zod
 import * as z from "zod"
-import { categoryFormSchema as formSchema } from "@/lib/zod/category.schema"
+import { categoryFormSchema as formSchema } from "@/lib/validations/category.schema"
 
 // ShadCN
 import {

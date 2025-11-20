@@ -7,7 +7,7 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
-import userSchema from "@/lib/zod/user.schema"
+import userSchema from "@/lib/validations/user.schema"
 
 
 // ShadCN
@@ -44,17 +44,17 @@ export function UserProfileForm({userProfile}: { userProfile: GetUserType }) {
         },
     })
 
-    // useEffect(() => {
-    //     console.log(userProfile);
-    //     if (userProfile) {
-    //         form.reset({
-    //             name: userProfile.name || "",
-    //             // businessName: userProfile?.additionalInfo?.businessName || "",
-    //             // details: userProfile?.additionalInfo?.details || "",
-    //             // address: userProfile?.additionalInfo?.address || "",
-    //         });
-    //     }
-    // }, [userProfile, form]);
+    useEffect(() => {
+        console.log(userProfile);
+        if (userProfile) {
+            form.reset({
+                name: userProfile.name || "",
+                // businessName: userProfile?.additionalInfo?.businessName || "",
+                // details: userProfile?.additionalInfo?.details || "",
+                // address: userProfile?.additionalInfo?.address || "",
+            });
+        }
+    }, [userProfile, form]);
 
     function onSubmit(data: z.infer<typeof userSchema>) {
         if (userProfile && data.name == userProfile.name) {
@@ -181,8 +181,8 @@ export function UserProfileForm({userProfile}: { userProfile: GetUserType }) {
                 />
 
                 <Field orientation="horizontal">
-                    <Button type="submit" form="form-profile" className={'w-full'}>
-                        Update
+                    <Button type="submit" form="form-profile" className={'w-full'} disabled={form.formState.isSubmitting}>
+                        {form.formState.isSubmitting ? 'Updating...' : 'Update'}
                     </Button>
                 </Field>
             </FieldGroup>

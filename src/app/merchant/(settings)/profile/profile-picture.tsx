@@ -92,8 +92,8 @@ const ProfilePicture = () => {
                                     </div>
                                 )}
                                 {image.status === 'uploaded' && (
-                                    <div className={'flex items-center justify-center gap-1 font-semibold animate-accordion-down' +
-                                        ' animation-duration-700'}>
+                                    <div
+                                        className='flex items-center justify-center gap-1 font-semibold animate-accordion-down animation-duration-700'>
                                         <CloudUpload size={16}/>
                                         Uploaded
                                     </div>
@@ -110,7 +110,7 @@ const ProfilePicture = () => {
                             </div>
                             <Image
                                 src={image.preview}
-                                alt={image.name || 'Preview'}
+                                alt={image.name || 'User Image'}
                                 fill
                                 className={'object-cover'}
                             />

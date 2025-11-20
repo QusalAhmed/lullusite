@@ -1,3 +1,4 @@
-export * from "./category.schema";
 export * from "../../auth-schema";
-export * from "./schema"
+export * from "./category.schema";
+export * from "./image.schema"
+export * from "./product.schema"
