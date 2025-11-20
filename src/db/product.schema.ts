@@ -78,7 +78,6 @@ export const productVariationRelations = relations(productVariationTable, ({one}
 }));
 
 export const productVariationImageTable = pgTable("product_variation_image", {
-    id: uuid("id").primaryKey().defaultRandom(),
     productVariationId: uuid("product_variation_id")
         .notNull()
         .references(() => productVariationTable.id, {
@@ -94,3 +93,14 @@ export const productVariationImageTable = pgTable("product_variation_image", {
 
     ...timestamps,
 });
+
+export const productVariationImageRelations = relations(productVariationImageTable, ({one}) => ({
+    productVariation: one(productVariationTable, {
+        fields: [productVariationImageTable.productVariationId],
+        references: [productVariationTable.id],
+    }),
+    image: one(imageTable, {
+        fields: [productVariationImageTable.image],
+        references: [imageTable.id],
+    }),
+}));

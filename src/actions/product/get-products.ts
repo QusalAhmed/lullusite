@@ -20,6 +20,11 @@ export default async function getProducts(limit: number = 10) {
             },
             with: {
                 images: true,
+                variations: {
+                    with: {
+                        // image: true,
+                    },
+                }
             },
             where: eq(productTable.merchantId, session.user.id),
             limit: limit,
