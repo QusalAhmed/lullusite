@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import * as z from "zod";
-import { categoryFormSchema } from "@/lib/zod/category.schema";
+import { categoryFormSchema } from "@/lib/validations/category.schema";
 import { eq, and } from "drizzle-orm";
 import db from "@/lib/drizzle-agent";
 import { categoriesTable } from "@/db/index.schema";
