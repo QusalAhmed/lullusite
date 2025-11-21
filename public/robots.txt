@@ -1,0 +1,7 @@
+User-agent: *
+Disallow:
+
+# Crawl-delay: 10  # Uncomment if you want to slow crawlers
+Sitemap: https://lullusite.com/sitemap.xml
+Host: https://lullusite.com
+
