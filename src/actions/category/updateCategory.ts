@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import * as z from "zod";
 
 // Zod Schema
-import { categoryFormSchema } from "@/lib/zod/category.schema";
+import { categoryFormSchema } from "@/lib/validations/category.schema";
 
 // Drizzle
 import { eq, and, ne } from "drizzle-orm";

@@ -2,8 +2,8 @@
 
 // db
 import db from "@/lib/drizzle-agent";
-import {eq} from "drizzle-orm";
-import {productTable} from "@/db/product.schema";
+import { eq } from "drizzle-orm";
+import { productTable } from "@/db/product.schema";
 
 // Auth
 import getSession from "@/lib/get-session";
@@ -15,14 +15,31 @@ export default async function getProducts(limit: number = 10) {
         .query
         .productTable
         .findMany({
-            columns:{
+            columns: {
+                id: true,
                 name: true,
+                isActive: true,
             },
             with: {
-                images: true,
+                images: {
+                    columns: {
+                        image: true,
+                    }
+                },
                 variations: {
+                    columns: {
+                        id: true,
+                        name: true,
+                        sku: true,
+                        price: true,
+                    },
                     with: {
-                        // image: true,
+                        image: {
+                            columns: {
+                                productVariationId: true,
+                                image: true,
+                            }
+                        },
                     },
                 }
             },

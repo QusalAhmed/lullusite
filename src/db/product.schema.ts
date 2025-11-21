@@ -70,11 +70,8 @@ export const productVariationTable = pgTable("product_variation", {
     ...timestamps,
 });
 
-export const productVariationRelations = relations(productVariationTable, ({one}) => ({
-    product: one(productTable, {
-        fields: [productVariationTable.productId],
-        references: [productTable.id],
-    }),
+export const productVariationRelations = relations(productVariationTable, ({many}) => ({
+    image: many(productVariationImageTable),
 }));
 
 export const productVariationImageTable = pgTable("product_variation_image", {

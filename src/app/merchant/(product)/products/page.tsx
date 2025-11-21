@@ -1,16 +1,30 @@
-import React, {Suspense} from 'react';
+import { columns, Payment } from "./columns"
+import { DataTable } from "./product-table"
 
-// Local
-import ProductList from './product-table';
+async function getData(): Promise<Payment[]> {
+    // Fetch data from your API here.
+    return [
+        {
+            id: "728ed52f",
+            amount: 100,
+            status: "pending",
+            email: "m@example.com",
+        },
+        {
+            id: "829ed52f",
+            amount: 200,
+            status: "success",
+            email: "q@example.com",
+        }
+    ]
+}
 
-const ProductPage = () => {
+export default async function DemoPage() {
+    const data = await getData()
+
     return (
-        <div>
-            <Suspense fallback={<div>Loading products...</div>}>
-                <ProductList />
-            </Suspense>
+        <div className="container mx-auto py-10">
+            <DataTable columns={columns} data={data} />
         </div>
-    );
-};
-
-export default ProductPage;
+    )
+}
