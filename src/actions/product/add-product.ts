@@ -105,9 +105,10 @@ export default async function addProduct(data: z.infer<typeof productFormSchema>
                 productId,
                 name: variation.name,
                 sku: `${sku}-${variation.name}`,
-                price: variation.price,
-                stock: variation.stock,
-                weight: variation.weight,
+                price: variation.price || 0,
+                stock: variation.stock || -1,
+                weight: variation.weight || 0,
+                isActive: variation.isActive,
             }))
         )
         .returning({ variationId: productVariationTable.id })
