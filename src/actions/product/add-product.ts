@@ -1,5 +1,7 @@
 'use server'
 
+import { nanoid } from 'nanoid'
+
 // validation
 import productFormSchema from '@/lib/validations/product.schema'
 
@@ -31,7 +33,7 @@ export default async function addProduct(data: z.infer<typeof productFormSchema>
         subcategory,
         images,
         variations,
-        sellerSKU
+        sellerSKU: sellerSKU,
     } = validatedData
 
     // Check if seller SKU is unique
@@ -56,6 +58,9 @@ export default async function addProduct(data: z.infer<typeof productFormSchema>
         }
     }
 
+    // Generate base SKU
+    const sku = sellerSKU || nanoid()
+
     // Insert product
     const [product] = await db
         .insert(productTable)
@@ -69,7 +74,7 @@ export default async function addProduct(data: z.infer<typeof productFormSchema>
             category: category || undefined,
             subcategory: subcategory || undefined,
             tags: tags.map((tag) => tag.tag),
-            sellerSku: sellerSKU,
+            sellerSku: sku,
         })
         .returning({ productId: productTable.id })
 
@@ -101,7 +106,7 @@ export default async function addProduct(data: z.infer<typeof productFormSchema>
             variations.map(variation => ({
                 productId,
                 name: variation.name,
-                sku: `${sellerSKU || productId}-${variation.name}`,
+                sku: `${sku}-${variation.name}`,
                 price: variation.price,
                 stock: variation.stock,
                 weight: variation.weight,
