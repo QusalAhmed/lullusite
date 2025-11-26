@@ -1,7 +1,6 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 
 import { ColumnDef } from "@tanstack/react-table"
 
@@ -98,7 +97,7 @@ export const columns: ColumnDef<Products>[] = [
                                 return (
                                     /*Single Variation*/
                                     <div key={variation.id}
-                                         className="flex items-center justify-between gap-2 relative before:w-3 before:h-full before:absolute before:top-0 before:-left-4 before:border-l-3 before:border-b-3 before:-translate-y-1/2 before:rounded-bl-md before:border-amber-300 after:h-full after:absolute after:top-0 after:-left-4 after:border-l-3 after:-translate-y-11/12 after:w-3 after:border-amber-300"
+                                         className="flex items-center justify-between gap-2 relative before:w-3 before:h-full before:absolute before:top-0 before:-left-4 before:border-l-2 before:border-b-2 before:-translate-y-1/2 before:rounded-bl-md before:border-gray-400 after:h-full after:absolute after:top-0 after:-left-4 after:border-l-2 after:-translate-y-11/12 after:w-3 after:border-gray-400"
                                     >
                                         <div className={'flex items-center gap-2 z-10'}>
                                             <Image src={variationImage}
@@ -109,7 +108,7 @@ export const columns: ColumnDef<Products>[] = [
                                             />
                                             <div className={'flex flex-col gap-1'}>
                                                 <div className="font-semibold text-md">{variation.name}</div>
-                                                <div className={'flex flex-row justify-between text-sm'}>
+                                                <div className={'flex flex-row justify-between text-sm gap-2'}>
                                                     <Badge variant={variation.stock == 0 ? 'destructive' : 'secondary'}
                                                            className="px-2 py-1"
                                                     >
@@ -205,10 +204,11 @@ export const columns: ColumnDef<Products>[] = [
                             Copy product ID
                         </DropdownMenuItem>
                         <DropdownMenuSeparator/>
-                        <DropdownMenuItem>
-                            <Link href={`/merchant/edit-product/${product.id}`}>
-                                Edit
-                            </Link>
+                        <DropdownMenuItem onClick={() => {
+                            // Navigate to edit page
+                            window.location.href = `/merchant/edit-product/${product.id}`
+                        }}>
+                            Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem>Delete</DropdownMenuItem>
                     </DropdownMenuContent>

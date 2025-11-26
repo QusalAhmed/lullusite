@@ -14,7 +14,7 @@ import getSession from "@/lib/get-session";
 // db
 import db from '@/lib/drizzle-agent'
 import { productTable, productImageTable, productVariationTable, productVariationImageTable } from '@/db/product.schema'
-import { inArray } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 
 export default async function addProduct(data: z.infer<typeof productFormSchema>) {
     const session = await getSession()
@@ -38,22 +38,20 @@ export default async function addProduct(data: z.infer<typeof productFormSchema>
 
     // Check if seller SKU is unique
     if (sellerSKU) {
-        // Generate all potential SKUs that will be created
-        const potentialSKUs = variations.map(variation =>
-            `${sellerSKU}-${variation.name}`
-        )
+        const existingProduct = await db
+            .query
+            .productTable
+            .findFirst({
+                where: and(
+                    eq(productTable.merchantId, session.user.id),
+                    eq(productTable.sellerSku, sellerSKU)
+                ),
+            })
 
-        // Check if any of these SKUs already exist in the database
-        const existingSKUs = await db
-            .select({ sku: productVariationTable.sku })
-            .from(productVariationTable)
-            .where(inArray(productVariationTable.sku, potentialSKUs))
-
-        if (existingSKUs.length > 0) {
-            console.log('Duplicate sku')
+        if (existingProduct) {
             return {
                 success: false,
-                message: `SKU already exists: ${existingSKUs.map(s => s.sku).join(', ')}. Please use a different seller SKU.`
+                message: "Seller SKU must be unique. The provided SKU already exists."
             }
         }
     }

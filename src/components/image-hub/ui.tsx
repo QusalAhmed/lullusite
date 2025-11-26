@@ -25,8 +25,12 @@ import {
 } from "@/components/ui/accordion"
 import { Spinner } from "@/components/ui/spinner"
 
+// Types
+import { ReadyImage } from '@/types/image-hub';
+
 interface ImageFile {
     file?: File;
+    groupId?: string;
     hash: string;
     preview: string;
     serverInfo?: {
@@ -36,19 +40,12 @@ interface ImageFile {
     };
 }
 
-interface ReadyImage {
-    serverImageId: string;
-    hash: string;
-    previewURL: string;
-}
-
-
 function MyDropzone(
-    {readyImagesRef, maxFiles}: { readyImagesRef: React.RefObject<ReadyImage[]>, maxFiles?: number }
+    {readyImagesRef, maxFiles, groupId}: { readyImagesRef: React.RefObject<ReadyImage[]>, maxFiles?: number, groupId?: string }
 ) {
     const [files, setFiles] = useState<ImageFile[]>([]);
 
-    console.log('rendered dropzone');
+    console.log('rendered dropzone. group id: ', groupId);
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (maxFiles) {
@@ -71,13 +68,13 @@ function MyDropzone(
 
                 // check duplicates against the *latest* state
                 if (files.some(f => f.hash === hash)) {
-                    console.log(`Duplicate file detected: ${file.name}`);
-                    return;
+                    console.log(`Duplicate image detected: ${file.name}`);
                 }
 
                 setFiles(prevFiles => {
                     const fileWithMeta = Object.assign(file, {
                         file: file,
+                        groupId: groupId,
                         preview: URL.createObjectURL(file),
                         hash,
                         serverInfo: {
@@ -105,6 +102,7 @@ function MyDropzone(
                                     serverImageId: imageId,
                                     previewURL: previewURL,
                                     hash,
+                                    groupId: groupId,
                                 },
                             ];
 
@@ -132,7 +130,7 @@ function MyDropzone(
 
             reader.readAsArrayBuffer(file);
         });
-    }, [files, maxFiles, readyImagesRef]);
+    }, [files, groupId, maxFiles, readyImagesRef]);
 
     const {getRootProps, getInputProps, isDragActive, fileRejections} = useDropzone({
         onDrop,
@@ -189,6 +187,7 @@ function MyDropzone(
     useEffect(() => {
         setFiles(() => {
             const defaultFiles: ImageFile[] = readyImagesRef.current?.map((readyImage) => ({
+                groupId: readyImage.groupId,
                 hash: readyImage.hash,
                 preview: readyImage.previewURL,
                 serverInfo: {
@@ -221,54 +220,55 @@ function MyDropzone(
             <aside>
                 <h4 className="mt-4 mb-2 font-semibold">File Preview</h4>
                 <div className="flex flex-wrap">
-                    {files.map((file) => (
-                        <div key={file.hash} className="p-2 rounded wrap-anywhere">
-                            <ImageDialog imageSrc={file.preview} imageAlt='Preview Image'>
-                                <div className="relative">
-                                    <Image
-                                        src={file.preview}
-                                        alt='Preview Image'
-                                        width={80}
-                                        height={80}
-                                        loading="eager"
-                                        className="object-cover mb-2 rounded-md overflow-hidden cursor-zoom-in"
-                                    />
-                                    {file.serverInfo?.status === 'uploading' && (
-                                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center rounded-md">
-                                            <div className="flex flex-col items-center">
-                                                <Spinner className="text-white size-8 mb-2"/>
-                                                <div className="text-white text-sm">
-                                                    {file.serverInfo?.progress}%
+                    {files.filter(file => file.groupId === groupId)
+                        .map((file) => (
+                            <div key={file.hash} className="p-2 rounded wrap-anywhere">
+                                <ImageDialog imageSrc={file.preview} imageAlt='Preview Image'>
+                                    <div className="relative">
+                                        <Image
+                                            src={file.preview}
+                                            alt={file.file?.name || 'Uploaded Image'}
+                                            width={80}
+                                            height={80}
+                                            loading="eager"
+                                            className="object-cover mb-2 rounded-md overflow-hidden cursor-zoom-in"
+                                        />
+                                        {file.serverInfo?.status === 'uploading' && (
+                                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center rounded-md">
+                                                <div className="flex flex-col items-center">
+                                                    <Spinner className="text-white size-8 mb-2"/>
+                                                    <div className="text-white text-sm">
+                                                        {file.serverInfo?.progress}%
+                                                    </div>
                                                 </div>
                                             </div>
+                                        )}
+                                        {file.serverInfo?.status === 'pending' && (
+                                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center rounded-md">
+                                                <Spinner className={'size-8 text-white'}/>
+                                            </div>
+                                        )}
+                                        {file.serverInfo?.status === 'error' && (
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-md">
+                                                <AlertCircleIcon className="text-rose-500 size-6"/>
+                                            </div>
+                                        )}
+                                        <div className="absolute top-0 right-0">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="rounded-full cursor-pointer"
+                                                onClick={() => {
+                                                    removeImage(file)
+                                                }}
+                                            >
+                                                <X color={'red'}/>
+                                            </Button>
                                         </div>
-                                    )}
-                                    {file.serverInfo?.status === 'pending' && (
-                                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center rounded-md">
-                                            <Spinner className={'size-8 text-white'} />
-                                        </div>
-                                    )}
-                                    {file.serverInfo?.status === 'error' && (
-                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-md">
-                                            <AlertCircleIcon className="text-rose-500 size-6"/>
-                                        </div>
-                                    )}
-                                    <div className="absolute top-0 right-0">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="rounded-full cursor-pointer"
-                                            onClick={() => {
-                                                removeImage(file)
-                                            }}
-                                        >
-                                            <X color={'red'}/>
-                                        </Button>
                                     </div>
-                                </div>
-                            </ImageDialog>
-                        </div>
-                    ))}
+                                </ImageDialog>
+                            </div>
+                        ))}
                 </div>
                 {fileRejectionItems.length > 0 && (
                     <div className="mt-2">

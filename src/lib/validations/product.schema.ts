@@ -38,6 +38,9 @@ const productFormSchema = z
             .max(100, "Seller SKU must be at most 100 characters."),
         variations: z.array(
             z.object({
+                id: z
+                    .string()
+                    .optional(),
                 name: z
                     .string()
                     .min(1, "Variation name must be at least 1 characters. Remove empty variation")
@@ -54,8 +57,7 @@ const productFormSchema = z
                     z.string()
                 ).min(1, "At least one image is required for each variation."),
                 isActive: z
-                    .boolean()
-                    .optional(),
+                    .boolean(),
             })
         ).min(1, "At least one variation is required."),
     })

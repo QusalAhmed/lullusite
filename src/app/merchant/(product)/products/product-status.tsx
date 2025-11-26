@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 
 // Action
-import toggleVariationStatus from '@/actions/product/toggle-variation-status';
+import toggleVariationStatus from '@/app/merchant/(product)/products/toggle-variation-status';
 
 const ProductStatus = (
     {isActive, variationId}: {isActive: boolean, variationId: string}

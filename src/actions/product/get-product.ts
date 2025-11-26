@@ -22,6 +22,8 @@ export default async function getProduct(productId: string) {
                             columns: {
                                 id: true,
                                 thumbnailUrl: true,
+                                url: true,
+                                hash: true,
                             },
                         },
                     },
@@ -34,6 +36,8 @@ export default async function getProduct(productId: string) {
                                     columns: {
                                         id: true,
                                         thumbnailUrl: true,
+                                        url: true,
+                                        hash: true,
                                     },
                                 },
                             },

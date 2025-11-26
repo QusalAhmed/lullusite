@@ -1,12 +1,11 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useRef } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { useRouter } from "next/navigation";
 
 // Form
-import ImageZone from "@/components/image-zone";
+import MyDropzone from "@/components/image-hub/ui";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm, useFieldArray } from "react-hook-form"
 import { toast } from "sonner"
@@ -15,11 +14,11 @@ import * as z from "zod"
 // Actions
 import getCategory from "@/actions/category/get-category"
 import addProduct from "@/actions/product/add-product"
+import updateProduct from "@/actions/product/update-product"
 
 // Type
 import type { GetCategoryType } from "@/actions/category/get-category"
-import type { ImageZoneType } from "@/types/image-zone"
-import type {ProductType} from "@/actions/product/get-product"
+import type { ProductType } from "@/actions/product/get-product"
 
 // Validations
 import productFormSchema from "@/lib/validations/product.schema"
@@ -58,23 +57,37 @@ import {
     DropdownMenuRadioItem,
     DropdownMenuItem
 } from "@/components/ui/dropdown-menu"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
 // Icon
-import { ChevronDown, XIcon } from "lucide-react"
+import { ChevronDown, XIcon, MousePointerClick } from "lucide-react"
 
-export default function ProductForm({product}: {product?: ProductType}) {
+// Type
+import { ReadyImage } from "@/types/image-hub";
+
+// Type alias for form values
+type ProductFormValues = z.infer<typeof productFormSchema>;
+
+export default function ProductForm({product}: { product?: ProductType }) {
     // Categories list
     const [categories, setCategories] = useState<GetCategoryType>()
     // We store the selected subcategory ID (not the label) to submit to backend
     const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string>(product?.subcategory || "")
     // When there is no subcategory, allow selecting the main category id
     const [selectedCategoryId, setSelectedCategoryId] = useState<string>(product?.category || "")
-    // Image
-    const [images, setImages] = useState<ImageZoneType[]>([])
     // Router
     const router = useRouter();
+    // Image
+    const mainImageRef = useRef<ReadyImage[]>(
+        product ? product.images.map(img => ({
+            serverImageId: img.image.id,
+            previewURL: img.image.thumbnailUrl,
+            hash: img.image.hash,
+        } as ReadyImage)) : []
+    );
 
-    const form = useForm<z.infer<typeof productFormSchema>>({
+    const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
         defaultValues: {
             name: product?.name || "",
@@ -84,16 +97,18 @@ export default function ProductForm({product}: {product?: ProductType}) {
             category: product?.category || "",
             subcategory: product?.subcategory || "",
             sellerSKU: product?.sellerSku || "",
-            tags: product?.tags?.map(tag => ({ tag })) || [],
+            tags: product?.tags?.map(tag => ({tag})) || [],
             youtubeVideoLink: product?.youtubeVideoLink || "",
             seoDescription: product?.seoDescription || "",
-            variations: product?.variations.map(variation => ({
+            variations: (product?.variations.map(variation => ({
+                id: variation.id,
                 name: variation.name,
+                isActive: variation.isActive,
                 price: variation.price,
                 stock: variation.stock,
                 weight: variation.weight,
                 image: variation.images.map(img => img.image.id) || [],
-            })) || [{name: "", price: 0, stock: 0, weight: 0, image: []}],
+            })) || [{name: "", isActive: true, price: 0, stock: 0, weight: 0, image: []}]),
         },
     })
 
@@ -106,6 +121,20 @@ export default function ProductForm({product}: {product?: ProductType}) {
         control: form.control,
         name: "variations",
     })
+
+    // Update variationImageRef using variationFields id
+    const variationImageRef = useRef<ReadyImage[]>(
+        product
+            ? product.variations.flatMap((variation, index) =>
+                variation.images.map(img => ({
+                    groupId: variationFields[index]?.id,
+                    serverImageId: img.image.id,
+                    previewURL: img.image.thumbnailUrl,
+                    hash: img.image.hash,
+                } as ReadyImage))
+            )
+            : []
+    );
 
     // Helper to fetch categories
     const refreshCategories = () => {
@@ -124,45 +153,6 @@ export default function ProductForm({product}: {product?: ProductType}) {
         form.register("category")
     }, [form]);
 
-    useEffect(() => {
-        console.log('Images: ', images);
-
-        // Clear all duplicate images based on serverImageId from images state
-        const uniqueImagesMap = new Map<string, ImageZoneType>();
-        images.forEach(image => {
-            if (image.serverImageId) {
-                uniqueImagesMap.set(image.serverImageId, image);
-            }
-        });
-
-        // Map images to fields based on identifier
-        images.forEach(image => {
-            const identifier = image.identifier;
-            if (identifier && image.status === 'uploaded' && image.serverImageId) {
-                // Set to main product image
-                if (identifier === "main-product-image") {
-                    const currentImages: string[] = form.getValues("images") || [];
-                    form.setValue("images", [
-                        ...new Set([...currentImages, image.serverImageId])
-                    ]);
-                    // Trigger form validation
-                    form.trigger("images").then(r => console.log("Triggered image validation:", r));
-                    return;
-                }
-
-                // Find the index of the variation with matching field.id
-                const variationIndex = variationFields.findIndex(field => field.id === identifier);
-                if (variationIndex !== -1) {
-                    const currentImages: string[] = form.getValues(`variations.${variationIndex}.image`) || [];
-                    // Update the form value for that variation's image field
-                    form.setValue(`variations.${variationIndex}.image`, [
-                        ...new Set([...currentImages, image.serverImageId])
-                    ]);
-                }
-            }
-        });
-    }, [images, form, variationFields]);
-
     // Resolve the label to show in trigger from selected ID
     const selectedSubcategoryLabel = useMemo(() => {
         if (!categories) return ""
@@ -179,29 +169,58 @@ export default function ProductForm({product}: {product?: ProductType}) {
         return ""
     }, [categories, selectedSubcategoryId, selectedCategoryId])
 
-    function onSubmit(data: z.infer<typeof productFormSchema>) {
-        console.log("Form submitted:", data)
-        addProduct(data)
-            .then((response) => {
+    async function onSubmit(data: ProductFormValues) {
+        if (product) {
+            // Add product id with data
+            const revisedData = {...data, id: product.id};
+
+            try {
+                const response = await updateProduct(revisedData);
                 if (response.success) {
-                    toast.success("Product added successfully!")
-                    setTimeout(() => {
-                        router.push('add-product/success/' + response.productId);
-                    }, 1000);
-                }
-                else
-                    toast.error(response.message || "Failed to add product. Please try again.")
-            })
-            .catch((error) => {
-                console.error("Error adding product:", error)
-                toast.error(
-                    error?.message || "Failed to add product. Please try again."
-                )
-            })
+                    toast.success("Product updated successfully!")
+                    // setTimeout(() => {
+                    //     router.push('/merchant/add-product/success/' + product.id);
+                    // }, 100);
+                } else
+                    toast.error(response.message || "Failed to update product. Please try again.")
+            } catch {
+                toast.error('An unexpected error occurred. Please try again.')
+            }
+
+            return;
+        }
+        const response = await addProduct(data);
+        if (response.success) {
+            toast.success("Product added successfully!")
+            setTimeout(() => {
+                router.push('/merchant/add-product/success/' + response.productId);
+            }, 100);
+        } else
+            toast.error(response.message || "Failed to add product. Please try again.")
+    }
+
+    const fillVariationImage = () => {
+        variationFields.forEach((field, index) => {
+            const imagesForThisVariation = variationImageRef.current
+                .filter(img => img.groupId === field.id)
+                .map(img => img.serverImageId!);
+            form.setValue(`variations.${index}.image`, imagesForThisVariation, {
+                shouldValidate: true,
+                shouldDirty: true
+            });
+        });
+    }
+
+    const fillMainImages = () => {
+        const mainImages = mainImageRef.current.map(img => img.serverImageId!);
+        form.setValue("images", mainImages, {
+            shouldValidate: true,
+            shouldDirty: true
+        });
     }
 
     return (
-        <form id="form-add-product" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="form-add-product">
             <FieldGroup>
                 <Controller
                     name="name"
@@ -286,63 +305,7 @@ export default function ProductForm({product}: {product?: ProductType}) {
                                 autoComplete="off"
                                 type='hidden'
                             />
-                            {images.length > 0 && (
-                                <aside className="mb-4">
-                                    <div className={'flex flex-row items-start justify-start gap-2 flex-wrap'}>
-                                        {images.filter(img => img.identifier === "main-product-image").map((img) => (
-                                            <div key={img.imageId}
-                                                 className="relative w-24 h-24 border rounded-md overflow-hidden">
-                                                <Image
-                                                    src={img.preview}
-                                                    alt="Main Product Image"
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    className="absolute top-1 right-1 bg-white rounded-full p-1 hover:bg-red-100"
-                                                    onClick={() => {
-                                                        // Remove image from state
-                                                        setImages((prevImages) =>
-                                                            prevImages.filter((image) => image.imageId !== img.imageId)
-                                                        );
-                                                        // Also remove from form values
-                                                        const currentImages: string[] = form.getValues("images") || [];
-                                                        form.setValue(
-                                                            "images",
-                                                            currentImages.filter((imageId) => imageId !== img.serverImageId)
-                                                        );
-                                                    }}
-                                                >
-                                                    <XIcon className="w-4 h-4 text-red-500"/>
-                                                </button>
-                                                {img.status === 'uploading' && (
-                                                    <div
-                                                        className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 animate-pulse"/>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </aside>
-                            )}
-                            <ImageZone
-                                setImage={setImages}
-                                dropComponent={
-                                    <div
-                                        className="p-4 border-2 border-dashed border-gray-300 rounded-md text-center text-gray-500"
-                                    >
-                                        Drag & drop images here, or click to select files
-                                    </div>
-                                }
-                                dragComponent={
-                                    <div
-                                        className="p-4 border-2 border-dashed border-blue-300 rounded-md text-center text-blue-500 bg-blue-50"
-                                    >
-                                        Drop images to upload
-                                    </div>
-                                }
-                                identifier="main-product-image"
-                            />
+                            <MyDropzone readyImagesRef={mainImageRef}/>
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]}/>
                             )}
@@ -595,6 +558,7 @@ export default function ProductForm({product}: {product?: ProductType}) {
                                 id="form-youtube-video-link"
                                 aria-invalid={fieldState.invalid}
                                 placeholder="seller sku"
+                                disabled={!!product}
                             />
                             <FieldDescription>
                                 Seller unique sku
@@ -612,7 +576,14 @@ export default function ProductForm({product}: {product?: ProductType}) {
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => variationAppend({name: "", price: 0, stock: 0, weight: 0, image: []})}
+                            onClick={() => variationAppend({
+                                name: "",
+                                isActive: true,
+                                price: 0,
+                                stock: 0,
+                                weight: 0,
+                                image: []
+                            })}
                         >
                             Add Variation
                         </Button>
@@ -652,6 +623,28 @@ export default function ProductForm({product}: {product?: ProductType}) {
                                                 aria-invalid={fieldState.invalid}
                                                 placeholder="e.g., Small, Red, 100ml"
                                             />
+                                            {fieldState.invalid && (
+                                                <FieldError errors={[fieldState.error]}/>
+                                            )}
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    name={`variations.${index}.isActive`}
+                                    control={form.control}
+                                    render={({field: controllerField, fieldState}) => (
+                                        <Field data-invalid={fieldState.invalid} orientation={'horizontal'}>
+                                            <Switch
+                                                {...controllerField}
+                                                id={`form-variation-isActive-${index}`}
+                                                aria-invalid={fieldState.invalid}
+                                                value={1}
+                                                checked={controllerField.value}
+                                                onCheckedChange={(checked) => controllerField.onChange(checked)}
+                                                className='data-[state=unchecked]:bg-red-500 data-[state=checked]:bg-green-500 cursor-pointer'
+                                            />
+                                            <Label htmlFor={`form-variation-isActive-${index}`}>Active</Label>
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]}/>
                                             )}
@@ -741,65 +734,14 @@ export default function ProductForm({product}: {product?: ProductType}) {
                                     name={`variations.${index}.image`}
                                     control={form.control}
                                     render={({fieldState}) => (
-                                        <Field data-invalid={fieldState.invalid} orientation="responsive" className="col-span-full">
+                                        <Field data-invalid={fieldState.invalid} className="col-span-full">
                                             <FieldLabel htmlFor={`form-variation-image-${index}`}>
                                                 Image
                                             </FieldLabel>
-                                            {images.length > 0 && (
-                                                <aside className="mb-4">
-                                                    <div className={'flex flex-row items-start justify-start gap-2 flex-wrap'}>
-                                                        {images.filter(img => img.identifier === field.id).map((img) => (
-                                                            <div key={img.imageId}
-                                                                 className="relative w-24 h-24 border rounded-md overflow-hidden">
-                                                                <Image
-                                                                    src={img.preview}
-                                                                    alt="Variation Image"
-                                                                    fill
-                                                                    className="object-cover"
-                                                                />
-                                                                <button
-                                                                    type="button"
-                                                                    className="absolute top-1 right-1 bg-white rounded-full p-1 hover:bg-red-100"
-                                                                    onClick={() => {
-                                                                        // Remove image from state
-                                                                        setImages((prevImages) =>
-                                                                            prevImages.filter((image) => image.imageId !== img.imageId)
-                                                                        );
-                                                                        // Also remove from form values
-                                                                        const currentImages: string[] = form.getValues(`variations.${index}.image`) || [];
-                                                                        form.setValue(
-                                                                            `variations.${index}.image`,
-                                                                            currentImages.filter((imageId) => imageId !== img.serverImageId)
-                                                                        );
-                                                                    }}
-                                                                >
-                                                                    <XIcon className="w-4 h-4 text-red-500"/>
-                                                                </button>
-                                                                {img.status === 'uploading' && (
-                                                                    <div
-                                                                        className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 animate-pulse"/>
-                                                                )}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </aside>
-                                            )}
-                                            <ImageZone
-                                                setImage={setImages}
-                                                dropComponent={
-                                                    <div
-                                                        className="p-4 border-2 border-dashed border-gray-300 rounded-md text-center text-gray-500">
-                                                        Drag & drop images here, or click to select files
-                                                    </div>
-                                                }
-                                                dragComponent={
-                                                    <div
-                                                        className="p-4 border-2 border-dashed border-blue-300 rounded-md text-center text-blue-500 bg-blue-50">
-                                                        Drop images to upload
-                                                    </div>
-                                                }
-                                                identifier={field.id}
-                                                maxFiles={1}
+                                            <MyDropzone
+                                                readyImagesRef={variationImageRef}
+                                                maxFiles={8}
+                                                groupId={field.id}
                                             />
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]}/>
@@ -815,12 +757,18 @@ export default function ProductForm({product}: {product?: ProductType}) {
                     )}
                 </FieldSet>
                 <Field orientation="horizontal">
-                    <Button type="submit"
+                    <Button type="button"
                             form="form-add-product"
                             disabled={form.formState.isSubmitting}
                             className="w-full cursor-pointer"
-                            variant="outline"
+                            variant="default"
+                            onClick={() => {
+                                fillMainImages();
+                                fillVariationImage();
+                                form.handleSubmit(onSubmit)();
+                            }}
                     >
+                        <MousePointerClick/>
                         {form.formState.isSubmitting ? "Submitting..." : product ? "Update Product" : "Add Product"}
                     </Button>
                 </Field>
