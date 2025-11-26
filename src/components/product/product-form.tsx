@@ -108,7 +108,7 @@ export default function ProductForm({product}: { product?: ProductType }) {
                 stock: variation.stock,
                 weight: variation.weight,
                 image: variation.images.map(img => img.image.id) || [],
-            })) || [{name: "", isActive: true, price: 0, stock: 0, weight: 0, image: []}]),
+            })) || [{name: "", isActive: true, price: null, stock: null, weight: null, image: []}]),
         },
     })
 
@@ -178,9 +178,9 @@ export default function ProductForm({product}: { product?: ProductType }) {
                 const response = await updateProduct(revisedData);
                 if (response.success) {
                     toast.success("Product updated successfully!")
-                    // setTimeout(() => {
-                    //     router.push('/merchant/add-product/success/' + product.id);
-                    // }, 100);
+                    setTimeout(() => {
+                        router.push('/merchant/products');
+                    }, 100);
                 } else
                     toast.error(response.message || "Failed to update product. Please try again.")
             } catch {
@@ -579,9 +579,9 @@ export default function ProductForm({product}: { product?: ProductType }) {
                             onClick={() => variationAppend({
                                 name: "",
                                 isActive: true,
-                                price: 0,
-                                stock: 0,
-                                weight: 0,
+                                price: null,
+                                stock: null,
+                                weight: null,
                                 image: []
                             })}
                         >
@@ -668,7 +668,11 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                                 min="0"
                                                 aria-invalid={fieldState.invalid}
                                                 placeholder="0.00"
-                                                onChange={(e) => controllerField.onChange(parseInt(e.target.value) || 0)}
+                                                value={controllerField.value ?? ""}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    controllerField.onChange(val === "" ? null : parseFloat(val));
+                                                }}
                                             />
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]}/>
@@ -693,7 +697,11 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                                 min="-1"
                                                 aria-invalid={fieldState.invalid}
                                                 placeholder="Stock quantity"
-                                                onChange={(e) => controllerField.onChange(parseInt(e.target.value) || '')}
+                                                value={controllerField.value ?? ""}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    controllerField.onChange(val === "" ? null : parseInt(val));
+                                                }}
                                             />
                                             <FieldDescription>
                                                 Set stock -1 for unlimited stock
@@ -721,7 +729,11 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                                 min="0"
                                                 aria-invalid={fieldState.invalid}
                                                 placeholder="0.00"
-                                                onChange={(e) => controllerField.onChange(parseFloat(e.target.value) || 0)}
+                                                value={controllerField.value ?? ""}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    controllerField.onChange(val === "" ? null : parseFloat(val));
+                                                }}
                                             />
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]}/>

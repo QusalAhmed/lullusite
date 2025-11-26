@@ -47,12 +47,18 @@ const productFormSchema = z
                     .max(100, "Variation name must be at most 100 characters."),
                 price: z
                     .number('Price must be a number.')
-                    .min(0, "Price must be at least 0."),
+                    .min(0, "Price must be at least 0.")
+                    .nullable()
+                    .refine((val) => val !== null, {message: "Price is required."}),
                 stock: z
-                    .number('Stock must be a number.'),
+                    .number('Stock must be a number.')
+                    .nullable()
+                    .refine((val) => val !== null, {message: "Stock is required."}),
                 weight: z
                     .number('Weight must be a number.')
-                    .min(0, "Weight must be at least 0."),
+                    .min(0.01, "Weight must be at least 0.01")
+                    .nullable()
+                    .refine((val) => val !== null, {message: "Weight is required."}),
                 image: z.array(
                     z.string()
                 ).min(1, "At least one image is required for each variation."),

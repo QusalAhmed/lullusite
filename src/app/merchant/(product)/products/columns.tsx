@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 
 import { ColumnDef } from "@tanstack/react-table"
 
@@ -113,7 +114,12 @@ export const columns: ColumnDef<Products>[] = [
                                                            className="px-2 py-1"
                                                     >
                                                         <span className={'font-light'}>Stock: </span>
-                                                        <span className={'font-semibold'}>{variation.stock}</span>
+                                                        <span className={'font-semibold'}>
+                                                            {variation.stock === -1 ?
+                                                                <span className={'text-emerald-400'}>Unlimited</span> :
+                                                                variation.stock
+                                                            }
+                                                        </span>
                                                     </Badge>
                                                     <Badge variant="secondary" className="px-2 py-1">
                                                         <span className={'text-gray-500'}>Price: </span>
@@ -162,8 +168,8 @@ export const columns: ColumnDef<Products>[] = [
             return (
                 <div className='flex flex-col gap-2'>
                     {minPrice === maxPrice
-                        ? `$${minPrice.toFixed(2)}`
-                        : `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`}
+                        ? `${minPrice.toFixed(2)}`
+                        : `${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`}
                 </div>
             )
         },
@@ -204,11 +210,10 @@ export const columns: ColumnDef<Products>[] = [
                             Copy product ID
                         </DropdownMenuItem>
                         <DropdownMenuSeparator/>
-                        <DropdownMenuItem onClick={() => {
-                            // Navigate to edit page
-                            window.location.href = `/merchant/edit-product/${product.id}`
-                        }}>
-                            Edit
+                        <DropdownMenuItem asChild>
+                            <Link href={`/merchant/edit-product/${product.id}`}>
+                                Edit
+                            </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem>Delete</DropdownMenuItem>
                     </DropdownMenuContent>

@@ -67,8 +67,14 @@ function MyDropzone(
                 const hash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 
                 // check duplicates against the *latest* state
-                if (files.some(f => f.hash === hash)) {
-                    console.log(`Duplicate image detected: ${file.name}`);
+                const isDuplicate = groupId
+                    ? files.some(f => f.hash === hash && f.groupId === groupId)
+                    : files.some(f => f.hash === hash);
+
+                if (isDuplicate) {
+                    console.log(`Duplicate file detected: ${file.name}`);
+                    toast.warning(`Duplicate file skipped: ${file.name}`);
+                    return;
                 }
 
                 setFiles(prevFiles => {

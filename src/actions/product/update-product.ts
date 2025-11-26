@@ -1,5 +1,7 @@
 'use server'
 
+import { revalidatePath } from "next/cache";
+
 // Auth
 import getSession from "@/lib/get-session";
 
@@ -212,6 +214,8 @@ export default async function updateProduct(data: z.infer<typeof updateProductSc
                 }
             }
         }
+
+        revalidatePath(`/merchant/products`)
 
         return {
             success: true,
