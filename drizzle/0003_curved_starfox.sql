@@ -1,0 +1,1 @@
+ALTER TABLE "product_variation" ALTER COLUMN "sku" SET NOT NULL;

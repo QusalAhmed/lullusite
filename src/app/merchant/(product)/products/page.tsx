@@ -1,30 +1,28 @@
-import { columns, Payment } from "./columns"
-import { DataTable } from "./product-table"
+import React from 'react';
+import Link from 'next/link';
 
-async function getData(): Promise<Payment[]> {
-    // Fetch data from your API here.
-    return [
-        {
-            id: "728ed52f",
-            amount: 100,
-            status: "pending",
-            email: "m@example.com",
-        },
-        {
-            id: "829ed52f",
-            amount: 200,
-            status: "success",
-            email: "q@example.com",
-        }
-    ]
-}
+// Local
+import ProductTable from './product-table';
 
-export default async function DemoPage() {
-    const data = await getData()
+// ShadCN
+import { Button } from '@/components/ui/button';
 
+const ProductsPage = () => {
     return (
-        <div className="container mx-auto py-10">
-            <DataTable columns={columns} data={data} />
+        <div>
+            <div className="flex items-center justify-between mb-6">
+                <h1 className="text-2xl font-bold mb-4">Manage Products</h1>
+                <div>
+                    <Link href="/merchant/add-product">
+                        <Button variant="default">
+                            Add New Product
+                        </Button>
+                    </Link>
+                </div>
+            </div>
+            <ProductTable/>
         </div>
-    )
-}
+    );
+};
+
+export default ProductsPage;

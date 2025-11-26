@@ -1,0 +1,37 @@
+import React from 'react';
+import Image from 'next/image';
+
+// ShadCN
+import {
+    Dialog,
+    DialogContent,
+    DialogTrigger,
+    DialogTitle,
+    DialogDescription
+} from "@/components/ui/dialog"
+
+const ImageDialog = (
+    {children, imageSrc, imageAlt}: { children: React.ReactNode, imageSrc: string, imageAlt: string }
+) => {
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                {children}
+            </DialogTrigger>
+            <DialogContent className="p-0 overflow-hidden max-w-3xl max-h-[80vh]">
+                <DialogTitle className="sr-only">{imageAlt}</DialogTitle>
+                <DialogDescription className="w-full h-full flex justify-center items-center">
+                    <Image
+                        src={imageSrc}
+                        alt={imageAlt}
+                        width={600}
+                        height={600}
+                        className="max-w-full max-h-full object-contain"
+                    />
+                </DialogDescription>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+export default ImageDialog;

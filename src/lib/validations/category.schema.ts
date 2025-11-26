@@ -5,7 +5,6 @@ const categoryFormSchema = z.object({
         .string()
         .min(1, "Must be at least 1 character.")
         .max(128, "Must be at most 128 characters.")
-        .nonempty("Name is required.")
         .transform((val) => (
             val.trim().replace(/\b\w/g, char => char.toUpperCase())
         )),

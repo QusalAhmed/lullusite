@@ -39,6 +39,8 @@ export default async function saveCategory(
         return { error: "Category with this name already exists." };
     }
 
+    // Logic to delete old image if not used
+
     // Update category
     const updateData = await db
         .update(categoriesTable)

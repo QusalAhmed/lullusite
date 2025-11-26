@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useRef, useCallback } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 // Local
-import DropZone from "@/components/upload-file/ui"
+import MyDropzone from "@/components/image-hub/ui"
 import updateCategory from "@/actions/category/updateCategory"
 
 // Zod
@@ -30,27 +30,35 @@ import {
 } from "@/components/ui/input-group"
 import { Button } from "@/components/ui/button"
 
+// Types
+import type { ReadyImage } from "@/types/image-hub";
+
 
 export default function UpdateCategoryForm(
-    {name, description, image, categoryId}: { name: string, description: string, image: string, categoryId: string }
+    {
+        name, description, image, categoryId, closeDialogAction
+    }: {
+        name: string,
+        description: string,
+        image?: ReadyImage,
+        categoryId: string,
+        closeDialogAction: () => void,
+    }
 ) {
-    const [imageUrl, setImageUrl] = useState<string>(image || "");
+    const imageRef = useRef<ReadyImage[]>(image ? [image] : []);
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: name || "",
             description: description,
-            image: image,
+            image: '',
         },
     })
 
-    useEffect(() => {
-        if (imageUrl) {
-            form.setValue("image", imageUrl);
-        } else {
-            form.setValue("image", "");
-        }
-    }, [imageUrl, form]);
+    const setImageField = useCallback(() => {
+        form.setValue('image', imageRef.current[0]?.serverImageId || "");
+    }, [form]);
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
         const dataWithId = {...data, categoryId};
@@ -62,7 +70,7 @@ export default function UpdateCategoryForm(
         }
         toast.success("Category updated successfully!");
         form.reset();
-        setImageUrl('');
+        closeDialogAction();
     }
 
     return (
@@ -133,7 +141,7 @@ export default function UpdateCategoryForm(
                             <FieldDescription>
                                 Image url for the category (optional).
                             </FieldDescription>
-                            <DropZone maxFiles={1} setImageUrl={setImageUrl}/>
+                            <MyDropzone readyImagesRef={imageRef} maxFiles={1}/>
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]}/>
                             )}
@@ -141,8 +149,14 @@ export default function UpdateCategoryForm(
                     )}
                 />
                 <Field>
-                    <Button type="submit" form="form-new-category">
-                        Update
+                    <Button type="button"
+                            disabled={form.formState.isSubmitting}
+                            onClick={() => {
+                                setImageField();
+                                form.handleSubmit(onSubmit)();
+                            }}
+                    >
+                        {form.formState.isSubmitting ? "Updating..." : "Update Category"}
                     </Button>
                 </Field>
             </FieldGroup>

@@ -2,24 +2,19 @@
 
 // db
 import db from "@/lib/drizzle-agent";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { productTable } from "@/db/product.schema";
 
 // Auth
 import getSession from "@/lib/get-session";
 
-export default async function getProducts(limit: number = 10, offset: number = 0) {
+export default async function getProduct(productId: string) {
     const session = await getSession();
 
     return db
         .query
         .productTable
-        .findMany({
-            columns: {
-                id: true,
-                name: true,
-                isActive: true,
-            },
+        .findFirst({
             with: {
                 images: {
                     with: {
@@ -32,14 +27,6 @@ export default async function getProducts(limit: number = 10, offset: number = 0
                     },
                 },
                 variations: {
-                    columns: {
-                        id: true,
-                        name: true,
-                        sku: true,
-                        price: true,
-                        stock: true,
-                        isActive: true,
-                    },
                     with: {
                         images: {
                             with: {
@@ -54,14 +41,12 @@ export default async function getProducts(limit: number = 10, offset: number = 0
                     },
                 }
             },
-            where: eq(productTable.merchantId, session.user.id),
-            limit: limit,
-            orderBy: (productTable, {desc}) => [
-                desc(productTable.createdAt),
-            ],
-            offset: offset,
+            where: and(
+                eq(productTable.merchantId, session.user.id),
+                eq(productTable.id, productId)
+            ),
         })
 }
 
 // Export type
-export type Products = Awaited<ReturnType<typeof getProducts>>[number];
+export type ProductType = Awaited<ReturnType<typeof getProduct>>;

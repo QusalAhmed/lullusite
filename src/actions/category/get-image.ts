@@ -9,6 +9,7 @@ async function getImage(data: { hash: string }) {
     return db.query.imageTable.findMany({
         columns: {
             id: true,
+            thumbnailUrl: true,
         },
         where: eq(imageTable.hash, data.hash),
         limit: 1,

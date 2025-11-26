@@ -5,7 +5,8 @@ const productFormSchema = z
         name: z
             .string()
             .min(5, "Product name must be at least 5 characters.")
-            .max(255, "Product name must be at most 255 characters."),
+            .max(255, "Product name must be at most 255 characters.")
+            .transform(val => val.trim()),
         name_local: z
             .union([
                 z.string()
@@ -34,8 +35,7 @@ const productFormSchema = z
         seoDescription: z.string(),
         sellerSKU: z
             .string()
-            .max(100, "Seller SKU must be at most 100 characters.")
-            .optional(),
+            .max(100, "Seller SKU must be at most 100 characters."),
         variations: z.array(
             z.object({
                 name: z

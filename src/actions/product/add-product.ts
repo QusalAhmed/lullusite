@@ -69,6 +69,7 @@ export default async function addProduct(data: z.infer<typeof productFormSchema>
             category: category || undefined,
             subcategory: subcategory || undefined,
             tags: tags.map((tag) => tag.tag),
+            sellerSku: sellerSKU,
         })
         .returning({ productId: productTable.id })
 

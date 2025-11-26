@@ -1,12 +1,14 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, {useRef, useCallback} from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 // Local
-import DropZone from "@/components/upload-file/ui"
+import MyDropzone from "@/components/image-hub/ui"
+
+// Actions
 import saveCategory from "@/actions/category/save-category"
 
 // Zod
@@ -30,9 +32,14 @@ import {
 } from "@/components/ui/input-group"
 import { Button } from "@/components/ui/button"
 
+interface ReadyImage {
+    serverImageId: string;
+    previewURL: string;
+    hash: string;
+}
 
 export default function NewCategoryForm() {
-    const [imageUrl, setImageUrl] = useState<string>('');
+    const imagesRef = useRef<ReadyImage[]>([]);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -41,14 +48,6 @@ export default function NewCategoryForm() {
             image: "",
         },
     })
-
-    useEffect(() => {
-        if (imageUrl) {
-            form.setValue("image", imageUrl);
-        } else {
-            form.setValue("image", "");
-        }
-    }, [imageUrl, form]);
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
         const submitData = await saveCategory(data);
@@ -59,11 +58,18 @@ export default function NewCategoryForm() {
         }
         toast.success("Category created successfully!");
         form.reset();
-        setImageUrl('');
     }
 
+    const setImageField = useCallback(() => {
+        if (imagesRef.current.length > 0) {
+            form.setValue("image", imagesRef.current[0].serverImageId);
+        } else {
+            form.setValue("image", "");
+        }
+    }, [form]);
+
     return (
-        <form id="form-new-category" onSubmit={form.handleSubmit(onSubmit)} className={'mx-2 px-2'}>
+        <form id="form-new-category" className={'mx-2 px-2'}>
             <FieldGroup>
                 <Controller
                     name="name"
@@ -130,7 +136,7 @@ export default function NewCategoryForm() {
                             <FieldDescription>
                                 Image url for the category (optional).
                             </FieldDescription>
-                            <DropZone maxFiles={1} setImageUrl={setImageUrl}/>
+                            <MyDropzone readyImagesRef={imagesRef} maxFiles={1}/>
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]}/>
                             )}
@@ -138,8 +144,15 @@ export default function NewCategoryForm() {
                     )}
                 />
                 <Field>
-                    <Button type="submit" form="form-new-category">
-                        Submit
+                    <Button
+                        type="button"
+                        disabled={form.formState.isSubmitting}
+                        onClick={() => {
+                            setImageField();
+                            form.handleSubmit(onSubmit)();
+                        }}
+                    >
+                        {form.formState.isSubmitting ? "Creating..." : "Create Category"}
                     </Button>
                 </Field>
             </FieldGroup>

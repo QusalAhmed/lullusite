@@ -1,4 +1,6 @@
-import React from "react";
+'use client';
+
+import React, { useState, useCallback } from "react";
 
 // ShadCN
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -16,12 +18,26 @@ import UpdateCategoryForm from './category-update-form'
 
 // Icon
 import { Pencil } from "lucide-react";
+import type { ReadyImage } from "@/types/image-hub";
 
 export default function UpdateCategoryDialog(
-    {name, description, image, categoryId}: {name: string, description: string, image: string, categoryId: string}
+    {
+        name, description, image, categoryId
+    }: {
+        name: string,
+        description: string,
+        image?: ReadyImage,
+        categoryId: string,
+    }
 ) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const closeDialog = useCallback(()=> {
+        setIsOpen(false);
+    }, []);
+
     return (
-        <Dialog>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
                 <Pencil size={16} className={'cursor-pointer'}/>
             </DialogTrigger>
@@ -35,7 +51,13 @@ export default function UpdateCategoryDialog(
 
                 {/* Scroll only the dialog body so header/footer remain visible */}
                 <ScrollArea className="max-h-[60vh] mt-2">
-                    <UpdateCategoryForm name={name} image={image} description={description} categoryId={categoryId} />
+                    <UpdateCategoryForm
+                        name={name}
+                        image={image}
+                        description={description}
+                        categoryId={categoryId}
+                        closeDialogAction={closeDialog}
+                    />
                 </ScrollArea>
             </DialogContent>
         </Dialog>

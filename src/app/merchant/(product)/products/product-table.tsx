@@ -1,80 +1,79 @@
-"use client"
+'use client'
 
+// Columns & Table
+import { columns } from "./columns"
+import { DataTable } from "./data-table"
+
+// React Query
 import {
-    ColumnDef,
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-} from "@tanstack/react-table"
+    useQuery,
+    QueryClient,
+    QueryClientProvider,
+} from '@tanstack/react-query'
+import { useState } from 'react'
 
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+// Types
+import type { Products } from '@/actions/product/get-products'
 
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+// ShadCN
+import { Button } from '@/components/ui/button'
+
+// Create a client once per bundle
+const queryClient = new QueryClient()
+
+// Wrapper component exported
+const ProductTable = () => {
+    return (
+        <QueryClientProvider client={queryClient}>
+            <ProductsDataWrapper/>
+        </QueryClientProvider>
+    )
 }
 
-export function DataTable<TData, TValue>({
-                                             columns,
-                                             data,
-                                         }: DataTableProps<TData, TValue>) {
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
+export default ProductTable;
+
+// Separate component so provider is not recreated
+function ProductsDataWrapper() {
+    // Local pagination state (extend later if needed)
+    const [limit] = useState(100)
+    const [offset] = useState(0)
+
+    const {data, isLoading, isError, error, refetch} = useQuery<Products[], Error>({
+        queryKey: ['products', {limit, offset}],
+        queryFn: async () => {
+            const response = await fetch(`/api/merchant/products?limit=${limit}&offset=${offset}`)
+            if (!response.ok) {
+                throw new Error('Failed to fetch products')
+            }
+            return response.json()
+        },
+        staleTime: 60_000,
     })
 
-    return (
-        <div className="overflow-hidden rounded-md border">
-            <Table>
-                <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => {
-                                return (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
-                                    </TableHead>
-                                )
-                            })}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
-                            <TableRow
-                                key={row.id}
-                                data-state={row.getIsSelected() && "selected"}
-                            >
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        ))
-                    ) : (
-                        <TableRow>
-                            <TableCell colSpan={columns.length} className="h-24 text-center">
-                                No results.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-        </div>
-    )
+    // Loading state
+    if (isLoading) {
+        return <div className="p-4 text-muted-foreground">Loading products...</div>
+    }
+
+    // Error state
+    if (isError) {
+        return (
+            <div className="p-4 text-sm text-red-600">
+                Failed to load products: {error.message}
+                <Button
+                    className="ml-2 underline"
+                    onClick={() => refetch()}
+                >
+                    Retry
+                </Button>
+            </div>
+        )
+    }
+
+    // Empty state
+    if (!data || data.length === 0) {
+        return <div className="p-4 text-sm text-muted-foreground">No products found.</div>
+    }
+
+    return <DataTable columns={columns} data={data}/>
 }

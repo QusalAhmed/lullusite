@@ -15,6 +15,7 @@ export const productTable = pgTable("product", {
     description: text("description").notNull(),
     youtubeVideoLink: varchar("youtube_video_link", {length: 255}),
     slug: varchar("slug", {length: 255}).unique(),
+    sellerSku: varchar("seller_sku", {length: 100}).notNull().unique(),
     category: uuid("category").references(() => categoriesTable.id),
     subcategory: uuid("subcategory").references(() => subCategoriesTable.id),
     tags: text("tags").array().default([]),
@@ -56,22 +57,34 @@ export const productImageRelations = relations(productImageTable, ({one}) => ({
         fields: [productImageTable.productId],
         references: [productTable.id],
     }),
+    image: one(imageTable, {
+        fields: [productImageTable.image],
+        references: [imageTable.id],
+    }),
 }));
 
 export const productVariationTable = pgTable("product_variation", {
     id: uuid("id").primaryKey().defaultRandom(),
-    productId: uuid("product_id").notNull().references(() => productTable.id),
+    productId: uuid("product_id").notNull().references(() => productTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+    }),
     name: varchar("name", {length: 100}).notNull(),
-    sku: varchar("sku", {length: 100}).unique(),
+    sku: varchar("sku", {length: 100}).notNull().unique(),
     price: numeric("price", {precision: 10, scale: 2, mode: "number"}).notNull(),
     stock: integer("stock").notNull().default(0),
     weight: numeric("weight", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
+    isActive: boolean("is_active").notNull().default(true),
 
     ...timestamps,
 });
 
-export const productVariationRelations = relations(productVariationTable, ({many}) => ({
-    image: many(productVariationImageTable),
+export const productVariationRelations = relations(productVariationTable, ({many, one}) => ({
+    images: many(productVariationImageTable),
+    product: one(productTable, {
+        fields: [productVariationTable.productId],
+        references: [productTable.id],
+    }),
 }));
 
 export const productVariationImageTable = pgTable("product_variation_image", {

@@ -112,7 +112,11 @@ const CategoryList = async () => {
                                         <UpdateCategoryDialog
                                             name={category.name}
                                             description={category.description || ''}
-                                            image={category.image ? category.image.id : ''}
+                                            image={category.image ? {
+                                                serverImageId: category.image.id,
+                                                previewURL: category.image.thumbnailUrl || category.image.url,
+                                                hash: category.image.hash,
+                                            }: undefined}
                                             categoryId={category.id}
                                         />
                                     </div>
