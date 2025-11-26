@@ -1,5 +1,7 @@
 'use server'
 
+import { nanoid } from 'nanoid'
+
 // validation
 import productFormSchema from '@/lib/validations/product.schema'
 
@@ -101,7 +103,7 @@ export default async function addProduct(data: z.infer<typeof productFormSchema>
             variations.map(variation => ({
                 productId,
                 name: variation.name,
-                sku: `${sellerSKU || productId}-${variation.name}`,
+                sku: `${sellerSKU || nanoid()}-${variation.name}`,
                 price: variation.price,
                 stock: variation.stock,
                 weight: variation.weight,
