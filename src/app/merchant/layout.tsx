@@ -23,7 +23,7 @@ export default async function Layout({children}: { children: React.ReactNode }) 
         <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar/>
             <SidebarInset>
-                <header className="w-full sticky top-0 z-50 bg-white">
+                <header className="w-full sticky top-0 z-50 bg-white dark:bg-gray-900">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1"/>
                         <Navbar/>

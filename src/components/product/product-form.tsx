@@ -108,7 +108,7 @@ export default function ProductForm({product}: { product?: ProductType }) {
                 stock: variation.stock,
                 weight: variation.weight,
                 image: variation.images.map(img => img.image.id) || [],
-            })) || [{name: "", isActive: true, price: null, stock: null, weight: null, image: []}]),
+            })) || [{name: "", isActive: true, price: 0, stock: 0, weight: 0, image: []}]),
         },
     })
 
@@ -579,9 +579,9 @@ export default function ProductForm({product}: { product?: ProductType }) {
                             onClick={() => variationAppend({
                                 name: "",
                                 isActive: true,
-                                price: null,
-                                stock: null,
-                                weight: null,
+                                price: 0,
+                                stock: 0,
+                                weight: 0,
                                 image: []
                             })}
                         >
