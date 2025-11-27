@@ -8,11 +8,11 @@ export const metadata: Metadata = {
 }
 
 // Local
-import Navbar from "@/components/nav/navbar"
+import AutoHideHeader from "@/components/nav/auto-hide-header"
 import Loading from "./loading"
 
 // ShadCN
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 
 export default async function Layout({children}: { children: React.ReactNode }) {
@@ -23,12 +23,7 @@ export default async function Layout({children}: { children: React.ReactNode }) 
         <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar/>
             <SidebarInset>
-                <header className="w-full sticky top-0 z-50 bg-white dark:bg-gray-900">
-                    <div className="flex items-center gap-2 px-4">
-                        <SidebarTrigger className="-ml-1"/>
-                        <Navbar/>
-                    </div>
-                </header>
+                <AutoHideHeader/>
                 <Suspense fallback={<Loading/>}>
                     <div className={'p-4'}>{children}</div>
                 </Suspense>
