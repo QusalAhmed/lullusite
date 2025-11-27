@@ -3,6 +3,7 @@
 // Columns & Table
 import { columns } from "./columns"
 import { DataTable } from "./data-table"
+import { ProductTableSkeleton } from "./product-table-skeleton"
 
 // React Query
 import {
@@ -52,7 +53,7 @@ function ProductsDataWrapper() {
 
     // Loading state
     if (isLoading) {
-        return <div className="p-4 text-muted-foreground">Loading products...</div>
+        return <ProductTableSkeleton />
     }
 
     // Error state
@@ -61,7 +62,7 @@ function ProductsDataWrapper() {
             <div className="p-4 text-sm text-red-600">
                 Failed to load products: {error.message}
                 <Button
-                    className="ml-2 underline"
+                    className="ml-2 underline cursor-pointer"
                     onClick={() => refetch()}
                 >
                     Retry

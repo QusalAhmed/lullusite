@@ -9,20 +9,12 @@ export default function AutoHideHeader() {
     const [lastScrollY, setLastScrollY] = useState(0)
 
     useEffect(() => {
-        // Hide header after 1 second
-        const hideTimer = setTimeout(() => {
-            if (window.scrollY === 0) {
-                setIsVisible(false)
-            }
-        }, 1000)
-
         const handleScroll = () => {
             const currentScrollY = window.scrollY
 
             // Show header when scrolling up
             if (currentScrollY < lastScrollY) {
                 setIsVisible(true)
-                clearTimeout(hideTimer)
             } else if (currentScrollY > lastScrollY && currentScrollY > 50) {
                 // Hide header when scrolling down (after 50px to avoid flickering)
                 setIsVisible(false)
@@ -39,7 +31,6 @@ export default function AutoHideHeader() {
         window.addEventListener("scroll", handleScroll, { passive: true })
 
         return () => {
-            clearTimeout(hideTimer)
             window.removeEventListener("scroll", handleScroll)
         }
     }, [lastScrollY])
