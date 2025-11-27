@@ -179,7 +179,12 @@ export const columns: ColumnDef<Products>[] = [
         header: "Stock",
         cell: ({row}) => {
             const product = row.original
-            const totalStock = product.variations.reduce((acc, variation) => acc + variation.stock, 0)
+            const totalStock = product.variations.reduce((acc, variation) => {
+                if (variation.stock === -1) {
+                    return acc
+                }
+                return acc + variation.stock
+            }, 0)
 
             return (
                 <div className='flex flex-col gap-2'>
