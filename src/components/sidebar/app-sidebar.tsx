@@ -110,7 +110,7 @@ const data = {
                 },
                 {
                     title: "Add Landing Page",
-                    url: "/merchant/store/add-landing-page",
+                    url: "/merchant/add-landing-page",
                 }
             ],
         },
