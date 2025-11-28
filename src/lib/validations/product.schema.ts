@@ -32,7 +32,8 @@ const productFormSchema = z
                 tag: z.string().min(1, "Add tag. Don't keep it black or remove this")
             })
         ),
-        seoDescription: z.string(),
+        seoDescription: z
+            .string(),
         sellerSKU: z
             .string()
             .max(100, "Seller SKU must be at most 100 characters."),

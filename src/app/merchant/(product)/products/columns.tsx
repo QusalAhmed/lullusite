@@ -113,7 +113,11 @@ export const columns: ColumnDef<Products>[] = [
                                                     <Badge variant={variation.stock == 0 ? 'destructive' : 'secondary'}
                                                            className="px-2 py-1"
                                                     >
-                                                        <span className={'font-light'}>Stock: </span>
+                                                        {variation.stock == 0 ? (
+                                                            <span className={'text-white font-semibold'}>Stock: </span>
+                                                        ) : (
+                                                            <span className={'text-gray-500'}>Stock: </span>
+                                                        )}
                                                         <span className={'font-semibold'}>
                                                             {variation.stock === -1 ?
                                                                 <span className={'text-emerald-400'}>Unlimited</span> :

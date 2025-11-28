@@ -34,9 +34,10 @@ const CopyUI = ({text}: { text: string }) => {
                         transition={{duration: 0.3}}
                     >
                         <Copy
-                            className="inline-block ml-1 w-4 h-4 cursor-pointer hover:text-gray-700"
+                            className="inline-block ml-1 cursor-pointer hover:text-gray-700"
                             onClick={handleCopy}
                             color={'#6b7280'}
+                            size={12}
                         />
                     </motion.div>
             }

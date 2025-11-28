@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation";
 
 // Form
-import MyDropzone from "@/components/image-hub/ui";
+import ImageHub from "@/components/image-hub/ui";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm, useFieldArray } from "react-hook-form"
 import { toast } from "sonner"
@@ -64,12 +64,16 @@ import { Label } from "@/components/ui/label"
 import { ChevronDown, XIcon, MousePointerClick } from "lucide-react"
 
 // Type
-import { ReadyImage } from "@/types/image-hub";
+import { ReadyImage } from "@/types/image-hub"
 
 // Type alias for form values
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
+// Local
+import { Spinner } from "@/components/ui/spinner";
+
 export default function ProductForm({product}: { product?: ProductType }) {
+    const [isCategoryRefreshing, setIsCategoryRefreshing] = useState(false);
     // Categories list
     const [categories, setCategories] = useState<GetCategoryType>()
     // We store the selected subcategory ID (not the label) to submit to backend
@@ -142,6 +146,8 @@ export default function ProductForm({product}: { product?: ProductType }) {
             setCategories(res)
         }).catch(() => {
             toast.error("Failed to load categories. Please try again.")
+        }).finally(() => {
+            setIsCategoryRefreshing(false)
         })
     }
 
@@ -305,7 +311,7 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                 autoComplete="off"
                                 type='hidden'
                             />
-                            <MyDropzone readyImagesRef={mainImageRef}/>
+                            <ImageHub readyImagesRef={mainImageRef}/>
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]}/>
                             )}
@@ -334,8 +340,14 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                     <Button variant="outline"
                                             size="sm"
                                             type="button"
-                                            onClick={refreshCategories}
+                                            className="cursor-pointer"
+                                            disabled={isCategoryRefreshing}
+                                            onClick={() => {
+                                                setIsCategoryRefreshing(true);
+                                                refreshCategories()
+                                            }}
                                     >
+                                        {isCategoryRefreshing ? <Spinner/> : null}
                                         Refresh
                                     </Button>
                                 </FieldLabel>
@@ -531,7 +543,7 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                 />
                                 <InputGroupAddon align="block-end">
                                     <InputGroupText className="tabular-nums">
-                                        {(field.value?.length ?? 0)}/100 characters
+                                        {(field.value?.length ?? 0)} characters
                                     </InputGroupText>
                                 </InputGroupAddon>
                             </InputGroup>
@@ -750,7 +762,7 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                             <FieldLabel htmlFor={`form-variation-image-${index}`}>
                                                 Image
                                             </FieldLabel>
-                                            <MyDropzone
+                                            <ImageHub
                                                 readyImagesRef={variationImageRef}
                                                 maxFiles={8}
                                                 groupId={field.id}
