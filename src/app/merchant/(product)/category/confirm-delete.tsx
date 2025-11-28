@@ -16,7 +16,7 @@ import deleteCategory from "@/actions/category/delete-category";
 // Sonner
 import { toast } from "sonner";
 
-const ConfirmDelete = ({categoryId}: {categoryId: string}) => {
+const ConfirmDelete = ({categoryId}: { categoryId: string }) => {
     return (
         <AlertDialog>
             <AlertDialogTrigger className="cursor-pointer">
@@ -33,9 +33,13 @@ const ConfirmDelete = ({categoryId}: {categoryId: string}) => {
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction onClick={() => {
-                        deleteCategory(categoryId).then((res) => {
-                            toast.success(`Category ${res.name} deleted successfully.`);
-                        });
+                        deleteCategory(categoryId)
+                            .then((res) => {
+                                toast.success(`Category ${res.name} deleted successfully.`);
+                            })
+                            .catch((error) => {
+                                toast.error(`Failed to delete category: ${error.message}`);
+                            });
                     }}>
                         Continue
                     </AlertDialogAction>

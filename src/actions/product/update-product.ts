@@ -69,7 +69,7 @@ export default async function updateProduct(data: z.infer<typeof updateProductSc
                 tags: tags.map((tag) => tag.tag),
                 seoDescription,
                 category,
-                subcategory,
+                subcategory: subcategory || null,
             })
             .where(
                 and(

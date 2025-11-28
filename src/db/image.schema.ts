@@ -14,12 +14,12 @@ export const imageTable = pgTable("image", {
         }
     ).notNull(),
     url: varchar("url", {length: 2048}).notNull(),
-    thumbnailUrl: varchar("thumbnail_url", {length: 2048}),
-    altText: varchar("alt_text", {length: 512}),
-    width: integer("width"),
-    height: integer("height"),
-    size: integer("size"),    // Size in kb
-    hash: text().notNull().unique(),
+    thumbnailUrl: varchar("thumbnail_url", {length: 2048}).notNull(),
+    altText: varchar("alt_text", {length: 512}).notNull(),
+    width: integer("width").notNull(),
+    height: integer("height").notNull(),
+    size: integer("size").notNull(),    // Size in kb
+    hash: text().notNull(),
 
     ...timestamps
 });

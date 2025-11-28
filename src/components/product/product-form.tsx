@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation";
 
 // Form
-import ImageHub from "@/components/image-hub/ui";
+import ImageHub from "@/components/image-hub/ui"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm, useFieldArray } from "react-hook-form"
 import { toast } from "sonner"
@@ -73,7 +73,7 @@ type ProductFormValues = z.infer<typeof productFormSchema>;
 import { Spinner } from "@/components/ui/spinner";
 
 export default function ProductForm({product}: { product?: ProductType }) {
-    const [isCategoryRefreshing, setIsCategoryRefreshing] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     // Categories list
     const [categories, setCategories] = useState<GetCategoryType>()
     // We store the selected subcategory ID (not the label) to submit to backend
@@ -147,7 +147,7 @@ export default function ProductForm({product}: { product?: ProductType }) {
         }).catch(() => {
             toast.error("Failed to load categories. Please try again.")
         }).finally(() => {
-            setIsCategoryRefreshing(false)
+            setIsRefreshing(false)
         })
     }
 
@@ -341,13 +341,13 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                             size="sm"
                                             type="button"
                                             className="cursor-pointer"
-                                            disabled={isCategoryRefreshing}
+                                            disabled={isRefreshing}
                                             onClick={() => {
-                                                setIsCategoryRefreshing(true);
+                                                setIsRefreshing(true);
                                                 refreshCategories()
                                             }}
                                     >
-                                        {isCategoryRefreshing ? <Spinner/> : null}
+                                        {isRefreshing ? <Spinner/> : null}
                                         Refresh
                                     </Button>
                                 </FieldLabel>

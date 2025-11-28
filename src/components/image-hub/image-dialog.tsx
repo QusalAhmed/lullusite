@@ -26,7 +26,7 @@ const ImageDialog = (
                         alt={imageAlt}
                         width={600}
                         height={600}
-                        className="max-w-full max-h-full object-contain"
+                        className="object-fit max-w-full"
                     />
                 </DialogDescription>
             </DialogContent>
