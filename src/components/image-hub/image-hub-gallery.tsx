@@ -41,7 +41,7 @@ function ImageHubGalleryWrapper(
 const ImageHubGallery = (
     {setIsOpen, addImage}: { setIsOpen: Dispatch<boolean>, addImage: (readyImage: ReadyImage) => void }
 ) => {
-    const limit = 20
+    const limit = 30
     const [offset, setOffset] = useState(0)
 
     const {isPending, isError, data, error, isPlaceholderData} = useQuery({
@@ -52,7 +52,11 @@ const ImageHubGallery = (
     })
 
     if (isPending) {
-        return <span>Loading...</span>
+        return (
+            <div className="flex items-center justify-center h-96">
+                <Spinner className={'size-8'}/>
+            </div>
+        )
     }
 
     if (isError) {
@@ -61,7 +65,7 @@ const ImageHubGallery = (
 
     return (
         <>
-            <ScrollArea className="h-72 w-full">
+            <ScrollArea className="h-[70vh] w-full">
                 <div className="columns-3 sm:columns-4 lg:columns-5 gap-4 relative p-4">
                     {data?.map((image: GetImagesType[number]) => (
                         <div key={image.id} className="mb-4 break-inside-avoid">
@@ -70,7 +74,7 @@ const ImageHubGallery = (
                                 alt={image.altText}
                                 width={image.width}
                                 height={image.height}
-                                className="w-28 h-auto object-cover rounded-lg cursor-pointer hover:opacity-80"
+                                className="object-cover rounded-lg cursor-pointer hover:opacity-80"
                                 onClick={() => {
                                     addImage({
                                         serverImageId: image.id,
@@ -89,7 +93,7 @@ const ImageHubGallery = (
                     )}
                 </div>
             </ScrollArea>
-            <div className="flex justify-center space-x-4 py-4">
+            <div className="flex justify-center space-x-4">
                 <Button
                     variant='ghost'
                     size='icon'
