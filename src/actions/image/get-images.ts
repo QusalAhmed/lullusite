@@ -27,7 +27,7 @@ export const getImagesCount = async () => {
 
     const imageCount = await db
         .select({
-            sum: count(imageTable.id),
+            sum: count(),
         })
         .from(imageTable)
         .where(eq(imageTable.userId, session.user.id))

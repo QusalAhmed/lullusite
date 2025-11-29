@@ -31,7 +31,7 @@ const GalleryDialog = (
     // Fetch image size and count when dialog opens
     React.useEffect(() => {
         if (isOpen) {
-            getImageSize().then(size => setImageSize(size));
+            getImageSize().then(size => setImageSize(parseInt(size.toString())));
             getImagesCount().then(count => setImageCount(count));
         }
     }, [isOpen]);

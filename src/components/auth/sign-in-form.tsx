@@ -34,7 +34,6 @@ import {
     InputGroup,
     InputGroupAddon,
     InputGroupInput,
-    InputGroupText
 } from "@/components/ui/input-group"
 
 // Icon
@@ -130,10 +129,6 @@ export default function SignInForm() {
                                             placeholder="Enter your Gmail address"
                                             autoComplete="email"
                                         />
-                                        <InputGroupAddon align="inline-end">
-                                            {form.getValues("email") && !form.getValues("email").endsWith("@") &&
-                                                <InputGroupText>@gmail.com</InputGroupText>}
-                                        </InputGroupAddon>
                                     </InputGroup>
                                     {fieldState.invalid && (
                                         <FieldError errors={[fieldState.error]}/>
