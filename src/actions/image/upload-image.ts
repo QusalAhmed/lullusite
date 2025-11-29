@@ -39,10 +39,61 @@ interface ImageFile {
     };
 }
 
+function resizeImage(file: File, maxWidth = 4000, maxHeight = 4000): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            const { width, height } = img;
+
+            // If already within limits, no need to resize
+            if (width <= maxWidth && height <= maxHeight) {
+                return resolve(file);
+            }
+
+            // Maintain aspect ratio
+            const widthRatio = maxWidth / width;
+            const heightRatio = maxHeight / height;
+            const ratio = Math.min(widthRatio, heightRatio);
+
+            const newWidth = Math.round(width * ratio);
+            const newHeight = Math.round(height * ratio);
+
+            const canvas = document.createElement("canvas");
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return reject(new Error("Canvas not supported"));
+
+            ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+            canvas.toBlob(
+                (blob) => {
+                    if (!blob) return reject(new Error("Failed to create blob"));
+                    resolve(blob);
+                },
+                "image/webp", // or "image/jpg" / "image/png"
+                0.9 // quality
+            );
+        };
+
+        img.onerror = reject;
+
+        // Create blob URL for the image
+        img.src = URL.createObjectURL(file);
+    });
+}
+
+
 export default async function uploadImage(
     { image, hash, setFiles }: { image: File, hash: string, setFiles: React.Dispatch<SetStateAction<ImageFile[]>> }
 ) {
     try {
+        // Resize image
+        resizeImage(image).then((resizedBlob) => {
+            image = new File([resizedBlob], image.name, {type: resizedBlob.type});
+        });
+
         // ✅ Check if image with the same hash already exists
         const serverImage = await getImage({ hash: hash });
         if(serverImage.length >= 1) {

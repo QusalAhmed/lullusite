@@ -5,7 +5,8 @@ import Image from 'next/image';
 
 // ShadCN
 import { Button } from '@/components/ui/button';
-import {Spinner} from "@/components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 import {
     useQuery,
@@ -18,17 +19,17 @@ import {
 const queryClient = new QueryClient()
 
 // fetch function
-import getImages from './get-images'
+import getImages from '../../actions/image/get-images'
 
-// type
-import type { GetImagesType } from './get-images'
+// Type
+import type { GetImagesType } from '@/actions/image/get-images'
 import { ReadyImage } from '@/types/image-hub';
 
 // Icon
 import { CircleChevronLeft, CircleChevronRight } from 'lucide-react';
 
 function ImageHubGalleryWrapper(
-    {setIsOpen, addImage}: {setIsOpen: Dispatch<boolean>, addImage: (readyImage: ReadyImage) => void}
+    {setIsOpen, addImage}: { setIsOpen: Dispatch<boolean>, addImage: (readyImage: ReadyImage) => void }
 ) {
     return (
         <QueryClientProvider client={queryClient}>
@@ -38,7 +39,7 @@ function ImageHubGalleryWrapper(
 }
 
 const ImageHubGallery = (
-    {setIsOpen, addImage}: {setIsOpen: Dispatch<boolean>, addImage: (readyImage: ReadyImage) => void}
+    {setIsOpen, addImage}: { setIsOpen: Dispatch<boolean>, addImage: (readyImage: ReadyImage) => void }
 ) => {
     const limit = 20
     const [offset, setOffset] = useState(0)
@@ -60,32 +61,34 @@ const ImageHubGallery = (
 
     return (
         <>
-            <div className="columns-3 sm:columns-4 lg:columns-5 gap-4 relative">
-                {data?.map((image: GetImagesType[number]) => (
-                    <div key={image.id} className="mb-4 break-inside-avoid">
-                        <Image
-                            src={image.thumbnailUrl}
-                            alt={image.altText}
-                            width={image.width}
-                            height={image.height}
-                            className="w-20 h-auto object-cover rounded-lg cursor-pointer hover:opacity-80"
-                            onClick={() => {
-                                addImage({
-                                    serverImageId: image.id,
-                                    previewURL: image.thumbnailUrl,
-                                    hash: image.hash,
-                                })
-                                setIsOpen(false);
-                            }}
-                        />
-                    </div>
-                ))}
-                {isPlaceholderData && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/20">
-                        <Spinner className={'size-8'} />
-                    </div>
-                )}
-            </div>
+            <ScrollArea className="h-72 w-full">
+                <div className="columns-3 sm:columns-4 lg:columns-5 gap-4 relative p-4">
+                    {data?.map((image: GetImagesType[number]) => (
+                        <div key={image.id} className="mb-4 break-inside-avoid">
+                            <Image
+                                src={image.thumbnailUrl}
+                                alt={image.altText}
+                                width={image.width}
+                                height={image.height}
+                                className="w-28 h-auto object-cover rounded-lg cursor-pointer hover:opacity-80"
+                                onClick={() => {
+                                    addImage({
+                                        serverImageId: image.id,
+                                        previewURL: image.thumbnailUrl,
+                                        hash: image.hash,
+                                    })
+                                    setIsOpen(false);
+                                }}
+                            />
+                        </div>
+                    ))}
+                    {isPlaceholderData && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/20">
+                            <Spinner className={'size-8'}/>
+                        </div>
+                    )}
+                </div>
+            </ScrollArea>
             <div className="flex justify-center space-x-4 py-4">
                 <Button
                     variant='ghost'

@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 // Local
 import { Button } from "@/components/ui/button";
-import uploadImage from '@/actions/upload-image';
+import uploadImage from '@/actions/image/upload-image';
 
 // Local
 import ImageDialog from "@/components/image-hub/image-dialog";
