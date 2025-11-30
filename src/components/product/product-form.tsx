@@ -118,8 +118,9 @@ export default function ProductForm({product}: { product?: ProductType }) {
                 price: variation.price,
                 stock: variation.stock,
                 weight: variation.weight,
+                description: variation.description || "",
                 image: variation.images.map(img => img.image.id) || [],
-            })) || [{name: "", isActive: true, price: 0, stock: 0, weight: 0, image: []}]),
+            })) || [{name: "", isActive: true, price: 0, stock: 0, weight: 0, description: "", image: []}]),
         },
     })
 
@@ -605,7 +606,7 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                 name: "",
                                 isActive: true,
                                 price: 0,
-                                stock: 0,
+                                stock: -1,
                                 weight: 0,
                                 image: []
                             })}
@@ -613,7 +614,7 @@ export default function ProductForm({product}: { product?: ProductType }) {
                             Add Variation
                         </Button>
                         <FieldDescription>
-                            NB: Product variation can&#39;t be empty. Remove empty variation
+                            NB: Remove unused variations to avoid submitting empty variations.
                         </FieldDescription>
                         {variationFields.map((field, index) => (
                             <div key={field.id}
@@ -750,7 +751,7 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                                 {...controllerField}
                                                 id={`form-variation-weight-${index}`}
                                                 type="number"
-                                                step="0.01"
+                                                step="0.1"
                                                 min="0"
                                                 aria-invalid={fieldState.invalid}
                                                 placeholder="0.00"
@@ -760,6 +761,30 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                                     controllerField.onChange(val === "" ? null : parseFloat(val));
                                                 }}
                                             />
+                                            {fieldState.invalid && (
+                                                <FieldError errors={[fieldState.error]}/>
+                                            )}
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    name={`variations.${index}.description`}
+                                    control={form.control}
+                                    render={({field: controllerField, fieldState}) => (
+                                        <Field data-invalid={fieldState.invalid} className="col-span-full">
+                                            <FieldLabel htmlFor={`form-variation-name-${index}`}>
+                                                Variation Description
+                                            </FieldLabel>
+                                            <Input
+                                                {...controllerField}
+                                                id={`form-variation-name-${index}`}
+                                                aria-invalid={fieldState.invalid}
+                                                placeholder="e.g. this variation contains... description"
+                                            />
+                                            <FieldDescription>
+                                                Must set variation description for custom variation type
+                                            </FieldDescription>
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]}/>
                                             )}
@@ -789,6 +814,22 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                 />
                             </div>
                         ))}
+
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => variationAppend({
+                                name: "",
+                                isActive: true,
+                                price: 0,
+                                stock: -1,
+                                weight: 0,
+                                image: []
+                            })}
+                        >
+                            Add Variation
+                        </Button>
                     </FieldGroup>
                     {form.formState.errors.variations?.root && (
                         <FieldError errors={[form.formState.errors.variations.root]}/>

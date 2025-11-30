@@ -74,6 +74,7 @@ export const productVariationTable = pgTable("product_variation", {
     price: numeric("price", {precision: 10, scale: 2, mode: "number"}).notNull(),
     stock: integer("stock").notNull().default(0),
     weight: numeric("weight", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
+    description: varchar("description", {length: 500}),
     isActive: boolean("is_active").notNull().default(true),
 
     ...timestamps,

@@ -1,0 +1,1 @@
+ALTER TABLE "product_variation" ADD COLUMN "description" varchar(500);

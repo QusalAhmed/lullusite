@@ -45,7 +45,8 @@ const productFormSchema = z
                 name: z
                     .string()
                     .min(1, "Variation name must be at least 1 characters. Remove empty variation")
-                    .max(100, "Variation name must be at most 100 characters."),
+                    .max(100, "Variation name must be at most 100 characters.")
+                    .transform(val => val.trim().charAt(0).toUpperCase() + val.trim().slice(1)),
                 price: z
                     .number('Price must be a number.')
                     .gt(0, "Price must be greater than 0.")
@@ -58,6 +59,10 @@ const productFormSchema = z
                     .number('Weight must be a number.')
                     .gt(0, "Weight must be greater than 0.")
                     .refine((val) => val !== null, {message: "Weight is required."}),
+                description: z
+                    .string()
+                    .max(500, "Variation description must be at most 500 characters.")
+                    .optional(),
                 image: z.array(
                     z.string()
                 ).min(1, "At least one image is required for each variation."),
