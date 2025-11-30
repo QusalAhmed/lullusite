@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useMemo, useRef } from "react"
+import React, { useState, useEffect, useMemo, useRef, useId } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation";
 
@@ -10,6 +10,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm, useFieldArray } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
+
+// Redux
+import { useAppSelector } from "@/lib/redux/hooks";
 
 // Actions
 import getCategory from "@/actions/category/get-category"
@@ -90,6 +93,10 @@ export default function ProductForm({product}: { product?: ProductType }) {
             hash: img.image.hash,
         } as ReadyImage)) : []
     );
+    // Form id
+    const formId = useId();
+    // State
+    const productFormState = useAppSelector((state) => state.formState);
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
@@ -176,6 +183,12 @@ export default function ProductForm({product}: { product?: ProductType }) {
     }, [categories, selectedSubcategoryId, selectedCategoryId])
 
     async function onSubmit(data: ProductFormValues) {
+        // Check if form is ready
+        if (productFormState.id === formId && !productFormState.ready) {
+            toast.warning("Some images are still uploading. Please wait a moment and try again.");
+            return
+        }
+
         if (product) {
             // Add product id with data
             const revisedData = {...data, id: product.id};
@@ -311,7 +324,7 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                 autoComplete="off"
                                 type='hidden'
                             />
-                            <ImageHub readyImagesRef={mainImageRef}/>
+                            <ImageHub readyImagesRef={mainImageRef} formId={formId}/>
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]}/>
                             )}
@@ -766,6 +779,7 @@ export default function ProductForm({product}: { product?: ProductType }) {
                                                 readyImagesRef={variationImageRef}
                                                 maxFiles={8}
                                                 groupId={field.id}
+                                                formId={formId}
                                             />
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]}/>

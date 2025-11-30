@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react';
+import {useRouter} from 'next/navigation';
 import Link from 'next/link';
 
 // Auth
@@ -24,20 +25,17 @@ const User = () => {
     const {
         data: session,
         isPending, //loading state
-        refetch, //refetch the session
     } = authClient.useSession()
+    const router = useRouter();
 
     async function handleSignOut() {
-        try {
-            // sign out via auth client; call without destructuring to avoid unused variable warnings
-            await authClient.signOut()
-            // refetch the session state
-            if (typeof refetch === 'function') {
-                refetch()
-            }
-        } catch (err) {
-            console.error('Error signing out:', err)
-        }
+        await authClient.signOut({
+            fetchOptions: {
+                onSuccess: () => {
+                    router.push('/auth/sign-in');
+                },
+            },
+        });
     }
 
     // Render loading / unauthenticated / authenticated states

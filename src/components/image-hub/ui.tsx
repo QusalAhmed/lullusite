@@ -5,6 +5,10 @@ import Image from 'next/image'
 import { useDropzone } from 'react-dropzone'
 import { toast } from "sonner";
 
+// Redux
+import { useAppDispatch } from "@/lib/redux/hooks";
+import { setFormReady, setFormId, setFormNotReady } from "@/lib/redux/features/form/stateSlice";
+
 // Local
 import { Button } from "@/components/ui/button";
 import uploadImage from '@/actions/image/upload-image';
@@ -42,9 +46,16 @@ interface ImageFile {
 }
 
 function MyDropzone(
-    {readyImagesRef, maxFiles, groupId}: { readyImagesRef: React.RefObject<ReadyImage[]>, maxFiles?: number, groupId?: string }
+    {readyImagesRef, maxFiles, groupId, formId}:
+    {
+        readyImagesRef: React.RefObject<ReadyImage[]>,
+        maxFiles?: number,
+        groupId?: string,
+        formId?: string,
+    }
 ) {
     const [files, setFiles] = useState<ImageFile[]>([]);
+    const dispatch = useAppDispatch();
 
     console.log('rendered dropzone. group id: ', groupId);
 
@@ -63,6 +74,11 @@ function MyDropzone(
                     return;
                 }
             }
+        }
+        
+        // Notify form is not ready
+        if (formId) {
+            dispatch(setFormNotReady());
         }
 
         acceptedFiles.forEach((file: File) => {
@@ -146,7 +162,7 @@ function MyDropzone(
 
             reader.readAsArrayBuffer(file);
         });
-    }, [files, groupId, maxFiles, readyImagesRef]);
+    }, [dispatch, files, formId, groupId, maxFiles, readyImagesRef]);
 
     const {getRootProps, getInputProps, isDragActive, fileRejections} = useDropzone({
         onDrop,
@@ -164,6 +180,12 @@ function MyDropzone(
         //     return null;
         // },
     })
+    
+    useEffect(() => {
+        if(formId){
+            dispatch(setFormId(formId));
+        }
+    }, [dispatch, formId]);
 
     const fileRejectionItems = fileRejections.map(({file, errors}) => (
         <li key={file.path} className={'gap-2 mb-2'}>
@@ -267,6 +289,18 @@ function MyDropzone(
             return [...prevFiles, newFile];
         });
     }, [files, groupId, maxFiles, readyImagesRef]);
+
+    useEffect(() => {
+        // If there are files still uploading or pending, form is not ready
+        const hasPending = files.some(file => file.serverInfo?.status !== 'uploaded');
+        if (formId) {
+            if (hasPending) {
+                dispatch(setFormNotReady());
+            } else {
+                dispatch(setFormReady());
+            }
+        }
+    }, [files, dispatch, formId]);
 
 
     return (

@@ -38,7 +38,7 @@ const StorePage = () => {
                         {['Electronics', 'Fashion', 'Home & Garden', 'Sports', 'Books', 'Toys', 'Beauty', 'Food'].map((category) => (
                             <Link
                                 key={category}
-                                href={`/store/category/${category.toLowerCase()}`}
+                                href={`/src/lib/redux/store.ts/category/${category.toLowerCase()}`}
                                 className="group"
                             >
                                 <div className="rounded-lg border bg-card p-8 text-center hover:shadow-lg transition-all hover:scale-105">

@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button"
 
 // Local
-import ImageHubGalleryWrapper from "@/components/image-hub/image-hub-gallery";
+import ImageHubGallery from "@/components/image-hub/image-hub-gallery";
 
 
 // Actions
@@ -58,7 +58,7 @@ const GalleryDialog = (
                             Select an image from your gallery to insert.
                         </DialogDescription>
                     </DialogHeader>
-                    <ImageHubGalleryWrapper setIsOpen={setIsOpen} addImage={addImage}/>
+                    <ImageHubGallery setIsOpen={setIsOpen} addImage={addImage}/>
                 </DialogContent>
             </Dialog>
         </>

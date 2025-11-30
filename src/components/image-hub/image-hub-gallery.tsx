@@ -10,13 +10,9 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 import {
     useQuery,
-    QueryClient,
     keepPreviousData,
-    QueryClientProvider,
 } from '@tanstack/react-query'
 
-// Create a client
-const queryClient = new QueryClient()
 
 // fetch function
 import getImages from '../../actions/image/get-images'
@@ -27,16 +23,6 @@ import { ReadyImage } from '@/types/image-hub';
 
 // Icon
 import { CircleChevronLeft, CircleChevronRight } from 'lucide-react';
-
-function ImageHubGalleryWrapper(
-    {setIsOpen, addImage}: { setIsOpen: Dispatch<boolean>, addImage: (readyImage: ReadyImage) => void }
-) {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <ImageHubGallery setIsOpen={setIsOpen} addImage={addImage}/>
-        </QueryClientProvider>
-    )
-}
 
 const ImageHubGallery = (
     {setIsOpen, addImage}: { setIsOpen: Dispatch<boolean>, addImage: (readyImage: ReadyImage) => void }
@@ -115,4 +101,4 @@ const ImageHubGallery = (
     );
 };
 
-export default ImageHubGalleryWrapper;
+export default ImageHubGallery;

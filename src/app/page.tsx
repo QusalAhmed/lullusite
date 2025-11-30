@@ -481,7 +481,7 @@ export default function Home() {
                         <h4 className="font-semibold text-white">Resources</h4>
                         <ul className="mt-3 space-y-2 text-sm">
                             <li><Link href="/" className="hover:text-white">Docs</Link></li>
-                            <li><Link href="/store" className="hover:text-white">Blog</Link></li>
+                            <li><Link href="/" className="hover:text-white">Blog</Link></li>
                             <li><Link href="/" className="hover:text-white">Support</Link></li>
                         </ul>
                     </div>
