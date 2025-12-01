@@ -106,7 +106,7 @@ const data = {
             items: [
                 {
                     title: "Manage Page",
-                    url: "/merchant/page",
+                    url: "/merchant/landing-pages",
                 },
                 {
                     title: "Add Landing Page",

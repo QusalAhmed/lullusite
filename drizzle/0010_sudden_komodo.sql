@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "slug_idx" ON "page" USING btree ("slug");

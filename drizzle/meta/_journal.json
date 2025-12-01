@@ -57,6 +57,27 @@
       "when": 1764526044600,
       "tag": "0007_cute_warlock",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1764567443234,
+      "tag": "0008_magical_wong",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1764569344672,
+      "tag": "0009_calm_maelstrom",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1764579388110,
+      "tag": "0010_sudden_komodo",
+      "breakpoints": true
     }
   ]
 }

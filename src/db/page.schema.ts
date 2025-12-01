@@ -1,4 +1,4 @@
-import { pgTable, text, uuid, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, uuid, boolean, varchar, uniqueIndex } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // Schema
@@ -16,11 +16,14 @@ export const pageTable = pgTable('page', {
             onUpdate: "cascade"
         }
     ).notNull(),
-    slug: text('slug').notNull(),
+    slug: varchar('slug', {length: 255}).unique().notNull(),
+    title: varchar('title', {length: 255}).notNull(),
     status: boolean('status').notNull().default(true),
 
     ...timestamps
-});
+}, (table) => [
+    uniqueIndex("slug_idx").on(table.slug)
+]);
 
 export type Page = typeof pageTable.$inferSelect;
 
