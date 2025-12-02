@@ -137,7 +137,16 @@ export default async function updateProduct(data: z.infer<typeof updateProductSc
         }
 
         for (const variation of variations) {
-            const { id: variationId, name: variationName, price, stock, weight, image: variationImages, isActive } = variation
+            const {
+                id: variationId,
+                name: variationName,
+                description: variationDescription,
+                price,
+                stock,
+                weight,
+                image: variationImages,
+                isActive
+            } = variation
             if (variationId) {
                 // Update existing variation
                 const [updatedVariation] = await tx
@@ -148,6 +157,7 @@ export default async function updateProduct(data: z.infer<typeof updateProductSc
                         stock,
                         weight,
                         isActive,
+                        description: variationDescription,
                     })
                     .where(and(
                         eq(productVariationTable.id, variationId),
@@ -193,6 +203,7 @@ export default async function updateProduct(data: z.infer<typeof updateProductSc
                     .values({
                         productId: product.id,
                         name: variationName,
+                        description: variationDescription,
                         sku: `${product.sellerSku}-${variationName}`,
                         price,
                         stock,

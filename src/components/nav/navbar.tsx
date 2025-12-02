@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from "next/image";
 
 // Local
-import ThemeToggle from "@/components/theme/themeToggle";
+import ThemeToggle from "@/components/next-theme/themeToggle";
 import User from "@/components/nav/user";
 // import ThreeBar from "@/components/nav/three-bar";
 import Notification from "@/components/nav/notification";

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 // Actions
 import getPages from '@/actions/page/get-pages';
@@ -26,11 +27,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import Link from 'next/link';
+import { Spinner } from '@/components/ui/spinner';
+
+// Icons
 import { MoreHorizontal } from 'lucide-react';
 
 const LandingPages = () => {
-    const {data: pages} = useQuery({
+    const {data: pages, isPending} = useQuery({
         queryKey: ['pages'],
         queryFn: getPages,
         staleTime: 1000 * 60 * 5, // 5 minutes
@@ -49,41 +52,55 @@ const LandingPages = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {pages?.length ? (
-                            pages.map((page) => (
-                                <TableRow key={page.id}>
-                                    <TableCell className="font-medium">{page.title}</TableCell>
-                                    <TableCell className="text-muted-foreground">{page.slug}</TableCell>
-                                    <TableCell>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" aria-label="Open actions">
-                                                    <MoreHorizontal className="h-4 w-4"/>
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(page.id)}>
-                                                    Copy page ID
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator/>
-                                                {/* Placeholder edit route; wire up your actual edit page when available */}
-                                                <DropdownMenuItem asChild>
-                                                    <Link href={`/merchant/update-landing-page/${page.id}`}>
-                                                        Edit
-                                                    </Link>
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        ) : (
+                        {isPending ? (
                             <TableRow>
                                 <TableCell colSpan={3} className="h-24 text-center">
-                                    No pages found.
+                                    <div className="flex justify-center items-center p-4">
+                                        <Spinner className={'size-8'}/>
+                                    </div>
                                 </TableCell>
                             </TableRow>
+                        ) : (
+                            pages && pages.length > 0 ? (
+                                pages.map((page) => (
+                                    <TableRow key={page.id}>
+                                        <TableCell className="font-medium">{page.title}</TableCell>
+                                        <TableCell className="text-muted-foreground">{page.slug}</TableCell>
+                                        <TableCell className="flex items-center justify-left gap-2">
+                                            <Link href={`/store/${page.slug}`} target="_blank" rel="noreferrer">View</Link>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon" aria-label="Open actions">
+                                                        <MoreHorizontal className="h-4 w-4"/>
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                    <DropdownMenuItem onClick={() => navigator.clipboard.writeText(page.id)}>
+                                                        Copy page ID
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator/>
+                                                    {/* Placeholder edit route; wire up your actual edit page when available */}
+                                                    <DropdownMenuItem asChild>
+                                                        <Link href={`/merchant/update-landing-page/${page.id}`}>
+                                                            Edit
+                                                        </Link>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem>
+                                                        Delete
+                                                    </DropdownMenuItem>
+
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))) : (
+                                <TableRow>
+                                    <TableCell colSpan={3} className="h-24 text-center">
+                                        No pages found.
+                                    </TableCell>
+                                </TableRow>
+                            )
                         )}
                     </TableBody>
                 </Table>

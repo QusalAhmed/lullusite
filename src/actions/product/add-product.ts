@@ -104,6 +104,7 @@ export default async function addProduct(data: z.infer<typeof productFormSchema>
             variations.map(variation => ({
                 productId,
                 name: variation.name,
+                variation: variation.description || null,
                 sku: `${sku}-${variation.name}`,
                 price: variation.price || 0,
                 stock: variation.stock || -1,
