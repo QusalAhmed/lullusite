@@ -21,12 +21,22 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { SlidingNumber } from '@/components/ui/sliding-number';
-import { Input } from '@/components/ui/input'
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+    InputGroupText,
+} from "@/components/ui/input-group"
 
 // Tanstack Query
 import { useQuery } from "@tanstack/react-query";
@@ -56,6 +66,7 @@ function VariationCard({variation}: { variation: Variation }) {
                 <div className="flex justify-between items-center w-full px-0.5">
                     <Button
                         variant="default"
+                        disabled={quantity === 0}
                         className="h-12 whitespace-normal break-words normal-case w-24 px-2 py-1 leading-tight text-center"
                         onClick={() => {
                             setQuantity((prev) => Math.max(0, prev - 1));
@@ -64,51 +75,51 @@ function VariationCard({variation}: { variation: Variation }) {
                         ১ কেজি কমান
                     </Button>
 
-                    {/*<Tooltip defaultOpen={true}>*/}
-                    {/*    <TooltipTrigger className="flex items-baseline gap-x-0.5">*/}
-                    {/*        <SlidingNumber*/}
-                    {/*            number={quantity}*/}
-                    {/*            padStart*/}
-                    {/*            className="text-5xl text-orange-600"*/}
-                    {/*        />*/}
-                    {/*        <span>kg</span>*/}
-                    {/*    </TooltipTrigger>*/}
-                    {/*    <TooltipContent>*/}
-                    {/*        <p>আপনি সিলেক্ট করেছেন</p>*/}
-                    {/*    </TooltipContent>*/}
-                    {/*</Tooltip>*/}
+                    <Tooltip defaultOpen={true}>
+                        <TooltipTrigger>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <div className="flex items-start">
+                                        <SlidingNumber
+                                            number={quantity}
+                                            padStart
+                                            className="text-5xl text-orange-600"
+                                        />
+                                        <span>kg</span>
+                                    </div>
+                                </PopoverTrigger>
+                                <PopoverContent>
+                                    <InputGroup>
+                                        <NumericFormat
+                                            id={id}
+                                            displayType='input'
+                                            value={quantity === 0 ? '' : quantity}
+                                            min={0}
+                                            allowNegative={false}
+                                            customInput={InputGroupInput}
+                                            placeholder='পরিমাণ লিখুন'
+                                            onValueChange={(values, sourceInfo) => {
+                                                if (sourceInfo.source === 'event') {
+                                                    setQuantity(() => parseInt(values.value) || 0);
+                                                }
+                                            }}
+                                        />
+                                        <InputGroupAddon align="inline-end">
+                                            <InputGroupText>কেজি</InputGroupText>
+                                        </InputGroupAddon>
+                                    </InputGroup>
+                                </PopoverContent>
+                            </Popover>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>আপনি সিলেক্ট করেছেন</p>
+                        </TooltipContent>
+                    </Tooltip>
 
-                    <Popover>
-                        <PopoverTrigger>
-                            <div className="flex items-start">
-                                <SlidingNumber
-                                    number={quantity}
-                                    padStart
-                                    className="text-5xl text-orange-600"
-                                />
-                                <span>kg</span>
-                            </div>
-                        </PopoverTrigger>
-                        <PopoverContent>
-                            <NumericFormat
-                                id={id}
-                                displayType='input'
-                                value={quantity}
-                                min={0}
-                                suffix='কেজি'
-                                allowNegative={false}
-                                customInput={Input}
-                                onValueChange={(values, sourceInfo) => {
-                                    if (sourceInfo.source === 'event') {
-                                        setQuantity(() => parseInt(values.value) || 0);
-                                    }
-                                }}
-                            />
-                        </PopoverContent>
-                    </Popover>
 
                     <Button
                         variant="default"
+                        disabled={quantity === variation.stock && variation.stock !== -1}
                         className="h-12 whitespace-normal break-words normal-case w-24 px-2 py-1 leading-tight text-center"
                         onClick={() => {
                             setQuantity((prev) => prev + 1);

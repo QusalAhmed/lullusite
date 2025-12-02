@@ -11,7 +11,7 @@ const Theme = async ({storeSlug}: {storeSlug: string}) => {
 
     return (
         <div>
-            <div>{page.title} | আমার সোনার বাংলা আমি তোমায় ভালোবাসি</div>
+            <div>{page?.title} | আমার সোনার বাংলা আমি তোমায় ভালোবাসি</div>
             <Products />
         </div>
     );
