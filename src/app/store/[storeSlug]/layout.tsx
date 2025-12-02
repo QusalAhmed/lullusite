@@ -1,23 +1,20 @@
-import React from 'react';
-import localFont from 'next/font/local'
+import React, {ReactNode} from 'react';
 
-// Provider
-import QueryProvider from "@/app/store/QueryProvider";
+// Local
+import Navbar from '@/components/themes/navbar/navbar'
 
-// Fonts
-const AdorNoirrit = localFont({
-    src: '../../../../public/fonts/Li Ador Noirrit Regular.ttf',
-    display: 'swap',
-});
+const ThemeLayout = async (
+    {children, params}: {children: ReactNode, params: Promise<{ storeSlug: string }>}
+) => {
+    const {storeSlug} = await params
 
-const StoreLayout = ({children}: {children: React.ReactNode}) => {
     return (
-        <div className={AdorNoirrit.className}>
-            <QueryProvider>
-                {children}
-            </QueryProvider>
-        </div>
+        <>
+            {children}
+            <div className='h-24'/>
+            <Navbar storeSlug={storeSlug} />
+        </>
     );
 };
 
-export default StoreLayout;
+export default ThemeLayout;

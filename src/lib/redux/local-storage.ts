@@ -1,3 +1,4 @@
+// src/store/localStorage.ts
 export const loadState = () => {
     if (typeof window === "undefined") return undefined; // for Next.js SSR
     try {

@@ -25,8 +25,19 @@ export default async function getProduct(productId: string) {
                     },
                 },
                 variations: {
+                    columns: {
+                        id: true,
+                        name: true,
+                        description: true,
+                        price: true,
+                        stock: true,
+                        weight: true,
+                    },
                     with: {
                         images: {
+                            columns: {
+                                image: true,
+                            },
                             with: {
                                 image: {
                                     columns: {
@@ -46,3 +57,4 @@ export default async function getProduct(productId: string) {
 }
 
 export type ProductType = Awaited<ReturnType<typeof getProduct>>; // may be undefined if not found
+export type VariationType = NonNullable<ProductType>['variations'][number];

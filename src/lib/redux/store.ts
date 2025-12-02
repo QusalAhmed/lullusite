@@ -3,20 +3,19 @@ import counterReducer from "./features/counter/counterSlice";
 import formReducer from "./features/form/stateSlice";
 import cartReducer from "./features/cart/cartSlice";
 
-import { loadState, saveState } from "./local-storage";
+import { saveState } from "./local-storage";
 
-const preloadedState = loadState();
+// Define root reducer
+const rootReducer = {
+    // Merchant
+    counter: counterReducer,
+    formState: formReducer,
+    // Page
+    cart: cartReducer,
+}
 
 export const store = configureStore({
-    reducer: {
-        // Merchant
-        counter: counterReducer,
-        formState: formReducer,
-        // Page
-        cart: cartReducer,
-
-        preloadedState,
-    },
+    reducer: rootReducer,
 });
 
 // Save on every change (you can throttle this)

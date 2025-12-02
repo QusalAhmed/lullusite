@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useId } from 'react';
+import React, { useId } from 'react';
 
 import { NumericFormat } from 'react-number-format';
 
@@ -45,13 +45,18 @@ import { useQuery } from "@tanstack/react-query";
 type Product = Awaited<ReturnType<typeof getProduct>>; // may be undefined if not found
 type Variation = NonNullable<Product>['variations'][number];
 
-function VariationCard({variation}: { variation: Variation }) {
-    const [quantity, setQuantity] = useState(0);
-    const id = useId();
+// Redux
+import { useSelector, useDispatch } from 'react-redux';
+import type { RootState } from '@/lib/redux/store';
+import { addItem, minusItem, addNUpdateQuantity, } from '@/lib/redux/features/cart/cartSlice';
 
-    useEffect(() => {
-        console.log(`Quantity for ${variation.name} changed to ${quantity}`);
-    }, [quantity, variation.name]);
+function VariationCard({variation}: { variation: Variation }) {
+    const cartItems = useSelector(
+        (state: RootState) => state.cart.carts
+    );
+    const quantity = cartItems.find(item => item.id === variation.id)?.quantity || 0
+    const id = useId();
+    const dispatch = useDispatch();
 
     return (
         <Card>
@@ -67,9 +72,9 @@ function VariationCard({variation}: { variation: Variation }) {
                     <Button
                         variant="default"
                         disabled={quantity === 0}
-                        className="h-12 whitespace-normal break-words normal-case w-24 px-2 py-1 leading-tight text-center"
+                        className="h-12 whitespace-normal break-words normal-case w-20 px-2 py-1 leading-tight text-center"
                         onClick={() => {
-                            setQuantity((prev) => Math.max(0, prev - 1));
+                            dispatch(minusItem({id: variation.id}));
                         }}
                     >
                         ১ কেজি কমান
@@ -81,7 +86,7 @@ function VariationCard({variation}: { variation: Variation }) {
                                 <PopoverTrigger asChild>
                                     <div className="flex items-start">
                                         <SlidingNumber
-                                            number={quantity}
+                                            number={cartItems.find(item => item.id === variation.id)?.quantity || 0}
                                             padStart
                                             className="text-5xl text-orange-600"
                                         />
@@ -100,7 +105,11 @@ function VariationCard({variation}: { variation: Variation }) {
                                             placeholder='পরিমাণ লিখুন'
                                             onValueChange={(values, sourceInfo) => {
                                                 if (sourceInfo.source === 'event') {
-                                                    setQuantity(() => parseInt(values.value) || 0);
+                                                    const quantityValue = parseInt(values.value) || 0;
+                                                    dispatch(addNUpdateQuantity({
+                                                        ...variation,
+                                                        quantity: quantityValue,
+                                                    }));
                                                 }
                                             }}
                                         />
@@ -120,9 +129,9 @@ function VariationCard({variation}: { variation: Variation }) {
                     <Button
                         variant="default"
                         disabled={quantity === variation.stock && variation.stock !== -1}
-                        className="h-12 whitespace-normal break-words normal-case w-24 px-2 py-1 leading-tight text-center"
+                        className="h-12 whitespace-normal break-words normal-case w-20 px-2 py-1 leading-tight text-center"
                         onClick={() => {
-                            setQuantity((prev) => prev + 1);
+                            dispatch(addItem({...variation}));
                         }}
                     >
                         ১ কেজি যোগ করুন

@@ -22,7 +22,10 @@ export default function Carousel(
         align: 'start',
         skipSnaps: false,
     }, [
-        Autoplay({ delay: 3000 })
+        Autoplay({
+            delay: 3000,
+            stopOnInteraction: false
+        })
     ]);
 
     useEffect(() => {

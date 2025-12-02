@@ -3,6 +3,9 @@ import React from 'react'
 // Theme
 import Theme from '@/components/themes/variation-details/theme'
 
+// Local
+import CheckoutPage from './checkout/page'
+
 export default async function StorePage(
     {params}: { params: Promise<{ storeSlug: string }> }
 ) {
@@ -11,6 +14,7 @@ export default async function StorePage(
     return (
         <div>
             <Theme storeSlug={storeSlug}/>
+            <CheckoutPage />
         </div>
     )
 }
