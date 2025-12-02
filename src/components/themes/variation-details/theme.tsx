@@ -1,13 +1,13 @@
 import React from 'react';
 
 // Actions
-import getPageBySlug from '@/actions/page/get-page-by-slug'
+import getPage from '@/actions/store/get-page';
 
 // Local
 import Products from './products';
 
 const Theme = async ({storeSlug}: {storeSlug: string}) => {
-    const page = await getPageBySlug(storeSlug)
+    const page = await getPage(storeSlug)
 
     return (
         <div>
