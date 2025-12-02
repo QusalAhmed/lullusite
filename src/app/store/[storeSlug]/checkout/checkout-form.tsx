@@ -76,6 +76,7 @@ export function CheckoutForm() {
 
     return (
         <form id="form-checkout" onSubmit={form.handleSubmit(onSubmit)}>
+            <h1 className='text-2xl text-center text-cyan-800'>Fill the form</h1>
             <FieldGroup>
                 <Controller
                     name="name"

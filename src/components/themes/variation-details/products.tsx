@@ -37,6 +37,7 @@ import {
     InputGroupInput,
     InputGroupText,
 } from "@/components/ui/input-group"
+import { Skeleton } from "@/components/ui/skeleton"
 
 // Tanstack Query
 import { useQuery } from "@tanstack/react-query";
@@ -143,6 +144,49 @@ function VariationCard({variation}: { variation: Variation }) {
     )
 }
 
+function VariationCardSkeleton() {
+    return (
+        <Card>
+            <CardContent>
+                <div className="w-full aspect-square overflow-hidden rounded-md">
+                    <Skeleton className="h-full w-full" />
+                </div>
+            </CardContent>
+            <CardHeader>
+                <CardTitle>
+                    <Skeleton className="h-6 w-3/4" />
+                </CardTitle>
+                <CardDescription>
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-2/3" />
+                    </div>
+                </CardDescription>
+            </CardHeader>
+            <CardFooter>
+                <div className="flex justify-between items-center w-full px-0.5">
+                    <Skeleton className="h-12 w-20" />
+                    <div className="flex items-start gap-1">
+                        <Skeleton className="h-10 w-16" />
+                        <Skeleton className="h-5 w-6" />
+                    </div>
+                    <Skeleton className="h-12 w-20" />
+                </div>
+            </CardFooter>
+        </Card>
+    );
+}
+
+function ProductSkeleton() {
+    return (
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4'>
+            {Array.from({ length: 8 }).map((_, i) => (
+                <VariationCardSkeleton key={i} />
+            ))}
+        </div>
+    );
+}
+
 const Products = () => {
     const productId = '36e07843-7bba-4d3c-8c5b-a4fc01267b7a';
     const {data, isPending} = useQuery<Product>({
@@ -154,7 +198,7 @@ const Products = () => {
     });
 
     if (isPending) {
-        return <div>Loading...</div>;
+        return <ProductSkeleton />;
     }
 
     if (!data) {
