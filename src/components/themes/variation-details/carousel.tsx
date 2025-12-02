@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, memo } from 'react'
 import Image from 'next/image'
 
 // Embla Carousel
@@ -11,12 +11,13 @@ import Autoplay from 'embla-carousel-autoplay'
 import styles from './carousel.module.css'
 
 // Types
-import {ProductType} from "@/actions/store/get-product";
+import { ProductType } from "@/actions/store/get-product";
+
 type Image = NonNullable<ProductType>['variations'][number]['images'][number];
 
-export default function Carousel(
-    {images}: {images: Image[]}
-) {
+const Carousel = (
+    {images}: { images: Image[] }
+) => {
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop: true,
         align: 'start',
@@ -30,7 +31,7 @@ export default function Carousel(
     ]);
 
     useEffect(() => {
-        if(emblaApi) {
+        if (emblaApi) {
             console.log(emblaApi.slideNodes()) // Access API
         }
     }, [emblaApi]);
@@ -56,3 +57,5 @@ export default function Carousel(
         </div>
     )
 }
+
+export default memo(Carousel);
