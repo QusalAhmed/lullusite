@@ -24,7 +24,8 @@ export default function Carousel(
     }, [
         Autoplay({
             delay: 3000,
-            stopOnInteraction: false
+            stopOnInteraction: false,
+            stopOnMouseEnter: true,
         })
     ]);
 
@@ -45,7 +46,7 @@ export default function Carousel(
                                 alt={image.altText}
                                 width={400}
                                 height={400}
-                                loading="eager"
+                                loading={index === 0 ? 'eager' : 'lazy'}
                                 className="object-cover w-full h-64 md:h-80 lg:h-96"
                             />
                         </div>

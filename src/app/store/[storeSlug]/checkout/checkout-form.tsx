@@ -218,7 +218,7 @@ export function CheckoutForm() {
                 />
                 <Field>
                     <Button type="submit" form="form-checkout" className="w-full">
-                        Place Order
+                        Confirm Order
                     </Button>
                 </Field>
             </FieldGroup>
