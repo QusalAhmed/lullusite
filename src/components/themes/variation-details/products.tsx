@@ -68,10 +68,6 @@ function VariationCard({variation}: { variation: Variation }) {
                 <Carousel images={variation.images}/>
             </CardContent>
             <CardHeader>
-                <CardTitle className="flex flex-col gap-2">
-                    <div>{variation.name.repeat(3)}</div>
-                </CardTitle>
-                <CardDescription>{variation.description}</CardDescription>
                 <div className={'flex justify-end items-baseline'}>
                     <span className={'self-start'}><FaBangladeshiTakaSign /></span>
                     <span className={'text-rose-500 font-semibold text-2xl mr-2'}>
@@ -79,6 +75,10 @@ function VariationCard({variation}: { variation: Variation }) {
                         </span>
                     / কেজি
                 </div>
+                <CardTitle className="flex flex-col gap-2">
+                    <div>{variation.name.repeat(3)}</div>
+                </CardTitle>
+                <CardDescription>{variation.description}</CardDescription>
             </CardHeader>
             <CardFooter>
                 <div className="flex justify-between items-center w-full px-0.5">

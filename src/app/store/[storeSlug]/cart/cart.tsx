@@ -81,7 +81,10 @@ const Cart = ({storeSlug}: { storeSlug: string }) => {
                                 <div className="flex-1">
                                     <h2 className="font-semibold">{item.name}</h2>
                                     <h5 className="text-sm text-gray-500">{item.description}</h5>
-                                    <p className="flex items-center gap-1">
+                                    <Badge
+                                        variant="secondary"
+                                        className="flex items-center gap-1"
+                                    >
                                         <FaBangladeshiTakaSign/>
                                         <span className={'font-semibold'}>{item.price}</span>
                                         <X size={12}/>
@@ -89,7 +92,7 @@ const Cart = ({storeSlug}: { storeSlug: string }) => {
                                         <Equal/>
                                         <FaBangladeshiTakaSign/>
                                         {item.price * item.quantity}
-                                    </p>
+                                    </Badge>
                                     <div className="flex items-center gap-2 justify-between mt-2">
                                         <div className={'flex items-center gap-2'}>
                                             <Button
@@ -119,6 +122,35 @@ const Cart = ({storeSlug}: { storeSlug: string }) => {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                    <div className={'flex flex-col gap-2'}>
+                        <div className={'flex justify-between'}>
+                            <h3 className="text-gray-500">Subtotal</h3>
+                            <p className="flex items-center gap-1">
+                                <FaBangladeshiTakaSign/>
+                                <span className="font-bold">
+                                    {cartItems.reduce((total, item) => total + item.price * item.quantity, 0)}
+                                </span>
+                            </p>
+                        </div>
+                        <div className={'flex justify-between border-b-2'}>
+                            <h3 className="text-gray-500">Delivery Charge</h3>
+                            <p className="flex items-center gap-1">
+                                <FaBangladeshiTakaSign/>
+                                <span className="font-bold">100</span>
+                            </p>
+                        </div>
+                        <div className={'flex justify-between'}>
+                            <h3 className="text-gray-500">Total Amount</h3>
+                            <p className="flex items-center gap-1">
+                                <FaBangladeshiTakaSign />
+                                <span className="font-bold">
+                                    {cartItems.reduce((total, item) =>
+                                        total + item.price * item.quantity, 100
+                                    )}
+                                </span>
+                            </p>
+                        </div>
                     </div>
                     <Button variant='secondary' asChild>
                         <Link href={`/store/${storeSlug}`}>Continue Shopping</Link>
