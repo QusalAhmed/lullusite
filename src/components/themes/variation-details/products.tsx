@@ -51,6 +51,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '@/lib/redux/store';
 import { addItem, minusItem, addNUpdateQuantity, } from '@/lib/redux/features/cart/cartSlice';
 
+// Icon
+import { FaBangladeshiTakaSign } from "react-icons/fa6";
+
 function VariationCard({variation}: { variation: Variation }) {
     const cartItems = useSelector(
         (state: RootState) => state.cart.carts
@@ -65,8 +68,17 @@ function VariationCard({variation}: { variation: Variation }) {
                 <Carousel images={variation.images}/>
             </CardContent>
             <CardHeader>
-                <CardTitle>{variation.name}</CardTitle>
+                <CardTitle className="flex flex-col gap-2">
+                    <div>{variation.name.repeat(3)}</div>
+                </CardTitle>
                 <CardDescription>{variation.description}</CardDescription>
+                <div className={'flex justify-end items-baseline'}>
+                    <span className={'self-start'}><FaBangladeshiTakaSign /></span>
+                    <span className={'text-rose-500 font-semibold text-2xl mr-2'}>
+                            {variation.price}
+                        </span>
+                    / কেজি
+                </div>
             </CardHeader>
             <CardFooter>
                 <div className="flex justify-between items-center w-full px-0.5">
@@ -149,28 +161,28 @@ function VariationCardSkeleton() {
         <Card>
             <CardContent>
                 <div className="w-full aspect-square overflow-hidden rounded-md">
-                    <Skeleton className="h-full w-full" />
+                    <Skeleton className="h-full w-full"/>
                 </div>
             </CardContent>
             <CardHeader>
                 <CardTitle>
-                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-6 w-3/4"/>
                 </CardTitle>
                 <CardDescription>
                     <div className="space-y-2">
-                        <Skeleton className="h-4 w-full" />
-                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-4 w-full"/>
+                        <Skeleton className="h-4 w-2/3"/>
                     </div>
                 </CardDescription>
             </CardHeader>
             <CardFooter>
                 <div className="flex justify-between items-center w-full px-0.5">
-                    <Skeleton className="h-12 w-20" />
+                    <Skeleton className="h-12 w-20"/>
                     <div className="flex items-start gap-1">
-                        <Skeleton className="h-10 w-16" />
-                        <Skeleton className="h-5 w-6" />
+                        <Skeleton className="h-10 w-16"/>
+                        <Skeleton className="h-5 w-6"/>
                     </div>
-                    <Skeleton className="h-12 w-20" />
+                    <Skeleton className="h-12 w-20"/>
                 </div>
             </CardFooter>
         </Card>
@@ -180,8 +192,8 @@ function VariationCardSkeleton() {
 function ProductSkeleton() {
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4'>
-            {Array.from({ length: 8 }).map((_, i) => (
-                <VariationCardSkeleton key={i} />
+            {Array.from({length: 8}).map((_, i) => (
+                <VariationCardSkeleton key={i}/>
             ))}
         </div>
     );
@@ -198,7 +210,7 @@ const Products = () => {
     });
 
     if (isPending) {
-        return <ProductSkeleton />;
+        return <ProductSkeleton/>;
     }
 
     if (!data) {
@@ -206,7 +218,7 @@ const Products = () => {
     }
 
     return (
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4'>
+        <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4'>
             {data.variations.map((variation) => (
                 <VariationCard key={variation.id} variation={variation}/>
             ))}

@@ -48,7 +48,7 @@ const Carousel = (
                                 width={400}
                                 height={400}
                                 loading={index === 0 ? 'eager' : 'lazy'}
-                                className="object-cover w-full h-64 md:h-80 lg:h-96"
+                                className="object-cover"
                             />
                         </div>
                     </div>

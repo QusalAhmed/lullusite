@@ -98,6 +98,7 @@ const MobileNavbar = ({ storeSlug }: { storeSlug: string }) => {
                                 onClick={() => handleItemClick(index, item)}
                                 className={className_shared}
                                 aria-label={item.label}
+                                scroll={false}
                             >
                                 {content}
                             </Link>

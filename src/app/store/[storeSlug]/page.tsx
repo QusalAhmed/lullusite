@@ -12,9 +12,9 @@ export default async function StorePage(
     const {storeSlug} = await params
 
     return (
-        <div>
+        <>
             <Theme storeSlug={storeSlug}/>
             <CheckoutPage />
-        </div>
+        </>
     )
 }

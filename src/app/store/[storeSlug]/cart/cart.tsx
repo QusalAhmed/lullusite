@@ -5,16 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 // ShadCN
-import {
-    Item,
-    ItemActions,
-    ItemContent,
-    ItemDescription,
-    ItemMedia,
-    ItemTitle,
-    ItemGroup,
-    ItemHeader
-} from "@/components/ui/item"
 import { Button } from "@/components/ui/button";
 import {
     Empty,
@@ -24,9 +14,10 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "@/components/ui/empty"
+import { Badge } from "@/components/ui/badge"
 
 // Icon
-import { Trash, Plus, Minus, X, ShoppingCart } from "lucide-react";
+import { Trash, Plus, Minus, ShoppingCart, X, Equal } from "lucide-react";
 import { FaBangladeshiTakaSign } from "react-icons/fa6";
 
 // Redux
@@ -36,24 +27,26 @@ import type { RootState } from "@/lib/redux/store";
 
 function EmptyCart({storeSlug}: { storeSlug: string }) {
     return (
-        <Empty>
-            <EmptyHeader>
-                <EmptyMedia variant="icon">
-                    <ShoppingCart/>
-                </EmptyMedia>
-                <EmptyTitle>Your card is empty</EmptyTitle>
-                <EmptyDescription>
-                    You have not added any items to your cart yet.
-                </EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-                <Button asChild>
-                    <Link href={`/store/${storeSlug}`}>
-                        Continue Shopping
-                    </Link>
-                </Button>
-            </EmptyContent>
-        </Empty>
+        <div className='h-svh flex items-center justify-center'>
+            <Empty>
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <ShoppingCart/>
+                    </EmptyMedia>
+                    <EmptyTitle>Your card is empty</EmptyTitle>
+                    <EmptyDescription>
+                        You have not added any items to your cart yet.
+                    </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                    <Button asChild>
+                        <Link href={`/store/${storeSlug}`}>
+                            Continue Shopping
+                        </Link>
+                    </Button>
+                </EmptyContent>
+            </Empty>
+        </div>
     )
 }
 
@@ -64,75 +57,78 @@ const Cart = ({storeSlug}: { storeSlug: string }) => {
     );
 
     return (
-        <div className="py-8 px-4 flex flex-col gap-6">
-            <h1 className="text-2xl font-bold mb-6 text-center">Shopping Cart</h1>
+        <>
             {cartItems.length === 0 ? (
                 <EmptyCart storeSlug={storeSlug}/>
             ) : (
-                <ItemGroup className="gap-2 max-w-md mx-auto" role="list">
-                    {cartItems.map((cartItem) => (
-                        <Item key={cartItem.id} variant="outline" role="listitem">
-                            <ItemMedia variant="image">
+                <div className='max-w-3xl mx-auto p-4 flex flex-col gap-6'>
+                    <div className="flex items-center justify-between gap-4">
+                        <h1 className="text-2xl font-bold mt-2">Shopping Cart</h1>
+                        <Badge variant="secondary" className="mt-1 bg-green-500 text-white">
+                            {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'}
+                        </Badge>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                        {cartItems.map((item) => (
+                            <div key={item.id} className="flex items-center gap-4 border p-4 rounded-lg">
                                 <Image
-                                    src={cartItem.images[0].image.thumbnailUrl}
-                                    alt={cartItem.name}
-                                    width={100}
-                                    height={100}
-                                    className="object-cover"
+                                    src={item.images[0].image.thumbnailUrl}
+                                    alt={item.name}
+                                    width={80}
+                                    height={80}
+                                    className="object-cover rounded self-start"
                                 />
-                            </ItemMedia>
-                            <ItemContent>
-                                <ItemHeader>
-                                    {cartItem.name}
-                                </ItemHeader>
-                                <ItemDescription className="flex items-center gap-2">
-                                    Price:
-                                    <FaBangladeshiTakaSign/>
-                                    {cartItem.price.toFixed(2)}
-                                    <X size={12}/>
-                                    {cartItem.quantity}
-                                </ItemDescription>
-                                <ItemTitle className="flex items-center gap-2">
-                                    Quantity:
-                                    <div className={'flex items-center gap-2'}>
+                                <div className="flex-1">
+                                    <h2 className="font-semibold">{item.name}</h2>
+                                    <h5 className="text-sm text-gray-500">{item.description}</h5>
+                                    <p className="flex items-center gap-1">
+                                        <FaBangladeshiTakaSign/>
+                                        <span className={'font-semibold'}>{item.price}</span>
+                                        <X size={12}/>
+                                        {item.quantity}
+                                        <Equal/>
+                                        <FaBangladeshiTakaSign/>
+                                        {item.price * item.quantity}
+                                    </p>
+                                    <div className="flex items-center gap-2 justify-between mt-2">
+                                        <div className={'flex items-center gap-2'}>
+                                            <Button
+                                                size="icon-sm"
+                                                variant="outline"
+                                                onClick={() => dispatch(minusItem({id: item.id}))}
+                                            >
+                                                <Minus size={16}/>
+                                            </Button>
+                                            <span>{item.quantity}</span>
+                                            <Button
+                                                size="icon-sm"
+                                                variant="outline"
+                                                onClick={() => dispatch(addItem(item))}
+                                            >
+                                                <Plus size={16}/>
+                                            </Button>
+                                        </div>
                                         <Button
+                                            size="sm"
                                             variant="ghost"
-                                            size="icon"
-                                            onClick={() => dispatch(minusItem({id: cartItem.id}))}
+                                            onClick={() => dispatch(removeItem(item.id))}
                                         >
-                                            <Minus size={12}/>
-                                        </Button>
-                                        <span>{cartItem.quantity}</span>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => dispatch(addItem(cartItem))}
-                                        >
-                                            <Plus size={12}/>
+                                            <Trash size={16} color={'red'}/>
                                         </Button>
                                     </div>
-                                </ItemTitle>
-                            </ItemContent>
-                            <ItemActions>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => dispatch(removeItem(cartItem.id))}
-                                >
-                                    <Trash/>
-                                </Button>
-                            </ItemActions>
-                        </Item>
-                    ))}
-                </ItemGroup>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <Button variant='secondary' asChild>
+                        <Link href={`/store/${storeSlug}`}>Continue Shopping</Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href={`/store/${storeSlug}/checkout`}>Proceed to Checkout</Link>
+                    </Button>
+                </div>
             )}
-            <Button variant='secondary' asChild>
-                <Link href={`/store/${storeSlug}`}>Continue Shopping</Link>
-            </Button>
-            <Button asChild>
-                <Link href={`/store/${storeSlug}/checkout`}>Proceed to Checkout</Link>
-            </Button>
-        </div>
+        </>
     );
 };
 
