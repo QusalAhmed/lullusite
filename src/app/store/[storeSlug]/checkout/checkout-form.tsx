@@ -90,7 +90,7 @@ export function CheckoutForm() {
                 }
             }).then((response) => {
                 if(response.success) {
-                    toast.success("Incomplete order created/updated successfully.")
+                    toast.success(response.message)
                 } else {
                     toast.error(`Failed to create/update incomplete order: ${response.error}`)
                 }
