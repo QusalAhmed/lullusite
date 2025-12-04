@@ -2,7 +2,7 @@
 
 import db from "@/lib/drizzle-agent";
 import { incompleteOrderTable } from "@/db/incomplete-order.schema";
-import { eq, and, lt } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export async function markIncompleteOrderAbandoned(incompleteOrderId: string) {
     try {
@@ -39,7 +39,6 @@ export async function expireOldIncompleteOrders() {
             .where(
                 and(
                     eq(incompleteOrderTable.status, "active"),
-                    lt(incompleteOrderTable.expiresAt, now)
                 )
             );
 

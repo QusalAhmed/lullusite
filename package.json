@@ -58,6 +58,7 @@
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
     "react-number-format": "^5.4.4",
+    "react-player": "^3.4.0",
     "react-redux": "^9.2.0",
     "react-use-measure": "^2.1.7",
     "redis": "^5.10.0",

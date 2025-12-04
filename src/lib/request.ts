@@ -1,11 +1,12 @@
 import { headers } from "next/headers";
 
 export type RequestSource = {
-  origin?: string;
-  host?: string;
-  protocol?: string;
-  referer?: string;
-  url?: string; // Built as protocol + host
+    origin?: string;
+    host?: string;
+    protocol?: string;
+    referer?: string;
+    url?: string; // Built as protocol + host
+    userAgent?: string;
 };
 
 /**
@@ -13,14 +14,14 @@ export type RequestSource = {
  * Works behind proxies (Vercel) using x-forwarded-proto and host.
  */
 export async function getRequestSource(): Promise<RequestSource> {
-  const hdrs = await headers();
+    const headersList = await headers();
 
-  const origin = hdrs.get("origin") ?? undefined;
-  const referer = hdrs.get("referer") ?? undefined;
-  const host = hdrs.get("x-forwarded-host") ?? hdrs.get("host") ?? undefined;
-  const protocol = hdrs.get("x-forwarded-proto") ?? (origin?.startsWith("https") ? "https" : "http");
+    const origin = headersList.get("origin") ?? undefined;
+    const referer = headersList.get("referer") ?? undefined;
+    const host = headersList.get("x-forwarded-host") ?? headersList.get("host") ?? undefined;
+    const protocol = headersList.get("x-forwarded-proto") ?? (origin?.startsWith("https") ? "https" : "http");
+    const url = host ? `${protocol}://${host}` : origin ?? undefined;
+    const userAgent = headersList.get("user-agent") ?? undefined;
 
-  const url = host ? `${protocol}://${host}` : origin ?? undefined;
-
-  return { origin, host, protocol, referer, url };
+    return {origin, host, protocol, referer, url, userAgent};
 }

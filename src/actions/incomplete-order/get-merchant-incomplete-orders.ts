@@ -6,7 +6,7 @@ import { eq, and, desc } from "drizzle-orm";
 
 export async function getIncompleteOrdersByMerchant(
     merchantId: string,
-    status?: "active" | "expired" | "converted"
+    status?: "active" | "expired" | "converted" | "abandoned"
 ) {
     try {
         const whereConditions = [eq(incompleteOrderTable.merchantId, merchantId)];

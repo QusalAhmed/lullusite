@@ -1,9 +1,11 @@
 "use server";
 
+import { getRequestSource } from "@/lib/request";
+
+// db
 import db from "@/lib/drizzle-agent";
 import { incompleteOrderTable, incompleteOrderItemTable, pageTable, productVariationTable } from "@/db/index.schema";
 import { eq, and, or } from "drizzle-orm";
-import { getRequestSource } from "@/lib/request";
 
 interface CreateIncompleteOrderParams {
     phoneNumber: string;
@@ -16,18 +18,18 @@ interface CreateIncompleteOrderParams {
     };
 }
 
+
 export async function createIncompleteOrder(
     {phoneNumber, items, metadata}: CreateIncompleteOrderParams
 ) {
     // Capture request source (origin/host/protocol)
     const req = await getRequestSource();
-    console.log("Request headers:", req);
     const storeSlug = req.referer?.split('/store/')[1]?.split('/')[0]
 
     if (!storeSlug) {
         return {
             success: false,
-            error: "Store slug not found in referer",
+            error: "Store not found in referer",
         };
     }
 
@@ -55,6 +57,7 @@ export async function createIncompleteOrder(
             protocol: req.protocol,
             referer: req.referer,
             url: req.url,
+            userAgent: req.userAgent,
         },
     };
 

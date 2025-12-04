@@ -11,6 +11,7 @@ export const incompleteOrderStatus = pgEnum("incomplete_order_status", [
     "active",
     "converted",
     "expired",
+    "abandoned",
 ]);
 
 export const incompleteOrderTable = pgTable("incomplete_orders", {
