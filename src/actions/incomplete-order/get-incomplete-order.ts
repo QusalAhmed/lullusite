@@ -15,7 +15,6 @@ export async function getIncompleteOrder(phoneNumber: string, merchantId: string
             with: {
                 items: {
                     with: {
-                        product: true,
                         productVariation: true,
                     },
                 },
@@ -26,20 +25,6 @@ export async function getIncompleteOrder(phoneNumber: string, merchantId: string
             return {
                 success: false,
                 error: "Incomplete order not found",
-            };
-        }
-
-        // Check if expired
-        if (new Date() > incompleteOrder.expiresAt) {
-            // Mark as expired
-            await db
-                .update(incompleteOrderTable)
-                .set({ status: "expired" })
-                .where(eq(incompleteOrderTable.id, incompleteOrder.id));
-
-            return {
-                success: false,
-                error: "Incomplete order has expired",
             };
         }
 
