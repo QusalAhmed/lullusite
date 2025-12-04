@@ -1,4 +1,5 @@
 import z from 'zod'
+import { validatePhoneNumber } from '@/lib/phone-number';
 
 export const checkoutFormSchema = z.object({
     name: z
@@ -12,12 +13,17 @@ export const checkoutFormSchema = z.object({
     division: z
         .string(),
     phoneNumber: z
-        .string()
-        .min(10, 'Phone number must be at least 10 characters long'),
+        .string(),
     remarks: z
         .string()
         .max(500, 'Remarks cannot exceed 500 characters')
         .or(z.string()),
+}).refine((data) => {
+    const phoneNumber = data.phoneNumber;
+    return validatePhoneNumber(phoneNumber);
+}, {
+    message: 'Invalid phone number format',
+    path: ['phoneNumber'],
 })
 
 // export type CheckoutFormType = z.infer<typeof checkoutFormSchema>

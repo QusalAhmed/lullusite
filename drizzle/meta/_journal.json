@@ -78,6 +78,20 @@
       "when": 1764579388110,
       "tag": "0010_sudden_komodo",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1764831498542,
+      "tag": "0011_closed_green_goblin",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1764835668586,
+      "tag": "0012_tiny_arachne",
+      "breakpoints": true
     }
   ]
 }

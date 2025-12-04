@@ -1,4 +1,4 @@
-import { pgTable, pgEnum, uuid, varchar, integer, numeric, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, varchar, integer, numeric, jsonb } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // Schemas
@@ -52,17 +52,6 @@ export const orderTable = pgTable("orders", {
     shippingPostalCode: varchar("shipping_postal_code", { length: 20 }),
     shippingCountry: varchar("shipping_country", { length: 100 }).notNull().default("Bangladesh"),
     shippingNotes: varchar("shipping_notes", { length: 500 }),
-
-    // Billing snapshot
-    billingSameAsShipping: boolean("billing_same_as_shipping").notNull().default(true),
-    billingFullName: varchar("billing_full_name", { length: 255 }),
-    billingPhone: varchar("billing_phone", { length: 50 }),
-    billingAddressLine1: varchar("billing_address_line1", { length: 255 }),
-    billingAddressLine2: varchar("billing_address_line2", { length: 255 }),
-    billingCity: varchar("billing_city", { length: 100 }),
-    billingState: varchar("billing_state", { length: 100 }),
-    billingPostalCode: varchar("billing_postal_code", { length: 20 }),
-    billingCountry: varchar("billing_country", { length: 100 }),
 
     // Payment / channel metadata
     paymentMethod: varchar("payment_method", { length: 50 }),

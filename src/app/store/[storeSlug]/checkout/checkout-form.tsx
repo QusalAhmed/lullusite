@@ -1,13 +1,21 @@
 "use client"
 
-import * as React from "react"
+import React, { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Controller, useForm } from "react-hook-form"
+import { Controller, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
+import {validatePhoneNumber} from '@/lib/phone-number'
+
+// Redux
+import { useSelector } from "react-redux";
+import type { RootState } from "@/lib/redux/store";
+
+// Actions
+import {createIncompleteOrder} from "@/actions/incomplete-order/create-incomplete-order"
 
 // Zod schema
-import {checkoutFormSchema} from "@/lib/validations/checkout.schema"
+import { checkoutFormSchema } from "@/lib/validations/checkout.schema"
 
 // ShadCN
 import { Button } from "@/components/ui/button"
@@ -35,14 +43,14 @@ import {
 } from "@/components/ui/select"
 
 export const divisions = [
-    { value: "dhaka", label: "ঢাকা বিভাগ" },
-    { value: "chattogram", label: "চট্টগ্রাম বিভাগ" },
-    { value: "rajshahi", label: "রাজশাহী বিভাগ" },
-    { value: "khulna", label: "খুলনা বিভাগ" },
-    { value: "barishal", label: "বরিশাল বিভাগ" },
-    { value: "sylhet", label: "সিলেট বিভাগ" },
-    { value: "rangpur", label: "রংপুর বিভাগ" },
-    { value: "mymensingh", label: "ময়মনসিংহ বিভাগ" },
+    {value: "dhaka", label: "ঢাকা বিভাগ"},
+    {value: "chattogram", label: "চট্টগ্রাম বিভাগ"},
+    {value: "rajshahi", label: "রাজশাহী বিভাগ"},
+    {value: "khulna", label: "খুলনা বিভাগ"},
+    {value: "barishal", label: "বরিশাল বিভাগ"},
+    {value: "sylhet", label: "সিলেট বিভাগ"},
+    {value: "rangpur", label: "রংপুর বিভাগ"},
+    {value: "mymensingh", label: "ময়মনসিংহ বিভাগ"},
 ] as const;
 
 export function CheckoutForm() {
@@ -56,6 +64,41 @@ export function CheckoutForm() {
             remarks: "",
         },
     })
+    const watchPhoneNumber = useWatch({
+        control: form.control,
+        name: "phoneNumber",
+    })
+
+    const cartItems = useSelector((state: RootState) => state.cart.carts);
+
+    useEffect(() => {
+        if (watchPhoneNumber && validatePhoneNumber(watchPhoneNumber).isValid) {
+            toast.success("Valid phone number entered!")
+
+            // Create incomplete order
+            createIncompleteOrder({
+                phoneNumber: watchPhoneNumber,
+                items: cartItems.map(item => ({
+                    variationId: item.id,
+                    quantity: item.quantity,
+                })),
+                metadata: {
+                    customerName: form.getValues("name"),
+                    address: form.getValues("address"),
+                    division: form.getValues("division"),
+                    remarks: form.getValues("remarks"),
+                }
+            }).then((response) => {
+                if(response.success) {
+                    toast.success("Incomplete order created/updated successfully.")
+                } else {
+                    toast.error(`Failed to create/update incomplete order: ${response.error}`)
+                }
+            }).catch((error) => {
+                console.error(error)
+            })
+        }
+    }, [cartItems, form, watchPhoneNumber])
 
     function onSubmit(data: z.infer<typeof checkoutFormSchema>) {
         toast("You submitted the following values:", {
@@ -74,6 +117,7 @@ export function CheckoutForm() {
         })
     }
 
+
     return (
         <form id="form-checkout" onSubmit={form.handleSubmit(onSubmit)}>
             <h1 className='text-2xl text-center text-cyan-800'>Fill the form</h1>
@@ -91,6 +135,7 @@ export function CheckoutForm() {
                                 id="form-checkout-name"
                                 aria-invalid={fieldState.invalid}
                                 placeholder="Your full name"
+                                autoComplete="name"
                             />
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]}/>
@@ -110,7 +155,8 @@ export function CheckoutForm() {
                                 {...field}
                                 id="form-checkout-name"
                                 aria-invalid={fieldState.invalid}
-                                placeholder="11 digit phone number"
+                                placeholder="e.g., +8801712345678 or 01712345678"
+                                autoComplete="tel"
                             />
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]}/>
@@ -135,6 +181,7 @@ export function CheckoutForm() {
                                     rows={2}
                                     className="min-h-24 resize-none"
                                     aria-invalid={fieldState.invalid}
+                                    autoComplete='street-address'
                                 />
                                 <InputGroupAddon align="block-end">
                                     <InputGroupText className="tabular-nums">
@@ -154,13 +201,13 @@ export function CheckoutForm() {
                 <Controller
                     name="division"
                     control={form.control}
-                    render={({ field, fieldState }) => (
+                    render={({field, fieldState}) => (
                         <Field orientation="responsive" data-invalid={fieldState.invalid}>
                             <FieldContent>
                                 <FieldLabel htmlFor="form-checkout-division">
                                     Division
                                 </FieldLabel>
-                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
                             </FieldContent>
                             <Select
                                 name={field.name}
@@ -172,7 +219,7 @@ export function CheckoutForm() {
                                     aria-invalid={fieldState.invalid}
                                     className="min-w-[120px]"
                                 >
-                                    <SelectValue placeholder="Select" />
+                                    <SelectValue placeholder="Select"/>
                                 </SelectTrigger>
                                 <SelectContent position="item-aligned">
                                     {divisions.map((division) => (
