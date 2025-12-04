@@ -7,6 +7,9 @@ import db from "@/lib/drizzle-agent";
 import { incompleteOrderTable, incompleteOrderItemTable, pageTable, productVariationTable } from "@/db/index.schema";
 import { eq, and, or } from "drizzle-orm";
 
+// mail
+import { sendEmail } from "@/lib/mail/incomplete-order/send-email";
+
 interface CreateIncompleteOrderParams {
     phoneNumber: string;
     items: Array<{ variationId: string; quantity: number; }>;
@@ -95,6 +98,16 @@ export async function createIncompleteOrder(
                 .returning();
 
             incompleteOrderId = newOrder.id;
+
+            await sendEmail({
+                merchantName: merchantId,
+                merchantEmail: 'qusalcse@gmail.com',
+                orderId: incompleteOrderId,
+                createdDate: new Date().toLocaleTimeString(),
+                supportEmail: 'lullusite.com',
+                storeName: 'Jazakallah',
+                phoneNumber,
+            })
         }
 
         // Insert items
