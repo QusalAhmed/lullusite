@@ -24,7 +24,6 @@ export async function createIncompleteOrder(
 ) {
     // Capture request source (origin/host/protocol)
     const req = await getRequestSource();
-    console.log(req)
     const storeSlug = req.referer?.split('/store/')[1]?.split('/')[0]
 
     if (!storeSlug) {
@@ -52,14 +51,7 @@ export async function createIncompleteOrder(
     // Merge metadata with request URL info
     const mergedMetadata = {
         ...(typeof metadata === "object" && metadata !== null ? metadata : {}),
-        request: {
-            origin: req.origin,
-            host: req.host,
-            protocol: req.protocol,
-            referer: req.referer,
-            url: req.url,
-            userAgent: req.userAgent,
-        },
+        ...req,
     };
 
     try {
@@ -128,7 +120,7 @@ export async function createIncompleteOrder(
 
         return {
             success: true,
-            message: req.ipAddress
+            incompleteOrderId,
         };
     } catch (error) {
         console.error("Error creating incomplete order:", error);
