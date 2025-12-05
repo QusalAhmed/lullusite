@@ -7,8 +7,8 @@ import db from "@/lib/drizzle-agent";
 import { incompleteOrderTable, incompleteOrderItemTable, pageTable, productVariationTable } from "@/db/index.schema";
 import { eq, and, or } from "drizzle-orm";
 
-// mail
-import { sendEmail } from "@/lib/mail/incomplete-order/send-email";
+// BullMQ
+import { incompleteOrderQueue, myQueue } from "@/lib/bullmq-agent";
 
 interface CreateIncompleteOrderParams {
     phoneNumber: string;
@@ -99,15 +99,16 @@ export async function createIncompleteOrder(
 
             incompleteOrderId = newOrder.id;
 
-            await sendEmail({
+            await incompleteOrderQueue.add("send-incomplete-order-email", {
                 merchantName: merchantId,
                 merchantEmail: 'qusalcse@gmail.com',
                 orderId: incompleteOrderId,
-                createdDate: new Date().toLocaleTimeString(),
+                createdDate: new Date().toLocaleTimeString() + ' ' + new Date().toLocaleDateString(),
                 supportEmail: 'lullusite.com',
                 storeName: 'Jazakallah',
                 phoneNumber,
-            })
+            });
+            await myQueue.add('test-job', { foo: 'bar' });
         }
 
         // Insert items
