@@ -13,6 +13,7 @@ import type { RootState } from "@/lib/redux/store";
 
 // Actions
 import {createIncompleteOrder} from "@/actions/incomplete-order/create-incomplete-order"
+import createOrder from "@/actions/order/create-order"
 
 // Zod schema
 import { checkoutFormSchema } from "@/lib/validations/checkout.schema"
@@ -73,8 +74,6 @@ export function CheckoutForm() {
 
     useEffect(() => {
         if (watchPhoneNumber && validatePhoneNumber(watchPhoneNumber).isValid) {
-            toast.success("Valid phone number entered!")
-
             // Create incomplete order
             createIncompleteOrder({
                 phoneNumber: watchPhoneNumber,
@@ -90,9 +89,9 @@ export function CheckoutForm() {
                 }
             }).then((response) => {
                 if(response.success) {
-                    toast.success("Incomplete order created/updated successfully.")
+                    console.log("Incomplete order created/updated successfully.")
                 } else {
-                    toast.error(`Failed to create/update incomplete order: ${response.error}`)
+                    console.error(`Failed to create/update incomplete order: ${response.error}`)
                 }
             }).catch((error) => {
                 console.error(error)
@@ -101,20 +100,28 @@ export function CheckoutForm() {
     }, [cartItems, form, watchPhoneNumber])
 
     function onSubmit(data: z.infer<typeof checkoutFormSchema>) {
-        toast("You submitted the following values:", {
-            description: (
-                <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-            ),
-            position: "bottom-right",
-            classNames: {
-                content: "flex flex-col gap-2",
-            },
-            style: {
-                "--border-radius": "calc(var(--radius)  + 4px)",
-            } as React.CSSProperties,
+        const response = createOrder({
+            name: data.name,
+            phoneNumber: data.phoneNumber,
+            address: data.address,
+            division: data.division,
+            remark: data.remarks,
+            variations: cartItems.map(item => ({
+                variationId: item.id,
+                quantity: item.quantity,
+            })),
         })
+
+        toast.promise(
+            response,
+            {
+                loading: "Placing your order...",
+                success: "Order placed successfully!",
+                error: (err) => `Failed to place order: ${err.message}`,
+            }
+        )
+
+        return response
     }
 
 
@@ -265,8 +272,13 @@ export function CheckoutForm() {
                     )}
                 />
                 <Field>
-                    <Button type="submit" form="form-checkout" className="w-full">
-                        Confirm Order
+                    <Button
+                        type="submit"
+                        form="form-checkout"
+                        className="w-full"
+                        disabled={form.formState.isSubmitting}
+                    >
+                        {form.formState.isSubmitting ? "Confirming Order..." : "Confirm Order"}
                     </Button>
                 </Field>
             </FieldGroup>

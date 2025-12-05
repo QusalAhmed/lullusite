@@ -74,9 +74,6 @@ export async function initializeWorker() {
                 storeName: job.data.storeName,
                 phoneNumber: job.data.phoneNumber,
             });
-            const { merchantName, merchantEmail, orderId, createdDate, supportEmail, storeName, phoneNumber } = job.data;
-            console.log(`Sending email to ${merchantEmail} for order ${orderId} from store ${storeName} (${merchantName})`);
-            console.log(`Order created: ${createdDate}, Support: ${supportEmail}, Phone: ${phoneNumber}`);
             await new Promise(resolve => setTimeout(resolve, 100));
             console.log('Completed incomplete-order-queue job:', job.id);
             return { emailSent: true, jobId: job.id };

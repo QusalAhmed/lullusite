@@ -1,4 +1,4 @@
-import { pgTable, pgEnum, uuid, varchar, integer, numeric, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, varchar, integer, numeric, jsonb, text } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // Schemas
@@ -33,7 +33,7 @@ export const incompleteOrderTable = pgTable("incomplete_orders", {
     // Customer details
     customerName: varchar("customer_name", { length: 100 }),
     customerEmail: varchar("customer_email", { length: 100 }),
-    customerAddress: varchar("customer_address", { length: 255 }),
+    customerAddress: text("customer_address"),
 
     // Additional metadata (customer info, source, etc.)
     metadata: jsonb("metadata"),

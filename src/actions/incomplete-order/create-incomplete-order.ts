@@ -8,7 +8,7 @@ import { incompleteOrderTable, incompleteOrderItemTable, pageTable, productVaria
 import { eq, and, or } from "drizzle-orm";
 
 // BullMQ
-import { incompleteOrderQueue, myQueue } from "@/lib/bullmq-agent";
+import { incompleteOrderQueue } from "@/lib/bullmq-agent";
 
 interface CreateIncompleteOrderParams {
     phoneNumber: string;
@@ -108,7 +108,6 @@ export async function createIncompleteOrder(
                 storeName: 'Jazakallah',
                 phoneNumber,
             });
-            await myQueue.add('test-job', { foo: 'bar' });
         }
 
         // Insert items
