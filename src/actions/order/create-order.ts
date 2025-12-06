@@ -8,6 +8,9 @@ import { nanoid } from 'nanoid';
 import db from "@/lib/drizzle-agent"
 import { eq, and } from "drizzle-orm";
 
+// Queue
+import { orderConfirmationQueue } from "@/lib/bullmq-agent"
+
 // Schema
 import { orderTable, customerTable, orderItemTable, productVariationTable, productTable } from '@/db/index.schema'
 
@@ -100,7 +103,7 @@ export default async function createOrder(orderData: OrderData) {
         }
 
         // Check stock availability
-        if (variationData.stock < variation.quantity) {
+        if (variationData.stock < variation.quantity && variationData.stock !== -1) {
             throw new Error(`Insufficient stock for ${variationData.productName} - ${variationData.name}`);
         }
 
@@ -125,12 +128,13 @@ export default async function createOrder(orderData: OrderData) {
         subtotalAmount += lineSubtotal;
 
         // Update product variation stock
-        await db
-            .update(productVariationTable)
-            .set({
-                stock: variationData.stock - variation.quantity,
-            })
-            .where(eq(productVariationTable.id, variation.variationId));
+        if (variationData.stock !== -1)
+            await db
+                .update(productVariationTable)
+                .set({
+                    stock: variationData.stock - variation.quantity,
+                })
+                .where(eq(productVariationTable.id, variation.variationId));
     }
 
     // Insert all order items
@@ -146,6 +150,57 @@ export default async function createOrder(orderData: OrderData) {
             totalAmount: totalAmount,
         })
         .where(eq(orderTable.id, orderId.id));
+
+    // Get the created order to fetch all details for email
+    const [createdOrder] = await db
+        .select()
+        .from(orderTable)
+        .where(eq(orderTable.id, orderId.id))
+        .limit(1);
+
+    // Queue order confirmation email
+    await orderConfirmationQueue.add(
+        'send-order-confirmation',
+        {
+            customerName: createdOrder.customerName,
+            customerEmail: createdOrder.customerEmail,
+            orderNumber: createdOrder.orderNumber,
+            createdDate: new Date(createdOrder.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            }),
+            phoneNumber: createdOrder.customerPhone,
+            storeName: 'Our Store',
+            supportEmail: process.env.SUPPORT_EMAIL || 'qusalcse@gmail.com',
+            shippingFullName: createdOrder.shippingFullName,
+            shippingAddressLine1: createdOrder.shippingAddressLine1,
+            shippingCity: createdOrder.shippingCity,
+            shippingPostalCode: createdOrder.shippingPostalCode || '',
+            shippingCountry: createdOrder.shippingCountry,
+            shippingPhone: createdOrder.shippingPhone || createdOrder.customerPhone,
+            subtotalAmount: createdOrder.subtotalAmount,
+            shippingAmount: createdOrder.shippingAmount,
+            discountAmount: createdOrder.discountAmount,
+            totalAmount: createdOrder.totalAmount,
+            currency: createdOrder.currency,
+            items: orderItems.map(item => ({
+                productName: item.productName,
+                variationName: item.variationName,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                lineTotal: item.lineTotal,
+            })),
+        },
+        {
+            delay: 1000, // Delay 1 second to ensure order is fully saved
+            attempts: 3,
+            backoff: {
+                type: 'exponential',
+                delay: 2000,
+            },
+        }
+    );
 
     return {
         success: true,

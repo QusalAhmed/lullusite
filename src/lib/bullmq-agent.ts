@@ -3,6 +3,7 @@ import IORedis from 'ioredis';
 
 // Send mail
 import {sendEmail} from "@/lib/mail/incomplete-order/send-email";
+import {sendOrderConfirmationEmail} from "@/lib/mail/order-confirmation/send-email";
 
 const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379', {
     maxRetriesPerRequest: null,
@@ -19,13 +20,15 @@ connection.on('connect', () => {
 export { connection };
 export const myQueue = new Queue('my-queue', {connection});
 export const incompleteOrderQueue = new Queue('incomplete-order-queue', {connection});
+export const orderConfirmationQueue = new Queue('order-confirmation-queue', {connection});
 
 // Only initialize worker in a dedicated background job handler
 let myWorker: Worker | null = null;
 let incompleteOrderWorker: Worker | null = null;
+let orderConfirmationWorker: Worker | null = null;
 
 export async function initializeWorker() {
-    if (myWorker && incompleteOrderWorker) {
+    if (myWorker && incompleteOrderWorker && orderConfirmationWorker) {
         console.log('Workers already initialized');
         return;
     }
@@ -99,6 +102,55 @@ export async function initializeWorker() {
         });
     }
 
+    // Initialize order-confirmation-queue worker
+    if (!orderConfirmationWorker) {
+        orderConfirmationWorker = new Worker('order-confirmation-queue', async job => {
+            console.log('Processing order-confirmation-queue job:', job.id, 'with data:', job.data);
+            const result = await sendOrderConfirmationEmail({
+                customerName: job.data.customerName,
+                customerEmail: job.data.customerEmail,
+                orderNumber: job.data.orderNumber,
+                createdDate: job.data.createdDate,
+                phoneNumber: job.data.phoneNumber,
+                storeName: job.data.storeName,
+                supportEmail: job.data.supportEmail,
+                shippingFullName: job.data.shippingFullName,
+                shippingAddressLine1: job.data.shippingAddressLine1,
+                shippingCity: job.data.shippingCity,
+                shippingPostalCode: job.data.shippingPostalCode,
+                shippingCountry: job.data.shippingCountry,
+                shippingPhone: job.data.shippingPhone,
+                subtotalAmount: job.data.subtotalAmount,
+                shippingAmount: job.data.shippingAmount,
+                discountAmount: job.data.discountAmount,
+                totalAmount: job.data.totalAmount,
+                currency: job.data.currency,
+                items: job.data.items,
+            });
+            console.log('Completed order-confirmation-queue job:', job.id);
+            return { emailSent: result.success, jobId: job.id };
+        }, {
+            connection: connection.duplicate(),
+            concurrency: 3,
+        });
+
+        orderConfirmationWorker.on('failed', (job, err) => {
+            console.error(`order-confirmation-queue Job ${job?.id} failed:`, err);
+        });
+
+        orderConfirmationWorker.on('completed', (job) => {
+            console.log(`order-confirmation-queue Job ${job.id} completed successfully`);
+        });
+
+        orderConfirmationWorker.on('error', (err) => {
+            console.error('order-confirmation-queue Worker error:', err);
+        });
+
+        orderConfirmationWorker.on('ready', () => {
+            console.log('order-confirmation-queue Worker is ready and listening for jobs');
+        });
+    }
+
     console.log('All workers initialized successfully');
 }
 
@@ -115,6 +167,12 @@ export async function closeWorker() {
         console.log('Closing incomplete-order-queue worker...');
         closingPromises.push(incompleteOrderWorker.close());
         incompleteOrderWorker = null;
+    }
+
+    if (orderConfirmationWorker) {
+        console.log('Closing order-confirmation-queue worker...');
+        closingPromises.push(orderConfirmationWorker.close());
+        orderConfirmationWorker = null;
     }
 
     await Promise.all(closingPromises);
