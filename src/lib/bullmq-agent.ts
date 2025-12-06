@@ -132,6 +132,7 @@ export async function initializeWorker() {
         }, {
             connection: connection.duplicate(),
             concurrency: 3,
+            stalledInterval: 30000,
         });
 
         orderConfirmationWorker.on('failed', (job, err) => {
