@@ -32,7 +32,9 @@ export const orderTable = pgTable("orders", {
     id: uuid("id").primaryKey().defaultRandom(),
 
     // Relations
-    customerId: uuid("customer_id").references(() => customerTable.id, {
+    customerId: uuid("customer_id")
+        .notNull()
+        .references(() => customerTable.id, {
         onDelete: "set null",
         onUpdate: "cascade",
     }),
@@ -99,19 +101,13 @@ export const orderItemTable = pgTable("order_item", {
         .references(() => productVariationTable.id),
 
     // Snapshot product data
-    productName: varchar("product_name", { length: 255 }).notNull(),
-    productNameLocal: varchar("product_name_local", { length: 255 }),
     sku: varchar("sku", { length: 100 }).notNull(),
     variationName: varchar("variation_name", { length: 100 }),
-
-    // Pricing & quantity
     quantity: integer("quantity").notNull().default(1),
     unitPrice: numeric("unit_price", { precision: 10, scale: 2, mode: "number" }).notNull(),
     lineSubtotal: numeric("line_subtotal", { precision: 10, scale: 2, mode: "number" }).notNull().default(0),
     lineDiscountAmount: numeric("line_discount_amount", { precision: 10, scale: 2, mode: "number" }).notNull().default(0),
     lineTotal: numeric("line_total", { precision: 10, scale: 2, mode: "number" }).notNull().default(0),
-
-    // Misc
     weight: numeric("weight", { precision: 10, scale: 2, mode: "number" }),
 
     ...timestamps,

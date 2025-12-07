@@ -215,8 +215,7 @@ function generateEmailTemplate(data: OrderConfirmationData): string {
         }
         .next-steps li {
             font-size: 13px;
-            padding: 8px 0;
-            padding-left: 25px;
+            padding: 8px 0 8px 25px;
             position: relative;
             color: #666;
         }

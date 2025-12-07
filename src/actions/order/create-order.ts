@@ -2,17 +2,23 @@
 
 import { validatePhoneNumber } from '@/lib/phone-number'
 import getMerchant from "@/lib/get-merchant";
-import { nanoid } from 'nanoid';
+import crypto from 'crypto';
 
 // db
 import db from "@/lib/drizzle-agent"
-import { eq, and } from "drizzle-orm";
+import { eq, and, or, gte, inArray, sql } from "drizzle-orm";
 
 // Queue
 import { orderConfirmationQueue } from "@/lib/bullmq-agent"
 
 // Schema
-import { orderTable, customerTable, orderItemTable, productVariationTable, productTable } from '@/db/index.schema'
+import {
+    orderTable,
+    customerTable,
+    orderItemTable,
+    productVariationTable,
+    incompleteOrderTable
+} from '@/db/index.schema'
 
 interface OrderData {
     name: string;
@@ -40,6 +46,7 @@ export default async function createOrder(orderData: OrderData) {
     if (!merchant.merchantId) {
         throw new Error('Merchant ID not found')
     }
+    let customerId: string;
     const [customer] = await db
         .select()
         .from(customerTable)
@@ -49,8 +56,10 @@ export default async function createOrder(orderData: OrderData) {
         ))
         .limit(1);
 
-    if (!customer) {
-        await db
+    if (customer) {
+        customerId = customer.id;
+    } else {
+        customerId = await db
             .insert(customerTable)
             .values({
                 userId: merchant.merchantId,
@@ -58,113 +67,139 @@ export default async function createOrder(orderData: OrderData) {
                 phone: orderData.phoneNumber,
                 address: orderData.address,
                 division: orderData.division,
-            });
+            })
+            .returning({id: customerTable.id})
+            .then(res => res[0].id);
     }
 
     // Create order
-    const [orderId] = await db
+    const [createdOrder] = await db
         .insert(orderTable)
         .values({
             merchantId: merchant.merchantId,
-            orderNumber: nanoid(10).toUpperCase(),
+            customerId: customerId,
+            orderNumber: crypto.randomBytes(6).toString('hex'),
             customerName: orderData.name,
             customerPhone: orderData.phoneNumber,
             shippingAddressLine1: orderData.address,
             shippingFullName: orderData.name,
             shippingCity: orderData.division,
         })
-        .returning({id: orderTable.id});
+        .returning();
 
-    // Order items insertion
-    let subtotalAmount = 0;
-    const orderItems = [];
+    // Get product variation details
+    if (orderData.variations.length !== 0) {
+        const variationsDetails = await db
+            .query
+            .productVariationTable
+            .findMany({
+                columns: {
+                    id: true,
+                    name: true,
+                    sku: true,
+                    price: true,
+                    stock: true,
+                    weight: true,
+                },
+                where: and(
+                    or(
+                        ...orderData.variations.map(variation =>
+                            and(
+                                eq(productVariationTable.id, variation.variationId),
+                                or(
+                                    eq(productVariationTable.stock, -1), /* unlimited stock */
+                                    gte(productVariationTable.stock, variation.quantity)
+                                )
+                            )
+                        ),
+                    ),
+                ),
+            });
+        console.log('variationsDetails', variationsDetails);
 
-    for (const variation of orderData.variations) {
-        // Fetch product variation details with product info
-        const [variationData] = await db
-            .select({
-                id: productVariationTable.id,
-                name: productVariationTable.name,
-                sku: productVariationTable.sku,
-                price: productVariationTable.price,
-                stock: productVariationTable.stock,
-                weight: productVariationTable.weight,
-                productId: productVariationTable.productId,
-                productName: productTable.name,
-                productNameLocal: productTable.name_local,
-            })
-            .from(productVariationTable)
-            .innerJoin(productTable, eq(productVariationTable.productId, productTable.id))
-            .where(eq(productVariationTable.id, variation.variationId))
-            .limit(1);
+        // Insert order item
+        const orderItemInsertion = await db
+            .insert(orderItemTable)
+            .values(
+                variationsDetails.map(variation => {
+                    const quantity = orderData.variations.find(v =>
+                        v.variationId === variation.id
+                    )?.quantity || 0;
 
-        if (!variationData) {
-            throw new Error(`Product variation ${variation.variationId} not found`);
-        }
+                    return {
+                        orderId: createdOrder.id,
+                        productVariationId: variation.id,
+                        sku: variation.sku,
+                        variationName: variation.name,
+                        quantity: quantity,
+                        unitPrice: variation.price,
+                        lineSubtotal: variation.price * quantity,
+                        lineDiscountAmount: 0,
+                        lineTotal: variation.price * quantity,
+                        weight: variation.weight
+                    };
+                })
+            )
+            .returning({
+                id: orderItemTable.productVariationId,
+                quantity: orderItemTable.quantity
+            });
+        console.log('orderItemInsertion', orderItemInsertion);
 
-        // Check stock availability
-        if (variationData.stock < variation.quantity && variationData.stock !== -1) {
-            throw new Error(`Insufficient stock for ${variationData.productName} - ${variationData.name}`);
-        }
+        // Update stock for all variations in a single query
+        // Only update items that don't have unlimited stock (-1)
+        const variationIdsToUpdate = orderItemInsertion.map(item => item.id);
 
-        // Calculate line totals
-        const lineSubtotal = variationData.price * variation.quantity;
+        if (variationIdsToUpdate.length > 0) {
+            // Build CASE statement for updating stock based on quantity ordered
+            const caseStatement = sql`CASE
+            ${productVariationTable.id}`;
 
-        orderItems.push({
-            orderId: orderId.id,
-            productVariationId: variation.variationId,
-            productName: variationData.productName,
-            productNameLocal: variationData.productNameLocal || '',
-            sku: variationData.sku,
-            variationName: variationData.name,
-            quantity: variation.quantity,
-            unitPrice: variationData.price,
-            lineSubtotal: lineSubtotal,
-            lineDiscountAmount: 0,
-            lineTotal: lineSubtotal, // No discounts for now
-            weight: variationData.weight,
-        });
+            for (const item of orderItemInsertion) {
+                caseStatement.append(sql` WHEN
+                ${item.id}
+                THEN
+                ${productVariationTable.stock}
+                -
+                ${item.quantity}`);
+            }
 
-        subtotalAmount += lineSubtotal;
+            caseStatement.append(sql` ELSE
+            ${productVariationTable.stock}
+            END`);
 
-        // Update product variation stock
-        if (variationData.stock !== -1)
             await db
                 .update(productVariationTable)
                 .set({
-                    stock: variationData.stock - variation.quantity,
+                    stock: caseStatement,
                 })
-                .where(eq(productVariationTable.id, variation.variationId));
+                .where(
+                    and(
+                        inArray(productVariationTable.id, variationIdsToUpdate),
+                        // Don't update unlimited stock items
+                        sql`${productVariationTable.stock}
+                        != -1`
+                    )
+                );
+        }
     }
 
-    // Insert all order items
-    if (orderItems.length > 0)
-        await db.insert(orderItemTable).values(orderItems);
-
-    // Update order with calculated totals
-    const totalAmount = subtotalAmount; // No shipping or discounts for now
+    // Delete incomplete orders if any
     await db
-        .update(orderTable)
-        .set({
-            subtotalAmount: subtotalAmount,
-            totalAmount: totalAmount,
-        })
-        .where(eq(orderTable.id, orderId.id));
-
-    // Get the created order to fetch all details for email
-    const [createdOrder] = await db
-        .select()
-        .from(orderTable)
-        .where(eq(orderTable.id, orderId.id))
-        .limit(1);
+        .delete(incompleteOrderTable)
+        .where(and(
+            eq(incompleteOrderTable.phoneNumber, orderData.phoneNumber),
+            eq(incompleteOrderTable.merchantId, merchant.merchantId),
+            eq(incompleteOrderTable.status, 'active'),
+        ));
 
     // Queue order confirmation email
     await orderConfirmationQueue.add(
         'send-order-confirmation',
         {
-            customerName: createdOrder.customerName,
-            customerEmail: createdOrder.customerEmail,
-            orderNumber: createdOrder.orderNumber,
+            customerName: orderData.name,
+            customerEmail: '',
+            orderNumber: '',
             createdDate: new Date(createdOrder.createdAt).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -184,13 +219,7 @@ export default async function createOrder(orderData: OrderData) {
             discountAmount: createdOrder.discountAmount,
             totalAmount: createdOrder.totalAmount,
             currency: createdOrder.currency,
-            items: orderItems.map(item => ({
-                productName: item.productName,
-                variationName: item.variationName,
-                quantity: item.quantity,
-                unitPrice: item.unitPrice,
-                lineTotal: item.lineTotal,
-            })),
+            items: [],
         },
         {
             delay: 1000, // Delay 1 second to ensure order is fully saved
@@ -204,7 +233,5 @@ export default async function createOrder(orderData: OrderData) {
 
     return {
         success: true,
-        orderId: orderId.id,
-        totalAmount: totalAmount,
     };
 }
