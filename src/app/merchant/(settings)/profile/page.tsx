@@ -1,9 +1,11 @@
 import React, { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Local
 import ProfilePicture from './profile-picture';
 import UserProfile from './user-profile';
+import BusinessInformation from './business-information';
 
 // Loading skeleton for profile picture section
 function ProfilePictureLoading() {
@@ -19,7 +21,7 @@ function ProfilePictureLoading() {
 }
 
 // Loading skeleton for user profile form
-function UserProfileLoading() {
+function FormLoading() {
     return (
         <div className="space-y-6 p-6 rounded-lg border bg-card">
             <div className="space-y-2">
@@ -55,9 +57,24 @@ const ProfilePage = () => {
                 <ProfilePicture />
             </Suspense>
 
-            <Suspense fallback={<UserProfileLoading />}>
-                <UserProfile />
-            </Suspense>
+            <Tabs defaultValue="personal" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="personal">Personal Information</TabsTrigger>
+                    <TabsTrigger value="business">Business Information</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="personal">
+                    <Suspense fallback={<FormLoading />}>
+                        <UserProfile />
+                    </Suspense>
+                </TabsContent>
+
+                <TabsContent value="business">
+                    <Suspense fallback={<FormLoading />}>
+                        <BusinessInformation />
+                    </Suspense>
+                </TabsContent>
+            </Tabs>
         </div>
     );
 };

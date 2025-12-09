@@ -2,11 +2,10 @@
 
 import { validatePhoneNumber } from '@/lib/phone-number'
 import getMerchant from "@/lib/get-merchant";
-import crypto from 'crypto';
 
 // db
 import db from "@/lib/drizzle-agent"
-import { eq, and, or, gte, inArray, sql } from "drizzle-orm";
+import { eq, and, inArray, sql } from "drizzle-orm";
 
 // Queue
 import { orderConfirmationQueue } from "@/lib/bullmq-agent"
@@ -78,7 +77,6 @@ export default async function createOrder(orderData: OrderData) {
         .values({
             merchantId: merchant.merchantId,
             customerId: customerId,
-            orderNumber: crypto.randomBytes(6).toString('hex'),
             customerName: orderData.name,
             customerPhone: orderData.phoneNumber,
             shippingAddressLine1: orderData.address,
@@ -101,19 +99,7 @@ export default async function createOrder(orderData: OrderData) {
                     stock: true,
                     weight: true,
                 },
-                where: and(
-                    or(
-                        ...orderData.variations.map(variation =>
-                            and(
-                                eq(productVariationTable.id, variation.variationId),
-                                or(
-                                    eq(productVariationTable.stock, -1), /* unlimited stock */
-                                    gte(productVariationTable.stock, variation.quantity)
-                                )
-                            )
-                        ),
-                    ),
-                ),
+                where: inArray(productVariationTable.id, orderData.variations.map(v => v.variationId)),
             });
         console.log('variationsDetails', variationsDetails);
 

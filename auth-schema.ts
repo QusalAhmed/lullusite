@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -11,9 +11,6 @@ export const user = pgTable("user", {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
-  additionalInfo: jsonb("additional_info").$defaultFn(() =>
-    JSON.stringify({ businessName: "", address: "", details: "" }),
-  ),
 });
 
 export const session = pgTable("session", {

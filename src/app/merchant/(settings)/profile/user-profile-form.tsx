@@ -20,12 +20,6 @@ import {
     FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import {
-    InputGroup,
-    InputGroupAddon,
-    InputGroupText,
-    InputGroupTextarea,
-} from "@/components/ui/input-group"
 
 // Type
 import type { GetUserType } from "@/lib/get-user";
@@ -38,9 +32,6 @@ export function UserProfileForm({userProfile}: { userProfile: GetUserType }) {
         resolver: zodResolver(userSchema),
         defaultValues: {
             name: "",
-            address: "",
-            businessName: "",
-            details: "",
         },
     })
 
@@ -49,16 +40,14 @@ export function UserProfileForm({userProfile}: { userProfile: GetUserType }) {
         if (userProfile) {
             form.reset({
                 name: userProfile.name || "",
-                // businessName: userProfile?.additionalInfo?.businessName || "",
-                // details: userProfile?.additionalInfo?.details || "",
-                // address: userProfile?.additionalInfo?.address || "",
             });
         }
     }, [userProfile, form]);
 
     function onSubmit(data: z.infer<typeof userSchema>) {
         if (userProfile && data.name == userProfile.name) {
-            data.name = ''
+            toast.info('No changes detected')
+            return;
         }
         updateProfile(data).then((res) => {
             if (res.success) {
@@ -94,85 +83,6 @@ export function UserProfileForm({userProfile}: { userProfile: GetUserType }) {
                                 placeholder="Enter full name"
                                 autoComplete="on"
                             />
-                            {fieldState.invalid && (
-                                <FieldError errors={[fieldState.error]}/>
-                            )}
-                        </Field>
-                    )}
-                />
-                <Controller
-                    name="businessName"
-                    control={form.control}
-                    render={({field, fieldState}) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor="form-business-name">
-                                Business Name
-                            </FieldLabel>
-                            <Input
-                                {...field}
-                                id="form-business-name"
-                                aria-invalid={fieldState.invalid}
-                                placeholder="Enter business name"
-                                autoComplete="on"
-                            />
-                            {fieldState.invalid && (
-                                <FieldError errors={[fieldState.error]}/>
-                            )}
-                        </Field>
-                    )}
-                />
-                <Controller
-                    name="address"
-                    control={form.control}
-                    render={({field, fieldState}) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor="form-business-address">
-                                Business Address
-                            </FieldLabel>
-                            <InputGroup>
-                                <InputGroupTextarea
-                                    {...field}
-                                    id="form-business-address"
-                                    placeholder="Enter your full business address"
-                                    rows={4}
-                                    className="min-h-12 resize-none"
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                <InputGroupAddon align="block-end">
-                                    <InputGroupText className="tabular-nums">
-                                        {field?.value?.length}/100 characters
-                                    </InputGroupText>
-                                </InputGroupAddon>
-                            </InputGroup>
-                            {fieldState.invalid && (
-                                <FieldError errors={[fieldState.error]}/>
-                            )}
-                        </Field>
-                    )}
-                />
-                <Controller
-                    name="details"
-                    control={form.control}
-                    render={({field, fieldState}) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor="form-details">
-                                Additional Details
-                            </FieldLabel>
-                            <InputGroup>
-                                <InputGroupTextarea
-                                    {...field}
-                                    id="form-details"
-                                    placeholder="Enter additional details about your business"
-                                    rows={6}
-                                    className="min-h-24 resize-none"
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                <InputGroupAddon align="block-end">
-                                    <InputGroupText className="tabular-nums">
-                                        {field?.value?.length}/100 characters
-                                    </InputGroupText>
-                                </InputGroupAddon>
-                            </InputGroup>
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]}/>
                             )}

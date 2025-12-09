@@ -1,5 +1,5 @@
-import { pgTable, pgEnum, uuid, varchar, integer, numeric, jsonb } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { pgTable, pgSequence, pgEnum, uuid, varchar, integer, numeric, jsonb, bigint } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
 
 // Schemas
 import { user, productVariationTable, customerTable } from "./index.schema";
@@ -28,6 +28,13 @@ export const paymentStatus = pgEnum("payment_status", [
     "failed",
 ]);
 
+export const orderNumberSeq = pgSequence("order_number_seq", {
+    startWith: 1000,
+    cycle: false,
+    cache: 10,
+    increment: 1,
+});
+
 export const orderTable = pgTable("orders", {
     id: uuid("id").primaryKey().defaultRandom(),
 
@@ -46,7 +53,9 @@ export const orderTable = pgTable("orders", {
         }),
 
     // Order identifiers
-    orderNumber: varchar("order_number", { length: 50 }).notNull().unique(),
+    orderNumber: bigint("order_number", { mode: "number" })
+        .notNull()
+        .default(sql`nextval('order_number_seq')`),
 
     // Statuses
     status: orderStatus().notNull().default("pending"),
