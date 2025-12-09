@@ -9,7 +9,8 @@ export async function proxy(request: NextRequest) {
     })
 
     if(!session) {
-        return NextResponse.redirect(new URL("/auth/sign-in", request.url));
+        const userNext = encodeURIComponent(request.nextUrl.pathname);
+        return NextResponse.redirect(new URL(`/auth/sign-in?next=${userNext}`, request.url));
     }
 
     return NextResponse.next();

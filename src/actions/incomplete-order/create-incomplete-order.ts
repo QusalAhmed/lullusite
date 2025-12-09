@@ -107,6 +107,8 @@ export async function createIncompleteOrder(
                 supportEmail: 'lullusite.com',
                 storeName: 'Jazakallah',
                 phoneNumber,
+            }, {
+                delay: 60 * 1000, // 2 minutes delay
             });
         }
 

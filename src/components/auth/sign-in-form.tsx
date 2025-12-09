@@ -2,6 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
+import { useSearchParams } from 'next/navigation'
 
 // Auth
 import { authClient } from "@/lib/auth-client";
@@ -61,8 +62,10 @@ export default function SignInForm() {
             password: "",
         },
     })
+    const searchParams = useSearchParams()
 
     async function onSubmit(formData: z.infer<typeof formSchema>) {
+        const nextUrl = searchParams.get('next')
         const {email, password} = formData;
         const {data, error} = await authClient.signIn.email({
             /**
@@ -76,7 +79,7 @@ export default function SignInForm() {
             /**
              * A URL to redirect to after the user verifies their email (optional)
              */
-            callbackURL: "/merchant/dashboard",
+            callbackURL: nextUrl || "/merchant/dashboard",
             /**
              * remember the user session after the browser is closed.
              * @default true

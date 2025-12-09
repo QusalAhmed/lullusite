@@ -60,7 +60,6 @@ export const orderTable = pgTable("orders", {
     // Statuses
     status: orderStatus().notNull().default("pending"),
     paymentStatus: paymentStatus("payment_status").notNull().default("unpaid"),
-    fulfillmentStatus: varchar("fulfillment_status", { length: 50 }).notNull().default("unfulfilled"),
 
     // Monetary totals
     currency: varchar("currency", { length: 3 }).notNull().default("BDT"),

@@ -8,7 +8,7 @@ import db from "@/lib/drizzle-agent"
 import { eq, and, inArray, sql } from "drizzle-orm";
 
 // Queue
-import { orderConfirmationQueue } from "@/lib/bullmq-agent"
+import { orderConfirmationQueue, incompleteOrderQueue } from "@/lib/bullmq-agent"
 
 // Schema
 import {
@@ -103,6 +103,22 @@ export default async function createOrder(orderData: OrderData) {
             });
         console.log('variationsDetails', variationsDetails);
 
+        const subtotalAmount = variationsDetails.reduce((sum, variation) => {
+            const quantity = orderData.variations.find(v =>
+                v.variationId === variation.id
+            )?.quantity || 0;
+            return sum + (variation.price * quantity);
+        }, 0);
+
+        // Update order with subtotal amount
+        await db
+            .update(orderTable)
+            .set({
+                subtotalAmount: subtotalAmount,
+                totalAmount: subtotalAmount, // Assuming no additional fees for simplicity
+            })
+            .where(eq(orderTable.id, createdOrder.id));
+
         // Insert order item
         const orderItemInsertion = await db
             .insert(orderItemTable)
@@ -178,6 +194,15 @@ export default async function createOrder(orderData: OrderData) {
             eq(incompleteOrderTable.merchantId, merchant.merchantId),
             eq(incompleteOrderTable.status, 'active'),
         ));
+
+    // Delete from incomplete order queue as well
+    const incompleteJobs = await incompleteOrderQueue.getJobs(['waiting', 'delayed']);
+    for (const job of incompleteJobs) {
+        if (job.data.merchantId === merchant.merchantId &&
+            job.data.phoneNumber === orderData.phoneNumber) {
+            await job.remove();
+        }
+    }
 
     // Queue order confirmation email
     await orderConfirmationQueue.add(

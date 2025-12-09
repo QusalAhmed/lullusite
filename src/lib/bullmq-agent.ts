@@ -17,7 +17,7 @@ connection.on('connect', () => {
     console.log('Connected to Redis');
 });
 
-export { connection };
+
 export const myQueue = new Queue('my-queue', {connection});
 export const incompleteOrderQueue = new Queue('incomplete-order-queue', {connection});
 export const orderConfirmationQueue = new Queue('order-confirmation-queue', {connection});
@@ -38,7 +38,10 @@ export async function initializeWorker() {
         myWorker = new Worker('my-queue', async job => {
             console.log('Processing my-queue job:', job.id, 'with data:', job.data);
             // Your job logic here
-            // Simulate some processing
+            if(job.name === 'exampleTask') {
+                console.log('Executing exampleTask with params:', job.data);
+                // Simulate task processing
+            }
             await new Promise(resolve => setTimeout(resolve, 100));
             console.log('Completed my-queue job:', job.id);
             return { processed: true, jobId: job.id };
