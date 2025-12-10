@@ -76,7 +76,7 @@ function VariationCard({variation}: { variation: Variation }) {
                     / কেজি
                 </div>
                 <CardTitle className="flex flex-col gap-2">
-                    <div>{variation.name.repeat(3)}</div>
+                    <div>{variation.name}</div>
                 </CardTitle>
                 <CardDescription>{variation.description}</CardDescription>
             </CardHeader>
