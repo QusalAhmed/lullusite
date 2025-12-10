@@ -5,7 +5,7 @@ const StorePage = () => {
     return (
         <div className="min-h-screen bg-background">
             {/* Hero Section */}
-            <section className="relative bg-gradient-to-r from-primary/10 to-primary/5 py-20 px-4">
+            <section className="relative bg-linear-to-r from-primary/10 to-primary/5 py-20 px-4">
                 <div className="max-w-7xl mx-auto text-center">
                     <h1 className="text-4xl md:text-6xl font-bold mb-6">
                         Welcome to Our Store
@@ -88,7 +88,7 @@ const StorePage = () => {
             {/* Promotional Banner */}
             <section className="py-16 px-4">
                 <div className="max-w-7xl mx-auto">
-                    <div className="rounded-lg bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-12 text-center">
+                    <div className="rounded-lg bg-linear-to-r from-primary to-primary/80 text-primary-foreground p-12 text-center">
                         <h2 className="text-3xl font-bold mb-4">Special Offer!</h2>
                         <p className="text-lg mb-6 opacity-90">
                             Get 20% off on your first order. Use code: WELCOME20
