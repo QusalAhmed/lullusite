@@ -79,7 +79,7 @@ export default async function createOrder(orderData: OrderData) {
             customerId: customerId,
             customerName: orderData.name,
             customerPhone: orderData.phoneNumber,
-            shippingAddressLine1: orderData.address,
+            shippingAddress: orderData.address,
             shippingFullName: orderData.name,
             shippingCity: orderData.division,
         })
@@ -220,7 +220,7 @@ export default async function createOrder(orderData: OrderData) {
             storeName: 'Our Store',
             supportEmail: process.env.SUPPORT_EMAIL || 'qusalcse@gmail.com',
             shippingFullName: createdOrder.shippingFullName,
-            shippingAddressLine1: createdOrder.shippingAddressLine1,
+            shippingAddressLine1: createdOrder.shippingAddress,
             shippingCity: createdOrder.shippingCity,
             shippingPostalCode: createdOrder.shippingPostalCode || '',
             shippingCountry: createdOrder.shippingCountry,
