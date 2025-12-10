@@ -72,6 +72,7 @@ export function CheckoutForm() {
     })
 
     const cartItems = useSelector((state: RootState) => state.cart.carts);
+    const storeSlug = useSelector((state: RootState) => state.store.storeSlug);
 
     useEffect(() => {
         if (watchPhoneNumber && validatePhoneNumber(watchPhoneNumber).isValid) {
@@ -125,7 +126,7 @@ export function CheckoutForm() {
         response.then((res) => {
             if (res.success) {
                 // Redirect to order confirmation page
-                redirect(`order/${res.orderId}/confirmation`)
+                redirect(`/store/${storeSlug}/order/${res.orderId}/confirmation`)
             }
         })
     }

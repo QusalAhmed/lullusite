@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import counterReducer from "./features/counter/counterSlice";
 import formReducer from "./features/form/stateSlice";
 import cartReducer from "./features/cart/cartSlice";
+import storeSlugReducer from "./features/store/store-slug";
 
 import { saveState } from "./local-storage";
 
@@ -12,6 +13,7 @@ const rootReducer = {
     formState: formReducer,
     // Page
     cart: cartReducer,
+    store: storeSlugReducer,
 }
 
 export const store = configureStore({

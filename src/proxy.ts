@@ -8,14 +8,22 @@ export async function proxy(request: NextRequest) {
         headers: await headers()
     })
 
-    if(!session) {
-        const userNext = encodeURIComponent(request.nextUrl.pathname);
-        return NextResponse.redirect(new URL(`/auth/sign-in?next=${userNext}`, request.url));
+    const pathname = request.nextUrl.pathname
+
+    if (pathname.startsWith('/auth')) {
+        if (session) {
+            return NextResponse.redirect(new URL('/merchant/dashboard', request.url));
+        }
+    } else if (pathname.startsWith('/merchant')) {
+        if (!session) {
+            const userNext = encodeURIComponent(request.nextUrl.pathname);
+            return NextResponse.redirect(new URL(`/auth/sign-in?next=${userNext}`, request.url));
+        }
     }
 
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/merchant/:path*'],
+    matcher: ['/merchant/:path*', '/auth/:path*'],
 }

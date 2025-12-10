@@ -32,7 +32,8 @@ export const businessInformationTable = pgTable("business_information", {
     ...timestamps
 });
 
-export const businessInformationRelations = relations(businessInformationTable, ({ one }) => ({
+export const businessInformationRelations = relations(businessInformationTable,
+    ({ one }) => ({
     user: one(user, {
         fields: [businessInformationTable.userId],
         references: [user.id]

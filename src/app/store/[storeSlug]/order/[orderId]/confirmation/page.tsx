@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import {redirect} from "next/navigation";
+import { redirect } from "next/navigation";
 import { CheckCircle2, Package, Truck, MapPin, Mail, Phone, ArrowRight, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,11 +9,13 @@ import { Separator } from '@/components/ui/separator';
 // Actions
 import getOrderInfo from "@/actions/order/get-order-info";
 
-const PurchaseConfirmation = async ({params}: { params: Promise<{ orderId: string }> }) => {
-    const {orderId} = await params;
+const PurchaseConfirmation = async (
+    {params}: { params: Promise<{ orderId: string, storeSlug: string }> }
+) => {
+    const {orderId, storeSlug} = await params;
     const orderInfo = await getOrderInfo(orderId)
 
-    if (!orderInfo){
+    if (!orderInfo) {
         redirect('/')
     }
 
@@ -62,11 +64,16 @@ const PurchaseConfirmation = async ({params}: { params: Promise<{ orderId: strin
                             </div>
                             <div>
                                 <p className="text-sm text-muted-foreground">Order Date</p>
-                                <p className="text-lg font-semibold">{orderInfo.createdAt.toLocaleTimeString()}</p>
+                                <p className="text-lg font-semibold">
+                                    {orderInfo.createdAt.toLocaleString(undefined, {
+                                        timeStyle: 'short',
+                                        dateStyle: 'medium',
+                                    })}
+                                </p>
                             </div>
                             <div>
                                 <p className="text-sm text-muted-foreground">Status</p>
-                                <p className="text-lg font-semibold capitalize text-green-600 dark:text-green-400">Confirmed</p>
+                                <p className="text-lg font-semibold capitalize text-green-600 dark:text-green-400">{orderInfo.status ? 'Confirmed': ''}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-muted-foreground">Estimated Delivery</p>
@@ -166,7 +173,7 @@ const PurchaseConfirmation = async ({params}: { params: Promise<{ orderId: strin
                                         </div>
                                         <div className="text-right">
                                             <p className="font-semibold">{formatCurrency(item.lineSubtotal, orderInfo.currency)}</p>
-                                            <p className="text-sm text-muted-foreground">{formatCurrency(item.lineTotal, orderInfo.currency)} each</p>
+                                            <p className="text-sm text-muted-foreground">{formatCurrency(item.unitPrice, orderInfo.currency)} each</p>
                                         </div>
                                     </div>
                                 </React.Fragment>
@@ -189,7 +196,8 @@ const PurchaseConfirmation = async ({params}: { params: Promise<{ orderId: strin
                             {orderInfo.discountAmount > 0 && (
                                 <div className="flex justify-between items-center text-green-600 dark:text-green-400">
                                     <span>Discount</span>
-                                    <span className="font-medium">-{formatCurrency(orderInfo.discountAmount, orderInfo.currency)}</span>
+                                    <span
+                                        className="font-medium">-{formatCurrency(orderInfo.discountAmount, orderInfo.currency)}</span>
                                 </div>
                             )}
                             <div className="flex justify-between items-center">
@@ -215,13 +223,13 @@ const PurchaseConfirmation = async ({params}: { params: Promise<{ orderId: strin
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
                     <Button asChild variant="outline" size="lg">
-                        <Link href="/public">
+                        <Link href={"/store/" + storeSlug}>
                             <Home className="size-4"/>
                             Back to Home
                         </Link>
                     </Button>
                     <Button asChild size="lg">
-                        <Link href="/">
+                        <Link href={"/store/" + storeSlug}>
                             View My Orders
                             <ArrowRight className="size-4"/>
                         </Link>
@@ -242,7 +250,8 @@ const PurchaseConfirmation = async ({params}: { params: Promise<{ orderId: strin
                             className="font-mono">{orderInfo.customerEmail}</span>
                         </p>
                         <p>
-                            ✓ <span className="font-medium">Order Tracking</span> - You&#39;ll receive a tracking number once your order
+                            ✓ <span className="font-medium">Order Tracking</span> - You&#39;ll receive a tracking number once your
+                            order
                             ships. You can track your order in the My Orders section.
                         </p>
                         <p>

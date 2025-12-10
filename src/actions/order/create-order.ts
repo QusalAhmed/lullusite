@@ -72,6 +72,7 @@ export default async function createOrder(orderData: OrderData) {
     }
 
     // Create order
+    const deliveryCharge = 100;
     const [createdOrder] = await db
         .insert(orderTable)
         .values({
@@ -82,6 +83,7 @@ export default async function createOrder(orderData: OrderData) {
             shippingAddress: orderData.address,
             shippingFullName: orderData.name,
             shippingCity: orderData.division,
+            shippingAmount: deliveryCharge,
         })
         .returning();
 
@@ -196,7 +198,7 @@ export default async function createOrder(orderData: OrderData) {
         ));
 
     // Delete from incomplete order queue as well
-    const incompleteJobs = await incompleteOrderQueue.getJobs(['waiting', 'delayed']);
+    const incompleteJobs = await incompleteOrderQueue.getJobs(['waiting', 'delayed', 'active']);
     for (const job of incompleteJobs) {
         if (job.data.merchantId === merchant.merchantId &&
             job.data.phoneNumber === orderData.phoneNumber) {

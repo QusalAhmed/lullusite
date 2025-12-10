@@ -1,12 +1,14 @@
 'use server';
 
+import { cache } from 'react'
+
 // db
 import db from "@/lib/drizzle-agent";
 import { eq } from "drizzle-orm";
 import { productTable } from "@/db/product.schema";
 
 
-export default async function getProduct(productId: string) {
+const getProduct = async (productId: string)=> {
     return db
         .query
         .productTable
@@ -56,5 +58,6 @@ export default async function getProduct(productId: string) {
         })
 }
 
+export default cache(getProduct)
 export type ProductType = Awaited<ReturnType<typeof getProduct>>; // may be undefined if not found
 export type VariationType = NonNullable<ProductType>['variations'][number];
