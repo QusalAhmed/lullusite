@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useId } from 'react';
+import { sendGTMEvent } from '@next/third-parties/google'
 
 import { NumericFormat } from 'react-number-format';
 
@@ -69,7 +70,7 @@ function VariationCard({variation}: { variation: Variation }) {
             </CardContent>
             <CardHeader>
                 <div className={'flex justify-end items-baseline'}>
-                    <span className={'self-start'}><FaBangladeshiTakaSign /></span>
+                    <span className={'self-start'}><FaBangladeshiTakaSign/></span>
                     <span className={'text-rose-500 font-semibold text-2xl mr-2'}>
                             {variation.price}
                         </span>
@@ -85,9 +86,16 @@ function VariationCard({variation}: { variation: Variation }) {
                     <Button
                         variant="default"
                         disabled={quantity === 0}
-                        className="h-12 whitespace-normal break-words normal-case w-20 px-2 py-1 leading-tight text-center"
+                        className="h-12 whitespace-normal wrap-break-word normal-case w-20 px-2 py-1 leading-tight text-center"
                         onClick={() => {
                             dispatch(minusItem({id: variation.id}));
+                            sendGTMEvent({
+                                event: 'add_to_cart',
+                                item_id: variation.id,
+                                item_name: variation.name,
+                                price: variation.price,
+                                quantity: quantity,
+                            });
                         }}
                     >
                         ১ কেজি কমান
@@ -99,7 +107,7 @@ function VariationCard({variation}: { variation: Variation }) {
                                 <PopoverTrigger asChild>
                                     <div className="flex items-start">
                                         <SlidingNumber
-                                            number={cartItems.find(item => item.id === variation.id)?.quantity || 0}
+                                            number={quantity}
                                             padStart
                                             className="text-5xl text-orange-600"
                                         />
@@ -142,9 +150,16 @@ function VariationCard({variation}: { variation: Variation }) {
                     <Button
                         variant="default"
                         disabled={quantity === variation.stock && variation.stock !== -1}
-                        className="h-12 whitespace-normal break-words normal-case w-20 px-2 py-1 leading-tight text-center"
+                        className="h-12 whitespace-normal wrap-break-word normal-case w-20 px-2 py-1 leading-tight text-center"
                         onClick={() => {
                             dispatch(addItem({...variation}));
+                            sendGTMEvent({
+                                event: 'add_to_cart',
+                                item_id: variation.id,
+                                item_name: variation.name,
+                                price: variation.price,
+                                quantity: quantity,
+                            });
                         }}
                     >
                         ১ কেজি যোগ করুন
