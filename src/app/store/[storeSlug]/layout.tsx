@@ -1,15 +1,17 @@
-import React, {ReactNode} from 'react';
+import React, { ReactNode } from 'react';
 import type { Metadata } from 'next'
+import { GoogleTagManager } from '@next/third-parties/google'
 
 // Local
 import Navbar from '@/components/themes/navbar/navbar'
 
 // Actions
 import getProduct from '@/actions/store/get-product'
+
 // import getUser from '@/actions/store/get-user'
 
 export async function generateMetadata(
-    { params }: { params: Promise<{ storeSlug: string }> }
+    {params}: { params: Promise<{ storeSlug: string }> }
 ): Promise<Metadata> {
     const storeSlug = (await params).storeSlug
     console.log(storeSlug)
@@ -33,7 +35,7 @@ export async function generateMetadata(
         applicationName: 'Next.js',
         referrer: 'origin-when-cross-origin',
         keywords: product.tags,
-        authors: [{ name: 'Qusal Ahmed', url: '' }],
+        authors: [{name: 'Qusal Ahmed', url: ''}],
         creator: 'Qusal Ahmed',
         publisher: 'Lullu Site',
         metadataBase: new URL(storeSlug ? `https://lullusite.com/store/${storeSlug}` : 'https://lullusite.com'),
@@ -54,7 +56,7 @@ export async function generateMetadata(
                     url: product.images[0].image.url, // Must be an absolute URL
                     width: 1800,
                     height: 1600,
-                    alt: 'My custom alt',
+                    alt: product.images[0].image.altText,
                 },
             ],
             videos: [
@@ -105,16 +107,19 @@ export async function generateMetadata(
 
 
 const PageLayout = async (
-    {children, params}: {children: ReactNode, params: Promise<{ storeSlug: string }>}
+    {children, params}: { children: ReactNode, params: Promise<{ storeSlug: string }> }
 ) => {
     const {storeSlug} = await params
 
     return (
-        <>
-            {children}
-            <div className='h-24'/>
-            <Navbar storeSlug={storeSlug} />
-        </>
+        <html lang="en">
+        <GoogleTagManager gtmId="GTM-M4GTSF23"/>
+        <body>
+        {children}
+        <div className='h-24'/>
+        <Navbar storeSlug={storeSlug}/>
+        </body>
+        </html>
     );
 };
 
