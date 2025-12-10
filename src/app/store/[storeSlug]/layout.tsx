@@ -1,45 +1,121 @@
-import React from "react";
-import { GoogleTagManager } from '@next/third-parties/google'
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import React, {ReactNode} from 'react';
+import type { Metadata } from 'next'
 
 // Local
 import Navbar from '@/components/themes/navbar/navbar'
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
+// Actions
+import getProduct from '@/actions/store/get-product'
+// import getUser from '@/actions/store/get-user'
 
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
+export async function generateMetadata(
+    { params }: { params: Promise<{ storeSlug: string }> }
+): Promise<Metadata> {
+    const storeSlug = (await params).storeSlug
+    console.log(storeSlug)
+    const productId = '36e07843-7bba-4d3c-8c5b-a4fc01267b7a';
+    const product = await getProduct(productId)
+    // const userDetails = await getUser(storeSlug)
 
-export const metadata: Metadata = {
-    title: "Home",
-    description: "Lullu Site | Website builder and business automation",
-};
+    if (!product) {
+        return {
+            title: 'Product Not Found',
+            description: 'The requested product could not be found.',
+        }
+    }
+
+    return {
+        title: product.name,
+        description: product.description,
+
+        // Other
+        generator: 'Next.js',
+        applicationName: 'Next.js',
+        referrer: 'origin-when-cross-origin',
+        keywords: product.tags,
+        authors: [{ name: 'Qusal Ahmed', url: '' }],
+        creator: 'Qusal Ahmed',
+        publisher: 'Lullu Site',
+        metadataBase: new URL(storeSlug ? `https://lullusite.com/store/${storeSlug}` : 'https://lullusite.com'),
+
+        // Open Graph
+        openGraph: {
+            title: product.name,
+            description: product.description,
+            url: '/',
+            siteName: product.name,
+            images: [
+                {
+                    url: product.images[0].image.url, // Must be an absolute URL
+                    width: 800,
+                    height: 600,
+                },
+                {
+                    url: product.images[0].image.url, // Must be an absolute URL
+                    width: 1800,
+                    height: 1600,
+                    alt: product.images[0].image.altText,
+                },
+            ],
+            videos: [
+                {
+                    url: product.images[0].image.url, // Must be an absolute URL
+                    width: 800,
+                    height: 600,
+                },
+            ],
+            audio: [
+                {
+                    url: product.images[0].image.url, // Must be an absolute URL
+                },
+            ],
+            locale: 'bn_BD',
+            type: 'website',
+        },
+
+        // Robots
+        robots: {
+            index: true,
+            follow: true,
+            nocache: false,
+            googleBot: {
+                index: true,
+                follow: true,
+                noimageindex: false,
+                'max-video-preview': -1,
+                'max-image-preview': 'large',
+                'max-snippet': -1,
+            },
+        },
+
+        // Icon
+        icons: {
+            icon: product.images[0].image.url,
+            shortcut: product.images[0].image.url,
+            apple: product.images[0].image.url,
+            other: {
+                rel: product.images[0].image.url,
+                url: product.images[0].image.url,
+            },
+        },
+
+        // manifest: 'https://nextjs.org/manifest.json',
+    }
+}
 
 
-export default async function RootLayout({
-                                             children,
-                                             params
-                                         }: Readonly<{
-    children: React.ReactNode; params: Promise<{ storeSlug: string }>;
-}>) {
+const PageLayout = async (
+    {children, params}: {children: ReactNode, params: Promise<{ storeSlug: string }>}
+) => {
     const {storeSlug} = await params
 
     return (
-        <html lang="en" suppressHydrationWarning>
-        <GoogleTagManager gtmId="GTM-M4GTSF23"/>
-        <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-        {children}
-        <div className='h-24'/>
-        <Navbar storeSlug={storeSlug}/>
-        </body>
-        </html>
+        <>
+            {children}
+            <div className='h-24'/>
+            <Navbar storeSlug={storeSlug} />
+        </>
     );
-}
+};
+
+export default PageLayout;

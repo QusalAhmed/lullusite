@@ -1,9 +1,12 @@
 'use client';
 
 import React, { useId } from 'react';
-import { sendGTMEvent } from '@next/third-parties/google'
-
 import { NumericFormat } from 'react-number-format';
+
+// Pixel
+import {
+    trackAddToCart,
+} from '@/lib/facebook-pixel'
 
 // Actions
 import getProduct from '@/actions/store/get-product'
@@ -89,12 +92,11 @@ function VariationCard({variation}: { variation: Variation }) {
                         className="h-12 whitespace-normal wrap-break-word normal-case w-20 px-2 py-1 leading-tight text-center"
                         onClick={() => {
                             dispatch(minusItem({id: variation.id}));
-                            sendGTMEvent({
-                                event: 'add_to_cart',
-                                item_id: variation.id,
-                                item_name: variation.name,
+                            trackAddToCart({
+                                id: variation.id,
+                                name: variation.name,
                                 price: variation.price,
-                                quantity: quantity,
+                                currency: 'BDT',
                             });
                         }}
                     >
@@ -152,12 +154,11 @@ function VariationCard({variation}: { variation: Variation }) {
                         className="h-12 whitespace-normal wrap-break-word normal-case w-20 px-2 py-1 leading-tight text-center"
                         onClick={() => {
                             dispatch(addItem({...variation}));
-                            sendGTMEvent({
-                                event: 'add_to_cart',
-                                item_id: variation.id,
-                                item_name: variation.name,
+                            trackAddToCart({
+                                id: variation.id,
+                                name: variation.name,
                                 price: variation.price,
-                                quantity: quantity,
+                                currency: 'BDT',
                             });
                         }}
                     >
