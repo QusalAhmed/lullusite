@@ -1,4 +1,5 @@
 import React from "react";
+import { GoogleTagManager } from '@next/third-parties/google'
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
@@ -31,6 +32,7 @@ export default async function RootLayout({
 
     return (
         <html lang="en" suppressHydrationWarning>
+        <GoogleTagManager gtmId="GTM-M4GTSF23"/>
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >

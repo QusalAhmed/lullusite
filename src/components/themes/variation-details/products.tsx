@@ -146,7 +146,6 @@ function VariationCard({variation}: { variation: Variation }) {
                         </TooltipContent>
                     </Tooltip>
 
-
                     <Button
                         variant="default"
                         disabled={quantity === variation.stock && variation.stock !== -1}
@@ -165,7 +164,6 @@ function VariationCard({variation}: { variation: Variation }) {
                         ১ কেজি যোগ করুন
                     </Button>
                 </div>
-
             </CardFooter>
         </Card>
     )
