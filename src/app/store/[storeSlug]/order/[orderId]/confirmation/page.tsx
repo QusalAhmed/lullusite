@@ -68,6 +68,7 @@ const PurchaseConfirmation = async (
                                     {orderInfo.createdAt.toLocaleString(undefined, {
                                         timeStyle: 'short',
                                         dateStyle: 'medium',
+                                        timeZone: 'Asia/Dhaka',
                                     })}
                                 </p>
                             </div>
