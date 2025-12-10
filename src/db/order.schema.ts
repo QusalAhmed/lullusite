@@ -71,14 +71,15 @@ export const orderTable = pgTable("orders", {
     // Customer contact snapshot
     customerEmail: varchar("customer_email", { length: 255 }),
     customerPhone: varchar("customer_phone", { length: 50 }).notNull(),
+    customerAdditionalPhone: varchar("customer_additional_phone", { length: 50 }),
     customerName: varchar("customer_name", { length: 255 }).notNull(),
 
     // Shipping address snapshot
     shippingFullName: varchar("shipping_full_name", { length: 255 }).notNull(),
     shippingPhone: varchar("shipping_phone", { length: 50 }),
-    shippingAddressLine1: varchar("shipping_address_line1", { length: 255 }).notNull(),
-    shippingAddressLine2: varchar("shipping_address_line2", { length: 255 }),
+    shippingAddress: varchar("shipping_address", { length: 255 }).notNull(),
     shippingCity: varchar("shipping_city", { length: 100 }).notNull(),
+    shippingDivision: varchar("shipping_division", { length: 50 }),
     shippingState: varchar("shipping_state", { length: 100 }),
     shippingPostalCode: varchar("shipping_postal_code", { length: 20 }),
     shippingCountry: varchar("shipping_country", { length: 100 }).notNull().default("Bangladesh"),
@@ -91,7 +92,14 @@ export const orderTable = pgTable("orders", {
     externalOrderId: varchar("external_order_id", { length: 255 }),
     notes: varchar("notes", { length: 1000 }),
 
+    // Server
+    ipAddress: varchar("ip_address", { length: 45 }),
+    userAgent: varchar("user_agent", { length: 1000 }),
     metadata: jsonb("metadata"),
+
+    // Notes
+    customerNote: varchar("customer_note", { length: 1000 }),
+    merchantNote: varchar("merchant_note", { length: 1000 }),
 
     ...timestamps,
 });

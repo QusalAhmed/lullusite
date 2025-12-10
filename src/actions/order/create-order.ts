@@ -244,5 +244,6 @@ export default async function createOrder(orderData: OrderData) {
 
     return {
         success: true,
+        orderId: createdOrder.id,
     };
 }

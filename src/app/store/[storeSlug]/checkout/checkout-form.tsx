@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect } from "react"
+import {redirect} from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
@@ -121,7 +122,12 @@ export function CheckoutForm() {
             }
         )
 
-        return response
+        response.then((res) => {
+            if (res.success) {
+                // Redirect to order confirmation page
+                redirect(`order/${res.orderId}/confirmation`)
+            }
+        })
     }
 
 
