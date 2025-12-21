@@ -1,0 +1,212 @@
+import Image from 'next/image';
+import Link from 'next/link';
+import { NumericFormat } from 'react-number-format';
+import {cn} from '@/lib/utils';
+
+// TanStack Table
+import { createColumnHelper } from '@tanstack/react-table';
+import { GetOrdersType } from '@/actions/order/get-orders';
+
+// ShadCN
+import { Badge } from "@/components/ui/badge"
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
+import { Progress } from "@/components/ui/progress"
+import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Checkbox } from "@/components/ui/checkbox"
+
+// Icon
+import { X, ChevronDown } from "lucide-react";
+import { FaBangladeshiTakaSign } from "react-icons/fa6";
+
+const columnHelper = createColumnHelper<GetOrdersType>();
+
+
+const orderColumns = [
+    columnHelper.display({
+        id: "select",
+        header: ({ table }) => (
+            <Checkbox
+                checked={
+                    table.getIsAllPageRowsSelected() ||
+                    (table.getIsSomePageRowsSelected() && "indeterminate")
+                }
+                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                aria-label="Select all"
+            />
+        ),
+        cell: ({ row }) => (
+            <Checkbox
+                checked={row.getIsSelected()}
+                onCheckedChange={(value) => row.toggleSelected(!!value)}
+                aria-label="Select row"
+            />
+        ),
+    }),
+    columnHelper.display({
+        id: 'product',
+        header: 'Product',
+        cell: (info) => {
+            const items = info.row.original.items;
+            if (items.length === 0) {
+                return <div>No items</div>;
+            }
+
+            return (
+                items.map((item) => {
+                    const product = item.variation.product;
+                    const variation = item.variation;
+                    const imageUrl = variation?.images?.[0]?.image?.thumbnailUrl || '/placeholder.png';
+                    return (
+                        <div key={item.id} className="flex items-start space-x-2 mb-4 w-80">
+                            <Image
+                                src={imageUrl}
+                                alt={item.variationName || 'Product Image'}
+                                width={50}
+                                height={50}
+                                className="object-cover rounded"
+                            />
+                            <div className='w-full'>
+                                <div className='font-semibold'>{product.name}</div>
+                                <div className="flex flex-col">
+                                    <div className="text-sm text-gray-500">
+                                        Variation: {item.variationName}
+                                    </div>
+                                    <div className="flex items-center text-sm text-gray-500">
+                                        Qty:
+                                        <span className='font-semibold text-lg text-amber-400 pl-2'>{item.quantity}</span>
+                                        <X className="inline-block mx-1 text-gray-400" size={16}/>
+                                        <FaBangladeshiTakaSign/>
+                                        {item.unitPrice.toFixed(2)}
+                                    </div>
+                                    <Badge variant="outline">{info.row.original.paymentStatus}</Badge>
+                                </div>
+                                <Accordion type="single" collapsible>
+                                    <AccordionItem value="item-details">
+                                        <AccordionTrigger className="p-0 cursor-pointer text-cyan-800">More</AccordionTrigger>
+                                        <AccordionContent className="flex flex-col gap-2 text-balance">
+                                            <div className="text-sm text-gray-500 mt-1">
+                                                <div>SKU: {item.sku}</div>
+                                                <div>
+                                                    Order Number:{' '}
+                                                    <span className='font-semibold'>{info.row.original.orderNumber}</span>
+                                                </div>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
+                            </div>
+                        </div>
+                    );
+                })
+            )
+        },
+    }),
+    columnHelper.display({
+        id: 'customer',
+        header: 'Customer',
+        cell: (info) => (
+            <div className="flex flex-col gap-2">
+                <div className='text-sm text-gray-500 font-semibold'>{info.row.original.customerName}</div>
+                <div className="font-semibold">{info.row.original.customerPhone}</div>
+                <div className="flex flex-col gap-1">
+                    <div>Fraud Score: <span className='font-semibold text-red-500'>0/0</span></div>
+                    <Progress value={Math.random() * 100}/>
+                </div>
+                <Accordion type="single" collapsible>
+                    <AccordionItem value="item-details">
+                        <AccordionTrigger className="p-0 cursor-pointer text-cyan-800">Details</AccordionTrigger>
+                        <AccordionContent className="flex flex-col gap-4 text-balance">
+                            <section>
+                                <div>Courier: 1</div>
+                                <div>Courier: 2</div>
+                                <div>Courier: 3</div>
+                            </section>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+                <div>
+                    {info.row.original.notes}
+                </div>
+            </div>
+        ),
+    }),
+    columnHelper.accessor('totalAmount', {
+        header: 'Total Amount',
+        cell: (info) => (
+            <div className='flex items-center'>
+                <FaBangladeshiTakaSign/>
+                <NumericFormat
+                    value={info.getValue()}
+                    displayType="text"
+                    thousandSeparator
+                    decimalScale={2}
+                    fixedDecimalScale
+                />
+            </div>
+        ),
+    }),
+    columnHelper.accessor('status', {
+        header: 'Status',
+        cell: (info) => (
+            <Badge
+                variant="outline"
+                className={cn(
+                    info.getValue() === 'pending' && 'bg-yellow-100 text-yellow-800',
+                    info.getValue() === 'confirmed' && 'bg-blue-100 text-blue-800',
+                    info.getValue() === 'shipped' && 'bg-indigo-100 text-indigo-800',
+                    info.getValue() === 'delivered' && 'bg-green-100 text-green-800',
+                    info.getValue() === 'cancelled' && 'bg-red-100 text-red-800',
+                )}
+            >
+                {info.getValue().charAt(0).toUpperCase() + info.getValue().slice(1).replaceAll('_', ' ')}
+            </Badge>
+        ),
+    }),
+    columnHelper.accessor('createdAt', {
+        header: 'Created At',
+        cell: (info) =>
+            info.getValue().toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            }),
+    }),
+    columnHelper.display({
+        id: 'actions',
+        header: 'Actions',
+        cell: (info) => (
+            <div className="flex flex-col items-center gap-2">
+                <Button variant="outline" size="sm" className="cursor-pointer">
+                    <Link href={`/merchant/order/${info.row.original.id}/edit`}>View Details</Link>
+                </Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="cursor-pointer">
+                            More Actions
+                            <ChevronDown/>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem>Add Note</DropdownMenuItem>
+                        <DropdownMenuItem>Print Invoice</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+        ),
+    }),
+];
+
+export default orderColumns;

@@ -1,4 +1,4 @@
-import React, {Suspense} from 'react';
+import React, { Suspense } from 'react';
 import localFont from 'next/font/local'
 
 // Provider
@@ -13,11 +13,11 @@ const AdorNoirrit = localFont({
     display: 'swap',
 });
 
-const StoreLayout = ({children}: {children: React.ReactNode}) => {
+const StoreLayout = ({children}: { children: React.ReactNode }) => {
     return (
         <div className={AdorNoirrit.className}>
             <Suspense fallback={<div>Loading Analytics...</div>}>
-            <FacebookPixel pixelId={'1234708877758735'} />
+                <FacebookPixel pixelId={'1234708877758735'}/>
             </Suspense>
             <QueryProvider>
                 {children}

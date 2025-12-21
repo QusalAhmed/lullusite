@@ -9,6 +9,7 @@ import timestamps from "./columns.helpers";
 
 export const orderStatus = pgEnum("order_status", [
     "pending",
+    "confirmed",
     "ready_to_ship",
     "shipped",
     "delivered",
@@ -18,6 +19,8 @@ export const orderStatus = pgEnum("order_status", [
     "refunded",
     "partially_refunded",
 ]);
+
+export type OrderStatusType = (typeof orderStatus.enumValues)[number];
 
 export const paymentStatus = pgEnum("payment_status", [
     "unpaid",

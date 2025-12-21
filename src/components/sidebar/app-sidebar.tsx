@@ -84,7 +84,7 @@ const data = {
             items: [
                 {
                     title: "All Orders",
-                    url: "#",
+                    url: "/merchant/all-orders",
                 },
                 {
                     title: "Get Started",
@@ -123,12 +123,12 @@ const data = {
                     url: "/merchant/profile",
                 },
                 {
-                    title: "General",
-                    url: "#",
+                    title: "Analytics",
+                    url: "/merchant/settings/analytics",
                 },
                 {
                     title: "Courier",
-                    url: "#",
+                    url: "/merchant/settings/courier",
                 },
                 {
                     title: "User & Permission",
