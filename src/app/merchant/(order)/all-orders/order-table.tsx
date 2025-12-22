@@ -1,52 +1,40 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 // TanStack Table
-import {
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-    PaginationState,
-} from "@tanstack/react-table"
+import { flexRender, getCoreRowModel, PaginationState, useReactTable, } from "@tanstack/react-table"
 
 // ShadCN
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
 import {
     Pagination,
     PaginationContent,
-    PaginationItem,
     PaginationEllipsis,
+    PaginationItem,
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger, } from "@/components/ui/popover"
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+    InputGroupButton
+} from "@/components/ui/input-group"
+import { type DateRange } from "react-day-picker"
+// Icons
+import { Search } from "lucide-react"
 
 // Tanstack Query
-import {
-    useQuery,
-    keepPreviousData,
-    // useMutation,
-    // useQueryClient,
-} from '@tanstack/react-query'
+import { keepPreviousData, useQuery, } from '@tanstack/react-query'
 
 // Actions
-import getOrders, { OrdersResponse } from '@/actions/order/get-orders';
+import getOrders, { OrdersResponse, type OrderSearchFilter } from '@/actions/order/get-orders';
 
 // Local
 import orderColumns from './columns'
@@ -54,23 +42,71 @@ import SetStatusDialog from './set-status-dialog';
 
 // Status
 import { OrderStatusType } from '@/db/order.schema'
+import { Spinner } from "@/components/ui/spinner"
+
+// Helper to normalize a date to start or end of day
+function setToStartOfDay(date: Date): Date {
+    const d = new Date(date)
+    d.setHours(0, 0, 0, 0)
+    return d
+}
+
+function setToEndOfDay(date: Date): Date {
+    const d = new Date(date)
+    d.setHours(23, 59, 59, 999)
+    return d
+}
+
+function normalizeRange(range: DateRange | undefined): DateRange | undefined {
+    if (!range) return undefined
+
+    let {from, to} = range
+
+    if (!from && !to) return undefined
+
+    // If only one side is set, treat as single-day range
+    if (from && !to) {
+        to = from
+    }
+    if (!from && to) {
+        from = to
+    }
+
+    if (!from || !to) return undefined
+
+    return {
+        from: setToStartOfDay(from),
+        to: setToEndOfDay(to),
+    }
+}
 
 export default function OrderTable({status}: { status?: OrderStatusType }) {
     const [pagination, setPagination] = useState<PaginationState>({
-        pageIndex: 0, // initial page index
-        pageSize: 10, // default page size
+        pageIndex: 0,
+        pageSize: 10,
     });
     const [rowSelection, setRowSelection] = useState({})
-    const [dateRange, setDateRange] = useState<{ startDate: Date | null, endDate: Date | null }>({startDate: null, endDate: null});
+    const [dateRange, setDateRange] = useState<DateRange | undefined>({
+        from: undefined,
+        to: undefined,
+    })
 
-    const {data, isLoading, isError, refetch} = useQuery<OrdersResponse>({
-        queryKey: ['orders', status, pagination, dateRange],
+    // search/filter state
+    const [searchFor, setSearchFor] = useState<OrderSearchFilter extends { searchFor: infer K } ? K : 'orderNumber'>(
+        'orderNumber'
+    )
+    const [searchText, setSearchText] = useState<string>("")
+    const [filter, setFilter] = useState<OrderSearchFilter>(null)
+
+    const {data, isLoading, isError, refetch, isRefetching} = useQuery<OrdersResponse>({
+        queryKey: ['orders', status, pagination, dateRange, filter],
         queryFn: () =>
             getOrders(
                 status,
                 pagination.pageSize,
                 pagination.pageIndex * pagination.pageSize,
-                dateRange
+                dateRange,
+                filter,
             ),
         placeholderData: keepPreviousData,
         refetchOnMount: "always",
@@ -98,6 +134,7 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
         pageCount: total > 0 ? Math.ceil(total / pagination.pageSize) : 0,
         onPaginationChange: setPagination,
         onRowSelectionChange: setRowSelection,
+        manualFiltering: true,
         getRowId: (originalRow) => originalRow.id,
         state: {
             pagination,
@@ -105,6 +142,17 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
         },
         debugTable: true,
     })
+
+    useEffect(() => {
+        // Reset to first page when filters change
+        setPagination((old) => ({
+            ...old,
+            pageIndex: 0,
+        }))
+
+        // Clear row selection on filter change
+        table.resetRowSelection()
+    }, [table])
 
     const currentPage = pagination.pageIndex + 1
     const totalPages = table.getPageCount() || 1
@@ -115,15 +163,24 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
     }
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="w-full flex items-center justify-center py-10">
+                <Spinner className="size-8 text-muted-foreground"/>
+                <span className="ml-2 text-sm text-muted-foreground">Loading...</span>
+            </div>
+        );
     }
 
     if (isError) {
-        return <div>Error loading orders.</div>;
+        return (
+            <div className="w-full flex items-center justify-center py-10">
+                <span className="text-sm text-destructive">Error loading orders. Please try again.</span>
+            </div>
+        );
     }
 
     return (
-        <div className="w-full overflow-auto">
+        <div className="w-full overflow-auto space-y-4">
             <div className="mb-4 font-medium flex items-center gap-2">
                 <span className={'font-semibold'}>Order Date:</span>
                 <Button
@@ -131,7 +188,9 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                     size="sm"
                     onClick={() => {
                         const today = new Date()
-                        setDateRange({startDate: today, endDate: today})
+                        const from = today
+                        const to = today
+                        setDateRange(normalizeRange({from, to}))
                     }}
                 >
                     Today
@@ -140,9 +199,12 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                     variant="secondary"
                     size="sm"
                     onClick={() => {
+                        const today = new Date()
                         const yesterday = new Date()
-                        yesterday.setDate(yesterday.getDate() - 1)
-                        setDateRange({startDate: yesterday, endDate: yesterday})
+                        yesterday.setDate(today.getDate() - 1)
+                        const from = yesterday
+                        const to = yesterday
+                        setDateRange(normalizeRange({from, to}))
                     }}
                 >
                     Yesterday
@@ -154,7 +216,9 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                         const now = new Date()
                         const last7Days = new Date()
                         last7Days.setDate(now.getDate() - 7)
-                        setDateRange({startDate: last7Days, endDate: now})
+                        const from = last7Days
+                        const to = now
+                        setDateRange(normalizeRange({from, to}))
                     }}
                 >
                     Last 7 Days
@@ -164,20 +228,9 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                     size="sm"
                     onClick={() => {
                         const now = new Date()
-                        const last30Days = new Date()
-                        last30Days.setDate(now.getDate() - 30)
-                        setDateRange({startDate: last30Days, endDate: now})
-                    }}
-                >
-                    Last 30 Days
-                </Button>
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => {
-                        const now = new Date()
-                        const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-                        setDateRange({startDate: thisMonthStart, endDate: now})
+                        const from = new Date(now.getFullYear(), now.getMonth(), 1)
+                        const to = now
+                        setDateRange(normalizeRange({from, to}))
                     }}
                 >
                     This Month
@@ -189,11 +242,91 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                         const now = new Date()
                         const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
                         const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
-                        setDateRange({startDate: lastMonthStart, endDate: lastMonthEnd})
+                        const from = lastMonthStart
+                        const to = lastMonthEnd
+                        setDateRange(normalizeRange({from, to}))
                     }}
                 >
                     Last Month
                 </Button>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="secondary" size="sm">
+                            {dateRange?.from
+                                ? dateRange.to
+                                    ? `${dateRange.from.toLocaleDateString()} - ${dateRange.to.toLocaleDateString()}`
+                                    : `${dateRange.from.toLocaleDateString()} - ...`
+                                : "Select Date Range"}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                            mode="range"
+                            selected={dateRange}
+                            onSelect={(range) => {
+                                setDateRange(normalizeRange(range))
+                            }}
+                            numberOfMonths={2}
+                        />
+                    </PopoverContent>
+                </Popover>
+                <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setDateRange(undefined)}
+                >
+                    Clear
+                </Button>
+            </div>
+            <div className="flex items-center gap-4">
+                <Select
+                    value={searchFor}
+                    onValueChange={(value) => {
+                        setSearchFor(value as typeof searchFor)
+                    }}
+                >
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Column"/>
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="orderNumber">Order Number</SelectItem>
+                        <SelectItem value="customerName">Customer Name</SelectItem>
+                        <SelectItem value="customerPhone">Customer Phone</SelectItem>
+                    </SelectContent>
+                </Select>
+                <InputGroup className="max-w-sm m-2">
+                    <InputGroupInput
+                        placeholder="Search..."
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                setFilter(
+                                    searchText.trim()
+                                        ? {searchFor, searchText}
+                                        : null
+                                )
+                            }
+                        }}
+                    />
+                    <InputGroupAddon>
+                        <Search/>
+                    </InputGroupAddon>
+                    <InputGroupAddon align="inline-end">
+                        <InputGroupButton
+                            variant="outline"
+                            onClick={() => {
+                                setFilter(
+                                    searchText.trim()
+                                        ? {searchFor, searchText}
+                                        : null
+                                )
+                            }}
+                        >
+                            Search
+                        </InputGroupButton>
+                    </InputGroupAddon>
+                </InputGroup>
             </div>
             <div className="flex items-center gap-2">
                 <div className="text-muted-foreground">
@@ -213,13 +346,16 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                 >
                     Print
                 </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                >
-                    <SetStatusDialog selectedOrderIds={Object.keys(rowSelection)} refetch={refetchOrders} />
-                </Button>
+                <SetStatusDialog selectedOrderIds={Object.keys(rowSelection)} refetch={refetchOrders}/>
             </div>
+            {isRefetching && (
+                <div className="fixed inset-0 z-40 flex items-center justify-center pointer-events-none">
+                    <div className="flex items-center gap-2 rounded-md bg-background/80 px-4 py-2 shadow-md pointer-events-auto">
+                        <Spinner className="size-6 text-muted-foreground"/>
+                        <span className="text-sm text-muted-foreground">Updating...</span>
+                    </div>
+                </div>
+            )}
             <Table>
                 <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (

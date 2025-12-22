@@ -1,8 +1,10 @@
 'use server'
 
+import { type DateRange } from "react-day-picker"
+
 // db
 import db from '@/lib/drizzle-agent'
-import { eq, desc, and, sql, gte, lte } from 'drizzle-orm'
+import { eq, desc, and, sql, gte, lte, ilike } from 'drizzle-orm'
 import { orderTable } from '@/db/index.schema'
 
 // Status
@@ -11,13 +13,35 @@ import { OrderStatusType } from '@/db/order.schema'
 // Auth
 import getSession from '@/lib/get-session'
 
+export type OrderSearchFilter = {
+    searchFor: 'orderNumber' | 'customerName' | 'customerPhone'
+    searchText: string
+} | null
+
 export default async function getOrders(
     status?: OrderStatusType,
     limit: number = 10,
     offset: number = 0,
-    dateRange?: { startDate: Date | null, endDate: Date | null }
+    dateRange?: DateRange,
+    filter?: OrderSearchFilter,
 ) {
     const session = await getSession()
+
+    const searchCondition = filter?.searchText.trim()
+        ? (() => {
+            const pattern = `%${filter.searchText.trim()}%`
+            switch (filter.searchFor) {
+                case 'orderNumber':
+                    return ilike(orderTable.orderNumber, pattern)
+                case 'customerName':
+                    return ilike(orderTable.customerName, pattern)
+                case 'customerPhone':
+                    return ilike(orderTable.customerPhone, pattern)
+                default:
+                    return undefined
+            }
+        })()
+        : undefined
 
     try {
         const [orders, totalResult] = await Promise.all([
@@ -63,7 +87,7 @@ export default async function getOrders(
                     customerPhone: true,
                     customerName: true,
                     status: true,
-                    notes: true,
+                    customerNote: true,
                     orderNumber: true,
                     totalAmount: true,
                     paymentStatus: true,
@@ -72,8 +96,9 @@ export default async function getOrders(
                 where: and(
                     eq(orderTable.merchantId, session.user.id),
                     status ? eq(orderTable.status, status) : undefined,
-                    dateRange?.startDate ? gte(orderTable.createdAt, dateRange.startDate) : undefined,
-                    dateRange?.endDate ? lte(orderTable.createdAt, dateRange.endDate) : undefined,
+                    dateRange?.from ? gte(orderTable.createdAt, dateRange.from) : undefined,
+                    dateRange?.to ? lte(orderTable.createdAt, dateRange.to) : undefined,
+                    searchCondition,
                 ),
                 orderBy: [desc(orderTable.createdAt)],
                 limit,
@@ -85,8 +110,9 @@ export default async function getOrders(
                 and(
                     eq(orderTable.merchantId, session.user.id),
                     status ? eq(orderTable.status, status) : undefined,
-                    dateRange?.startDate ? gte(orderTable.createdAt, dateRange.startDate) : undefined,
-                    dateRange?.endDate ? lte(orderTable.createdAt, dateRange.endDate) : undefined,
+                    dateRange?.from ? gte(orderTable.createdAt, dateRange.from) : undefined,
+                    dateRange?.to ? lte(orderTable.createdAt, dateRange.to) : undefined,
+                    searchCondition,
                 )
             ),
         ])

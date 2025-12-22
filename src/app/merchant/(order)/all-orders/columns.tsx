@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { NumericFormat } from 'react-number-format';
-import {cn} from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 // TanStack Table
 import { createColumnHelper } from '@tanstack/react-table';
@@ -31,11 +31,10 @@ import { FaBangladeshiTakaSign } from "react-icons/fa6";
 
 const columnHelper = createColumnHelper<GetOrdersType>();
 
-
 const orderColumns = [
     columnHelper.display({
         id: "select",
-        header: ({ table }) => (
+        header: ({table}) => (
             <Checkbox
                 checked={
                     table.getIsAllPageRowsSelected() ||
@@ -45,7 +44,7 @@ const orderColumns = [
                 aria-label="Select all"
             />
         ),
-        cell: ({ row }) => (
+        cell: ({row}) => (
             <Checkbox
                 checked={row.getIsSelected()}
                 onCheckedChange={(value) => row.toggleSelected(!!value)}
@@ -135,9 +134,11 @@ const orderColumns = [
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
-                <div>
-                    {info.row.original.notes}
-                </div>
+                {info.row.original.customerNote && (
+                    <div className="text-sm text-gray-800 bg-green-100 p-2 rounded wrap-break-word whitespace-pre-wrap">
+                        {info.row.original.customerNote}
+                    </div>
+                )}
             </div>
         ),
     }),

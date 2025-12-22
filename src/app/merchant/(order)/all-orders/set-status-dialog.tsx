@@ -36,7 +36,11 @@ const SetStatusDialog = (
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger disabled={selectedOrderIds.length == 0}>Set Status</DialogTrigger>
+            <DialogTrigger disabled={selectedOrderIds.length == 0} asChild>
+                <Button variant="outline" size="sm">
+                    Set Status
+                </Button>
+            </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Select order status you want to convert to</DialogTitle>
