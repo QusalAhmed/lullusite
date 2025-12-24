@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 
 // Local
 import Navbar from '@/components/themes/navbar/navbar'
+import Footer from '@/components/themes/footer/footer'
 
 // Actions
 import getProduct from '@/actions/store/get-product'
@@ -111,9 +112,9 @@ const PageLayout = async (
 
     return (
         <>
-            {children}
-            <div className='h-24'/>
             <Navbar storeSlug={storeSlug} />
+            {children}
+            <Footer storeSlug={storeSlug} />
         </>
     );
 };

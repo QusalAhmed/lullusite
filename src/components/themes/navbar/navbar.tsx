@@ -10,11 +10,15 @@ import DesktopNavbar from '../variation-details/desktop-navbar';
 const Navbar = ({storeSlug}: {storeSlug: string}) => {
     const isMobile = useIsMobile();
 
-    if (isMobile) {
-        return <MobileNavbar storeSlug={storeSlug}/>
+    if (isMobile === undefined) {
+        return null; // or a loading spinner
     }
 
-    return <DesktopNavbar/>
+    if (isMobile) {
+        return <MobileNavbar storeSlug={storeSlug}/>
+    } else {
+        return <DesktopNavbar storeSlug={storeSlug}/>;
+    }
 };
 
 export default Navbar;

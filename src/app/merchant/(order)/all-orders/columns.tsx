@@ -29,6 +29,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { X, ChevronDown } from "lucide-react";
 import { FaBangladeshiTakaSign } from "react-icons/fa6";
 
+// Local
+import TrackingDialog from './tracking-dialog';
+
 const columnHelper = createColumnHelper<GetOrdersType>();
 
 const orderColumns = [
@@ -193,6 +196,7 @@ const orderColumns = [
                 <Button variant="outline" size="sm" className="cursor-pointer">
                     <Link href={`/merchant/order/${info.row.original.id}/edit`}>View Details</Link>
                 </Button>
+                <TrackingDialog orderId={info.row.original.id} />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" size="sm" className="cursor-pointer">

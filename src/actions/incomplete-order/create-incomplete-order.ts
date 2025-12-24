@@ -12,8 +12,8 @@ import { incompleteOrderQueue } from "@/lib/bullmq-agent";
 
 interface CreateIncompleteOrderParams {
     phoneNumber: string;
-    items: Array<{ variationId: string; quantity: number; }>;
-    metadata: {
+    items?: Array<{ variationId: string; quantity: number; }>;
+    metadata?: {
         customerName: string;
         address: string;
         division: string;
@@ -91,8 +91,8 @@ export async function createIncompleteOrder(
                 .values({
                     phoneNumber,
                     merchantId,
-                    customerName: metadata.customerName || null,
-                    customerAddress: metadata.address || null,
+                    customerName: metadata?.customerName || null,
+                    customerAddress: metadata?.address || null,
                     metadata: mergedMetadata,
                 })
                 .returning();
@@ -113,7 +113,7 @@ export async function createIncompleteOrder(
         }
 
         // Insert items
-        if (items.length > 0) {
+        if (items && items.length > 0) {
             const variationDetails = await db
                 .select()
                 .from(productVariationTable)

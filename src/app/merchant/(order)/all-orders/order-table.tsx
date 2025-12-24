@@ -152,7 +152,7 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
 
         // Clear row selection on filter change
         table.resetRowSelection()
-    }, [table])
+    }, [dateRange, filter, status, table])
 
     const currentPage = pagination.pageIndex + 1
     const totalPages = table.getPageCount() || 1
@@ -337,12 +337,14 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                     variant="destructive"
                     size="sm"
                     onClick={() => table.resetRowSelection()}
+                    disabled={Object.keys(rowSelection).length === 0}
                 >
                     Clear Selection
                 </Button>
                 <Button
                     variant="outline"
                     size="sm"
+                    disabled={Object.keys(rowSelection).length === 0}
                 >
                     Print
                 </Button>
