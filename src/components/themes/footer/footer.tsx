@@ -89,12 +89,16 @@ const Footer = async ({storeSlug}: { storeSlug: string }) => {
                         ) : (
                             <div
                                 className="flex h-12 w-12 items-center justify-center rounded bg-muted text-lg font-semibold">
-                                {data?.businessName?.[0] || "S"}
+                                {data?.businessName?.[0] || "X"}
                             </div>
                         )}
                         <div>
-                            <p className="text-lg font-semibold whitespace-nowrap">{data?.businessName || "Your Store"}</p>
-                            <p className="text-sm text-muted-foreground">{data?.description || "Quality products and great service."}</p>
+                            <p className="text-lg font-semibold whitespace-nowrap">
+                                {data?.businessName || "Your Store"}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                                {data?.description || "Quality products and great service."}
+                            </p>
                         </div>
                     </div>
                 </div>

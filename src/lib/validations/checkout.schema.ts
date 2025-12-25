@@ -19,8 +19,8 @@ export const checkoutFormSchema = z.object({
         .max(500, 'Remarks cannot exceed 500 characters')
         .or(z.string()),
 }).refine((data) => {
-    const phoneNumber = data.phoneNumber;
-    return validatePhoneNumber(phoneNumber);
+    const { isValid } = validatePhoneNumber(data.phoneNumber);
+    return isValid;
 }, {
     message: 'Invalid phone number format',
     path: ['phoneNumber'],
