@@ -38,9 +38,6 @@ export default async function createOrder(orderData: OrderData) {
     }
 
     const merchant = await getMerchant()
-    if (!merchant.success) {
-        throw new Error(merchant.error)
-    }
 
     // Create customer if not exists
     if (!merchant.merchantId) {
