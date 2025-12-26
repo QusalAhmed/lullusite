@@ -2,6 +2,7 @@
 
 import { validatePhoneNumber } from '@/lib/phone-number'
 import getMerchant from "@/lib/get-merchant";
+import { getRequestSource } from "@/lib/request";
 
 // db
 import db from "@/lib/drizzle-agent"
@@ -72,6 +73,8 @@ export default async function createOrder(orderData: OrderData) {
     }
 
     // Create order
+    const requestSource = await getRequestSource();
+    console.log('Request Source:', requestSource);
     const deliveryCharge = 100;
     const [createdOrder] = await db
         .insert(orderTable)
@@ -84,6 +87,10 @@ export default async function createOrder(orderData: OrderData) {
             shippingFullName: orderData.name,
             shippingCity: orderData.division,
             shippingAmount: deliveryCharge,
+            sourceChannel: {
+                channel: 'website',
+                source: requestSource.referer || requestSource.origin || 'unknown',
+            }
         })
         .returning();
 

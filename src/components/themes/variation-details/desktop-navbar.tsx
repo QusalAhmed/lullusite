@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge"
 
 const DesktopNavbar = ({storeSlug}: { storeSlug: string }) => {
     const {data, isPending} = useQuery({
-        queryKey: ['business-information', storeSlug],
+        queryKey: ['business-info', storeSlug],
         queryFn: () => getBusinessInfo(),
         staleTime: Infinity,
     });

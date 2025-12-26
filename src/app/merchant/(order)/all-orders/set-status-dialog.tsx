@@ -71,13 +71,13 @@ const SetStatusDialog = (
                             if (selectedStatus) {
                                 updateOrderStatus(selectedOrderIds, selectedStatus).then((res) => {
                                     console.log(res);
+                                    setIsLoading(false);
                                     if (res.success){
                                         refetch()
                                         setOpen(false);
                                     }
                                 });
                             }
-                            // setIsLoading(false);
                         }}
                         disabled={!selectedStatus || isLoading}
                     >

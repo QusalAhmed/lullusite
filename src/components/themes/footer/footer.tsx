@@ -1,13 +1,13 @@
 import React from 'react'
-import Image from "next/image";
 import Link from "next/link";
-import { Mail, MapPin, Phone } from "lucide-react";
+import Image from "next/image";
 
 // Actions
 import getBusinessInfo from "@/actions/store/get-business-info";
 
 // Icons
 import { FaFacebook, FaWhatsapp, FaInstagram, FaYoutube, FaTiktok } from "react-icons/fa";
+import { Mail, MapPin, Phone } from "lucide-react";
 
 // Footer Component
 import MadeWith from "./made-with";

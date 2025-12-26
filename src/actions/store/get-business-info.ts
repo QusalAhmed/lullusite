@@ -1,5 +1,7 @@
 'use server'
 
+import { unstable_noStore as noStore } from "next/cache";
+
 // db
 import { eq } from 'drizzle-orm'
 import db from '@/lib/drizzle-agent'
@@ -9,6 +11,7 @@ import { businessInformationTable } from '@/db/index.schema'
 import getMerchant from "@/lib/get-merchant";
 
 export default async function getBusinessInfo() {
+    noStore();
     const merchant = await getMerchant()
 
     if (!merchant.success) {

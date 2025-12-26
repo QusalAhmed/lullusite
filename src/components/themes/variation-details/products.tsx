@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useId } from 'react';
+import React, { useId, useRef } from 'react';
+import { useOnInView } from "react-intersection-observer";
 import { NumericFormat } from 'react-number-format';
+import { v4 as uuidv4 } from 'uuid';
 
 // Pixel
 import {
     trackAddToCart,
+    trackViewContent,
 } from '@/lib/facebook-pixel'
 
 // Actions
@@ -65,6 +68,26 @@ function VariationCard({variation}: { variation: Variation }) {
     const quantity = cartItems.find(item => item.id === variation.id)?.quantity || 0
     const id = useId();
     const dispatch = useDispatch();
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    const setEventTimer = (seconds: number) => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+        }
+        timerRef.current = setTimeout(() => {
+            const eventId = uuidv4();
+            trackAddToCart({
+                id: variation.id,
+                eventID: eventId,
+                name: variation.name,
+                price: variation.price * (quantity + 1),
+                contents: [
+                    {id: variation.id, quantity: quantity + 1}
+                ],
+                currency: 'BDT',
+            });
+        }, seconds * 1000);
+    };
 
     return (
         <Card>
@@ -91,13 +114,8 @@ function VariationCard({variation}: { variation: Variation }) {
                         disabled={quantity === 0}
                         className="h-12 whitespace-normal wrap-break-word normal-case w-20 px-2 py-1 leading-tight text-center"
                         onClick={() => {
+                            setEventTimer(5);
                             dispatch(minusItem({id: variation.id}));
-                            trackAddToCart({
-                                id: variation.id,
-                                name: variation.name,
-                                price: variation.price,
-                                currency: 'BDT',
-                            });
                         }}
                     >
                         ১ কেজি কমান
@@ -153,13 +171,8 @@ function VariationCard({variation}: { variation: Variation }) {
                         disabled={quantity === variation.stock && variation.stock !== -1}
                         className="h-12 whitespace-normal wrap-break-word normal-case w-20 px-2 py-1 leading-tight text-center"
                         onClick={() => {
+                            setEventTimer(5);
                             dispatch(addItem({...variation}));
-                            trackAddToCart({
-                                id: variation.id,
-                                name: variation.name,
-                                price: variation.price,
-                                currency: 'BDT',
-                            });
                         }}
                     >
                         ১ কেজি যোগ করুন
@@ -223,6 +236,35 @@ const Products = () => {
         staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
+
+    const inViewRef = useOnInView(
+        (inView, entry) => {
+            if (inView) {
+                console.log("Element is in view", entry.target);
+                if (data) {
+                    trackViewContent({
+                        id: data.id,
+                        eventID: uuidv4(),
+                        name: data.name,
+                        type: 'product',
+                        currency: 'BDT',
+                        value: Math.max(...data.variations.map(v => v.price)),
+                        contents: data.variations.map(v => ({
+                            id: v.id,
+                            quantity: 1,
+                            name: v.name,
+                            value: v.price,
+                        })),
+                    });
+                }
+            }
+        },
+        {
+            threshold: 0.5,
+            triggerOnce: true,
+        }
+    );
+
     if (isPending) {
         return <ProductSkeleton/>;
     }
@@ -232,12 +274,13 @@ const Products = () => {
     }
 
     return (
-        <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4'>
+        <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4' ref={inViewRef}>
             {data.variations.map((variation) => (
                 <VariationCard key={variation.id} variation={variation}/>
             ))}
         </div>
     );
 };
+
 
 export default Products;

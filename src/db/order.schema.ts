@@ -1,4 +1,4 @@
-import { pgTable, pgSequence, pgEnum, uuid, varchar, integer, numeric, jsonb, bigint } from "drizzle-orm/pg-core";
+import { pgTable, pgSequence, pgEnum, uuid, varchar, integer, numeric, jsonb, bigint, boolean } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
 // Schemas
@@ -103,6 +103,11 @@ export const orderTable = pgTable("orders", {
     // Notes
     customerNote: varchar("customer_note", { length: 1000 }),
     merchantNote: varchar("merchant_note", { length: 1000 }),
+
+    reportToPixel: boolean("report_to_pixel").notNull().default(false),
+    sourceChannel: jsonb("source_channel")
+        .$type<{channel: string; source: string}>()
+        .notNull(),
 
     ...timestamps,
 });

@@ -1,0 +1,2 @@
+ALTER TABLE "orders" ADD COLUMN "report_to_pixel" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "orders" ADD COLUMN "source_channel" jsonb DEFAULT '{"channel":"website","source":"direct"}'::jsonb NOT NULL;

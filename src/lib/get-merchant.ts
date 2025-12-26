@@ -11,13 +11,13 @@ import { getRequestSource } from "@/lib/request";
 export default async function getMerchant() {
     // Capture request source (origin/host/protocol)
     const req = await getRequestSource();
+    console.log("Request referer:", req.referer);
+
+    // Extract store slug from referer
     const storeSlug = req.referer?.split('/store/')[1]?.split('/')[0]
 
     if (!storeSlug) {
-        return {
-            success: false,
-            error: "Store not found in referer",
-        };
+        throw new Error("Store slug not found in request");
     }
 
     // Find merchant
@@ -30,10 +30,7 @@ export default async function getMerchant() {
     const merchantId = merchant?.userId;
 
     if (!merchantId) {
-        return {
-            success: false,
-            error: "Merchant not found for store slug",
-        };
+        throw new Error("No merchant found for the given store slug");
     }
 
     return {

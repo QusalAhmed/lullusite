@@ -2,47 +2,48 @@
  * Facebook Pixel Event Tracking Utilities
  *
  * Use these helpers to track standard and custom Facebook Pixel events
- * throughout your application.
+ * throughout application.
  */
 
 declare global {
-  interface Window {
-    fbq?: (action: string, eventName: string, params?: Record<string, unknown>) => void
-  }
+    interface Window {
+        fbq?: (action: string, eventName: string, params?: Record<string, unknown>) => void
+    }
 }
 
 // Standard Facebook Pixel events
 export type FacebookStandardEvent =
-  | 'AddPaymentInfo'
-  | 'AddToCart'
-  | 'AddToWishlist'
-  | 'CompleteRegistration'
-  | 'Contact'
-  | 'CustomizeProduct'
-  | 'Donate'
-  | 'FindLocation'
-  | 'InitiateCheckout'
-  | 'Lead'
-  | 'PageView'
-  | 'Purchase'
-  | 'Schedule'
-  | 'Search'
-  | 'StartTrial'
-  | 'SubmitApplication'
-  | 'Subscribe'
-  | 'ViewContent'
+    | 'AddPaymentInfo'
+    | 'AddToCart'
+    | 'AddToWishlist'
+    | 'CompleteRegistration'
+    | 'Contact'
+    | 'CustomizeProduct'
+    | 'Donate'
+    | 'FindLocation'
+    | 'InitiateCheckout'
+    | 'Lead'
+    | 'PageView'
+    | 'Purchase'
+    | 'Schedule'
+    | 'Search'
+    | 'StartTrial'
+    | 'SubmitApplication'
+    | 'Subscribe'
+    | 'ViewContent'
 
 export interface FacebookEventParams {
-  content_name?: string
-  content_category?: string
-  content_ids?: string[]
-  content_type?: string
-  value?: number
-  currency?: string
-  num_items?: number
-  search_string?: string
-  status?: boolean
-  [key: string]: unknown
+    content_name?: string
+    content_category?: string
+    content_ids?: string[]
+    content_type?: string
+    value?: number
+    currency?: string
+    num_items?: number
+    search_string?: string
+    status?: boolean
+
+    [key: string]: unknown
 }
 
 /**
@@ -61,12 +62,12 @@ export interface FacebookEventParams {
  * })
  */
 export const trackEvent = (
-  eventName: FacebookStandardEvent,
-  params?: FacebookEventParams
+    eventName: FacebookStandardEvent,
+    params?: FacebookEventParams
 ): void => {
-  if (typeof window !== 'undefined' && window.fbq) {
-    window.fbq('track', eventName, params)
-  }
+    if (typeof window !== 'undefined' && window.fbq) {
+        window.fbq('track', eventName, params)
+    }
 }
 
 /**
@@ -82,19 +83,19 @@ export const trackEvent = (
  * })
  */
 export const trackCustomEvent = (
-  eventName: string,
-  params?: Record<string, unknown>
+    eventName: string,
+    params?: Record<string, unknown>
 ): void => {
-  if (typeof window !== 'undefined' && window.fbq) {
-    window.fbq('trackCustom', eventName, params)
-  }
+    if (typeof window !== 'undefined' && window.fbq) {
+        window.fbq('trackCustom', eventName, params)
+    }
 }
 
 /**
  * Track page view event
  */
 export const trackPageView = (): void => {
-  trackEvent('PageView')
+    trackEvent('PageView')
 }
 
 /**
@@ -103,18 +104,25 @@ export const trackPageView = (): void => {
  * @param product - Product details
  */
 export const trackAddToCart = (product: {
-  id: string
-  name: string
-  price: number
-  currency?: string
+    id: string
+    eventID: string
+    name: string
+    price: number
+    currency?: string,
+    contents: Array<{id: string; quantity: number}>
+    category?: string,
 }): void => {
-  trackEvent('AddToCart', {
-    content_name: product.name,
-    content_ids: [product.id],
-    content_type: 'product',
-    value: product.price,
-    currency: product.currency || 'USD',
-  })
+    trackEvent('AddToCart', {
+        eventID: product.eventID,
+        content_name: product.name,
+        content_ids: [product.id],
+        content_type: 'product',
+        value: product.price,
+        currency: product.currency || 'USD',
+        content_category: product.category,
+        contents: product.contents,
+        num_items: product.contents.reduce((sum, item) => sum + item.quantity, 0),
+    })
 }
 
 /**
@@ -123,19 +131,21 @@ export const trackAddToCart = (product: {
  * @param purchase - Purchase details
  */
 export const trackPurchase = (purchase: {
-  value: number
-  currency?: string
-  content_ids?: string[]
-  content_type?: string
-  num_items?: number
+    value: number
+    currency?: string
+    content_ids?: string[]
+    content_type?: string
+    num_items?: number
+    contents: Array<{id: string; quantity: number}>
 }): void => {
-  trackEvent('Purchase', {
-    value: purchase.value,
-    currency: purchase.currency || 'USD',
-    content_ids: purchase.content_ids,
-    content_type: purchase.content_type || 'product',
-    num_items: purchase.num_items,
-  })
+    trackEvent('Purchase', {
+        value: purchase.value,
+        currency: purchase.currency || 'USD',
+        content_ids: purchase.content_ids,
+        content_type: purchase.content_type || 'product',
+        num_items: purchase.num_items,
+        contents: purchase.contents,
+    })
 }
 
 /**
@@ -144,19 +154,23 @@ export const trackPurchase = (purchase: {
  * @param content - Content details
  */
 export const trackViewContent = (content: {
-  id: string
-  name: string
-  type?: string
-  value?: number
-  currency?: string
+    id: string
+    eventID?: string
+    name: string
+    type?: string
+    value?: number
+    currency?: string
+    contents: Array<{id: string; quantity: number; name: string; value: number}>
 }): void => {
-  trackEvent('ViewContent', {
-    content_name: content.name,
-    content_ids: [content.id],
-    content_type: content.type || 'product',
-    value: content.value,
-    currency: content.currency || 'USD',
-  })
+    trackEvent('ViewContent', {
+        content_name: content.name,
+        content_ids: [content.id],
+        content_type: content.type || 'product',
+        value: content.value,
+        currency: content.currency || 'USD',
+        contents: content.contents,
+        eventID: content.eventID,
+    })
 }
 
 /**
@@ -165,17 +179,17 @@ export const trackViewContent = (content: {
  * @param checkout - Checkout details
  */
 export const trackInitiateCheckout = (checkout: {
-  value: number
-  currency?: string
-  content_ids?: string[]
-  num_items?: number
+    value: number
+    currency?: string
+    content_ids?: string[]
+    num_items?: number
 }): void => {
-  trackEvent('InitiateCheckout', {
-    value: checkout.value,
-    currency: checkout.currency || 'USD',
-    content_ids: checkout.content_ids,
-    num_items: checkout.num_items,
-  })
+    trackEvent('InitiateCheckout', {
+        value: checkout.value,
+        currency: checkout.currency || 'USD',
+        content_ids: checkout.content_ids,
+        num_items: checkout.num_items,
+    })
 }
 
 /**
@@ -184,25 +198,25 @@ export const trackInitiateCheckout = (checkout: {
  * @param searchString - The search query
  */
 export const trackSearch = (searchString: string): void => {
-  trackEvent('Search', {
-    search_string: searchString,
-  })
+    trackEvent('Search', {
+        search_string: searchString,
+    })
 }
 
 /**
  * Track lead event
  */
 export const trackLead = (): void => {
-  trackEvent('Lead')
+    trackEvent('Lead')
 }
 
 /**
  * Track complete registration event
  */
 export const trackCompleteRegistration = (): void => {
-  trackEvent('CompleteRegistration', {
-    status: true,
-  })
+    trackEvent('CompleteRegistration', {
+        status: true,
+    })
 }
 
 /**
@@ -211,6 +225,6 @@ export const trackCompleteRegistration = (): void => {
  * @returns true if Facebook Pixel is loaded
  */
 export const isFacebookPixelLoaded = (): boolean => {
-  return typeof window !== 'undefined' && !!window.fbq
+    return typeof window !== 'undefined' && !!window.fbq
 }
 
