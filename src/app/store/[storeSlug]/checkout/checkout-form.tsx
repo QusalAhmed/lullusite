@@ -1,19 +1,19 @@
 "use client"
 
 import React, { useEffect } from "react"
-import {redirect} from "next/navigation"
+import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
-import {validatePhoneNumber} from '@/lib/phone-number'
+import { validatePhoneNumber } from '@/lib/phone-number'
 
 // Redux
 import { useSelector } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
 
 // Actions
-import {createIncompleteOrder} from "@/actions/incomplete-order/create-incomplete-order"
+import { createIncompleteOrder } from "@/actions/incomplete-order/create-incomplete-order"
 import createOrder from "@/actions/order/create-order"
 
 // Zod schema
@@ -73,6 +73,7 @@ export function CheckoutForm() {
 
     const cartItems = useSelector((state: RootState) => state.cart.carts);
     const storeSlug = useSelector((state: RootState) => state.store.storeSlug);
+    const router = useRouter();
 
     useEffect(() => {
         if (watchPhoneNumber && validatePhoneNumber(watchPhoneNumber).isValid) {
@@ -90,7 +91,7 @@ export function CheckoutForm() {
                     remarks: form.getValues("remarks"),
                 }
             }).then((response) => {
-                if(response.success) {
+                if (response.success) {
                     console.log("Incomplete order created/updated successfully.")
                 } else {
                     console.error(`Failed to create/update incomplete order: ${response.error}`)
@@ -102,33 +103,28 @@ export function CheckoutForm() {
     }, [cartItems, form, watchPhoneNumber])
 
     async function onSubmit(data: z.infer<typeof checkoutFormSchema>) {
-        const response = createOrder({
-            name: data.name,
-            phoneNumber: data.phoneNumber,
-            address: data.address,
-            division: data.division,
-            remark: data.remarks,
-            variations: cartItems.map(item => ({
-                variationId: item.id,
-                quantity: item.quantity,
-            })),
-        })
+        const toastId = toast.loading("Creating your order...")
+        try {
+            const response = await createOrder({
+                name: data.name,
+                phoneNumber: data.phoneNumber,
+                address: data.address,
+                division: data.division,
+                remark: data.remarks,
+                variations: cartItems.map(item => ({
+                    variationId: item.id,
+                    quantity: item.quantity,
+                })),
+            })
 
-        toast.promise(
-            response,
-            {
-                loading: "Placing your order...",
-                success: "Order placed successfully!",
-                error: (err) => `Failed to place order: ${err.message}`,
-            }
-        )
-
-        response.then((res) => {
-            if (res.success) {
+            if (response.success) {
+                toast.success("Order created successfully!", {id: toastId, duration: 500})
                 // Redirect to order confirmation page
-                redirect(`/store/${storeSlug}/order/${res.orderId}/confirmation`)
+                router.push(`/store/${storeSlug}/order/${response.orderId}/confirmation`)
             }
-        })
+        } catch (error) {
+            toast.error(`An error occurred: ${error}`, {id: toastId})
+        }
     }
 
 

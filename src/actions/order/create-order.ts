@@ -34,7 +34,7 @@ interface OrderData {
 
 export default async function createOrder(orderData: OrderData, actionSource?: string) {
     const phoneValidation = validatePhoneNumber(orderData.phoneNumber);
-    if (phoneValidation.isValid) {
+    if (!phoneValidation.isValid) {
         throw new Error('Invalid phone number')
     }
 

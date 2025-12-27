@@ -38,7 +38,7 @@ let orderConfirmationWorker: Worker | null = null;
 let facebookEventWorker: Worker | null = null;
 
 export async function initializeWorker() {
-    if (myWorker && incompleteOrderWorker && orderConfirmationWorker) {
+    if (myWorker && incompleteOrderWorker && orderConfirmationWorker && facebookEventWorker) {
         console.log('Workers already initialized');
         return;
     }
@@ -255,7 +255,7 @@ export async function initializeWorker() {
             const eventsData = [serverEvent_0];
             const eventRequest = (new EventRequest(accessToken, pixelId))
                 .setEvents(eventsData)
-                .setTestEventCode("TEST89444")
+                .setTestEventCode("TEST77174")
                 .setDebugMode(true);
 
             await eventRequest.execute();
