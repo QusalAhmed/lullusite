@@ -8,6 +8,11 @@ import bizSdk from "facebook-nodejs-business-sdk"
 import { sendEmail } from "@/lib/mail/incomplete-order/send-email";
 import { sendOrderConfirmationEmail } from "@/lib/mail/order-confirmation/send-email";
 
+// db
+import db from '@/lib/drizzle-agent';
+import { orderTable } from '@/db/index.schema';
+import { eq } from 'drizzle-orm';
+
 const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379', {
     maxRetriesPerRequest: null,
 });
@@ -162,12 +167,8 @@ export async function initializeWorker() {
     // Initialize facebook-event-queue worker
     if (!facebookEventWorker) {
         facebookEventWorker = new Worker('facebook-event-queue', async (job: Job) => {
-            console.log('Processing facebook-event-queue job:', job.id, 'with data:', job.data);
-
-            // Simulate Facebook event processing
             const accessToken = job.data.accessToken
             const pixelId = job.data.pixelId
-            const sourceUrl = job.data.request.referer
 
             const ServerEvent = bizSdk.ServerEvent;
             const EventRequest = bizSdk.EventRequest;
@@ -179,24 +180,77 @@ export async function initializeWorker() {
             let serverEvent_0;
 
             if (job.name == 'Purchase') {
+                const orderId = job.data.orderId;
+                const orderDetails = await db
+                    .query
+                    .orderTable
+                    .findFirst({
+                        with: {
+                            items: {
+                                columns: {
+                                    id: true,
+                                }
+                            },
+                            customer: {
+                                columns: {
+                                    id: true,
+                                }
+                            }
+                        },
+                        where: eq(orderTable.id, orderId),
+                        columns: {
+                            id: true,
+                            totalAmount: true,
+                            currency: true,
+                            customerPhone: true,
+                            actionSource: true,
+                            eventSourceUrl: true,
+                            shippingCity: true,
+                            shippingState: true,
+                            shippingPostalCode: true,
+                            ipAddress: true,
+                            userAgent: true,
+                            fbc: true,
+                            fbp: true,
+                            createdAt: true,
+                        },
+                    });
+
+                if (!orderDetails) {
+                    throw new Error('Order not found for id: ' + orderId);
+                }
+
                 const userData_0 = (new UserData())
-                    .setEmails(["7b17fb0bd173f625b58636fb796407c22b3d16fc78302d79f0fd30c2fc2fc068"])
-                    .setPhones([]);
+                    .setPhones([orderDetails.customerPhone])
+                    .setCity(orderDetails.shippingCity)
+                    .setState(orderDetails.shippingState || '') //  TODO: Handle undefined state properly
+                    .setZip(orderDetails.shippingPostalCode || '')
+                    .setExternalId(orderDetails.customer.id)
+                    .setClientIpAddress(orderDetails.ipAddress)
+                    .setClientUserAgent(orderDetails.userAgent)
+                    .setFbc(orderDetails.fbc || '')
+                    .setFbp(orderDetails.fbp);
                 const customData_0 = (new CustomData())
-                    .setValue(142.52)
-                    .setCurrency("USD")
+                    .setValue(orderDetails.totalAmount)
+                    .setCurrency(orderDetails.currency)
+                    .setContentType("product")
+                    .setContentIds(orderDetails.items.map(item => item.id))
+                    .setNumItems(orderDetails.items.length);
                 serverEvent_0 = (new ServerEvent())
+                    .setEventId(orderDetails.id)
                     .setEventName("Purchase")
-                    .setEventTime(1766757115)
+                    .setOptOut(false)
+                    .setActionSource(orderDetails.actionSource)
+                    .setEventTime(Math.trunc(orderDetails.createdAt.getTime() / 1000))
+                    .setEventSourceUrl(orderDetails.eventSourceUrl)
                     .setUserData(userData_0)
-                    .setCustomData(customData_0)
-                    .setEventSourceUrl(sourceUrl)
-                    .setActionSource("website");
+                    .setCustomData(customData_0);
             }
 
             if(serverEvent_0 === undefined) {
                 throw new Error('No server event created for job');
             }
+            console.log(serverEvent_0);
 
             const eventsData = [serverEvent_0];
             const eventRequest = (new EventRequest(accessToken, pixelId))

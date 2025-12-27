@@ -101,7 +101,7 @@ export function CheckoutForm() {
         }
     }, [cartItems, form, watchPhoneNumber])
 
-    function onSubmit(data: z.infer<typeof checkoutFormSchema>) {
+    async function onSubmit(data: z.infer<typeof checkoutFormSchema>) {
         const response = createOrder({
             name: data.name,
             phoneNumber: data.phoneNumber,

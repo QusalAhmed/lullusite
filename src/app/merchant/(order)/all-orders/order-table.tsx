@@ -334,6 +334,15 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                     {total} row(s) selected.
                 </div>
                 <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => refetchOrders()}
+                    disabled={isRefetching}
+                >
+                    {isRefetching && <Spinner className="size-4"/>}
+                    Refresh
+                </Button>
+                <Button
                     variant="destructive"
                     size="sm"
                     onClick={() => table.resetRowSelection()}

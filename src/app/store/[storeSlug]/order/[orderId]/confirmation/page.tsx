@@ -30,9 +30,9 @@ const PurchaseConfirmation = async (
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+        <div className="min-h-screen bg-linear-to-b from-background to-muted/20">
             {/* Header */}
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-b py-12">
+            <div className="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-b py-12">
                 <div className="max-w-4xl mx-auto px-4">
                     <div className="flex items-start justify-between gap-6">
                         <div className="flex items-start gap-4">

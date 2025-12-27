@@ -32,8 +32,9 @@ interface OrderData {
     }>;
 }
 
-export default async function createOrder(orderData: OrderData) {
-    if (!validatePhoneNumber(orderData.phoneNumber).isValid) {
+export default async function createOrder(orderData: OrderData, actionSource?: string) {
+    const phoneValidation = validatePhoneNumber(orderData.phoneNumber);
+    if (phoneValidation.isValid) {
         throw new Error('Invalid phone number')
     }
 
@@ -73,22 +74,44 @@ export default async function createOrder(orderData: OrderData) {
     const requestSource = await getRequestSource();
     console.log('Request Source:', requestSource);
     const deliveryCharge = 100;
+
+
     const [createdOrder] = await db
         .insert(orderTable)
-        .values({
-            merchantId: merchant.merchantId,
-            customerId: customerId,
-            customerName: orderData.name,
-            customerPhone: orderData.phoneNumber,
-            shippingAddress: orderData.address,
-            shippingFullName: orderData.name,
-            shippingCity: orderData.division,
-            shippingAmount: deliveryCharge,
-            sourceChannel: {
-                channel: 'website',
-                source: requestSource.referer || requestSource.origin || 'unknown',
-            }
-        })
+        .values([
+            {
+                // Relations
+                customerId,
+                merchantId: merchant.merchantId,
+
+                // Customer
+                customerName: orderData.name,
+                customerPhone: phoneValidation.normalized || orderData.phoneNumber,
+                customerNote: orderData.remark || '',
+
+                // Shipping details
+                shippingAddress: orderData.address,
+                shippingFullName: orderData.name,
+                shippingPhone: phoneValidation.normalized || orderData.phoneNumber,
+                shippingPostalCode: '',
+                shippingCountry: 'Bangladesh',
+                shippingCity: orderData.division,
+                shippingDivision: orderData.division,
+                shippingAmount: deliveryCharge,
+
+                // Analytics
+                ipAddress: requestSource.ipAddress || '0.0.0.0',
+                userAgent: requestSource.userAgent || 'unknown',
+                actionSource: actionSource || 'website',
+                eventSourceUrl: requestSource.referer || requestSource.origin || 'unknown',
+                fbc: requestSource.fbc,
+                fbp: requestSource.fbp || '',
+                sourceChannel: {
+                    channel: 'website',
+                    source: requestSource.referer || requestSource.origin || 'unknown',
+                },
+            },
+        ])
         .returning();
 
     // Get product variation details

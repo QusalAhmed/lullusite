@@ -2,7 +2,6 @@
 
 // Local
 import getMerchant from "@/lib/get-merchant";
-import {getRequestSource} from "@/lib/request";
 
 // db
 import db from "@/lib/drizzle-agent";
@@ -24,27 +23,25 @@ export default async function eventManager(merchantId?: string) {
             pixelId: analyticsTable.facebookPixelId,
         })
         .from(analyticsTable)
-        .where(
-            eq(analyticsTable.userId, merchantId)
-        )
+        .where(eq(analyticsTable.userId, merchantId))
         .limit(1);
-    const accessToken = result[0].accessToken;
-    const pixelId = result[0].pixelId;
+
+    const accessToken = result[0]?.accessToken;
+    const pixelId = result[0]?.pixelId;
 
     if (!accessToken || !pixelId) {
         throw new Error('Facebook Conversion API key or pixel id not found for merchant');
     }
 
-    const request =await getRequestSource();
-    if(!request.referer) {
-        throw new Error('No referer found in request');
-    }
+    const purchaseEvent = async (orderId: string) => {
+        await facebookEventQueue.add('Purchase', {
+            accessToken,
+            pixelId,
+            orderId,
+        });
 
-    await facebookEventQueue.add('Purchase', {
-        accessToken,
-        pixelId,
-        request,
-    });
+        return { success: true };
+    };
 
-    return { success: true };
+    return { purchaseEvent };
 }

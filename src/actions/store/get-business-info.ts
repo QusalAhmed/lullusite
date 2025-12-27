@@ -14,10 +14,6 @@ export default async function getBusinessInfo() {
     noStore();
     const merchant = await getMerchant()
 
-    if (!merchant.success) {
-        new Error('Unable to fetch merchant data')
-    }
-
     return db
         .query
         .businessInformationTable

@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { cookies } from "next/headers";
 
 export type RequestSource = {
     origin?: string;
@@ -8,6 +9,8 @@ export type RequestSource = {
     url?: string; // Built as protocol + host
     userAgent?: string;
     ipAddress?: string;
+    fbp?: string;
+    fbc?: string;
 };
 
 /**
@@ -16,6 +19,7 @@ export type RequestSource = {
  */
 export async function getRequestSource(): Promise<RequestSource> {
     const headersList = await headers();
+    const cookieStore = await cookies();
 
     const origin = headersList.get("origin") ?? undefined;
     const referer = headersList.get("referer") ?? undefined;
@@ -24,8 +28,10 @@ export async function getRequestSource(): Promise<RequestSource> {
     const url = host ? `${protocol}://${host}` : origin ?? undefined;
     const userAgent = headersList.get("user-agent") ?? undefined;
     const ipAddress = getClientIpAddress(headersList);
+    const fbp = cookieStore.get("_fbp")?.value;
+    const fbc = cookieStore.get("_fbc")?.value;
 
-    return {origin, host, protocol, referer, url, userAgent, ipAddress};
+    return {origin, host, protocol, referer, url, userAgent, ipAddress, fbp, fbc};
 }
 
 /**

@@ -1,4 +1,16 @@
-import { pgTable, pgSequence, pgEnum, uuid, varchar, integer, numeric, jsonb, bigint, boolean } from "drizzle-orm/pg-core";
+import {
+    pgTable,
+    pgSequence,
+    pgEnum,
+    uuid,
+    varchar,
+    integer,
+    numeric,
+    jsonb,
+    bigint,
+    boolean,
+    text
+} from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
 // Schemas
@@ -45,10 +57,10 @@ export const orderTable = pgTable("orders", {
     customerId: uuid("customer_id")
         .notNull()
         .references(() => customerTable.id, {
-        onDelete: "set null",
-        onUpdate: "cascade",
-    }),
-    merchantId: varchar("merchant_id", { length: 255 })
+            onDelete: "set null",
+            onUpdate: "cascade",
+        }),
+    merchantId: varchar("merchant_id", {length: 255})
         .notNull()
         .references(() => user.id, {
             onDelete: "cascade",
@@ -56,61 +68,73 @@ export const orderTable = pgTable("orders", {
         }),
 
     // Order identifiers
-    orderNumber: bigint("order_number", { mode: "number" })
+    orderNumber: bigint("order_number", {mode: "number"})
         .notNull()
-        .default(sql`nextval('order_number_seq')`),
+        .default(sql`nextval
+        ('order_number_seq')`),
 
     // Statuses
     status: orderStatus().notNull().default("pending"),
     paymentStatus: paymentStatus("payment_status").notNull().default("unpaid"),
 
     // Monetary totals
-    currency: varchar("currency", { length: 3 }).notNull().default("BDT"),
-    subtotalAmount: numeric("subtotal_amount", { precision: 10, scale: 2, mode: "number" }).notNull().default(0),
-    discountAmount: numeric("discount_amount", { precision: 10, scale: 2, mode: "number" }).notNull().default(0),
-    shippingAmount: numeric("shipping_amount", { precision: 10, scale: 2, mode: "number" }).notNull().default(0),
-    totalAmount: numeric("total_amount", { precision: 10, scale: 2, mode: "number" }).notNull().default(0),
+    currency: varchar("currency", {length: 3}).notNull().default("BDT"),
+    subtotalAmount: numeric("subtotal_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
+    discountAmount: numeric("discount_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
+    shippingAmount: numeric("shipping_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
+    totalAmount: numeric("total_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
 
     // Customer contact snapshot
-    customerEmail: varchar("customer_email", { length: 255 }),
-    customerPhone: varchar("customer_phone", { length: 50 }).notNull(),
-    customerAdditionalPhone: varchar("customer_additional_phone", { length: 50 }),
-    customerName: varchar("customer_name", { length: 255 }).notNull(),
+    customerEmail: varchar("customer_email", {length: 255}),
+    customerPhone: varchar("customer_phone", {length: 50}).notNull(),
+    customerAdditionalPhone: varchar("customer_additional_phone", {length: 50}),
+    customerName: varchar("customer_name", {length: 255}).notNull(),
 
     // Shipping address snapshot
-    shippingFullName: varchar("shipping_full_name", { length: 255 }).notNull(),
-    shippingPhone: varchar("shipping_phone", { length: 50 }),
-    shippingAddress: varchar("shipping_address", { length: 255 }).notNull(),
-    shippingCity: varchar("shipping_city", { length: 100 }).notNull(),
-    shippingDivision: varchar("shipping_division", { length: 50 }),
-    shippingState: varchar("shipping_state", { length: 100 }),
-    shippingPostalCode: varchar("shipping_postal_code", { length: 20 }),
-    shippingCountry: varchar("shipping_country", { length: 100 }).notNull().default("Bangladesh"),
-    shippingNotes: varchar("shipping_notes", { length: 500 }),
+    shippingFullName: varchar("shipping_full_name", {length: 255}).notNull(),
+    shippingPhone: varchar("shipping_phone", {length: 50}).notNull(),
+    shippingAddress: varchar("shipping_address", {length: 255}).notNull(),
+    shippingCity: varchar("shipping_city", {length: 100}).notNull(),
+    shippingDivision: varchar("shipping_division", {length: 50}),
+    shippingState: varchar("shipping_state", {length: 100}),
+    shippingPostalCode: varchar("shipping_postal_code", {length: 20}),
+    shippingCountry: varchar("shipping_country", {length: 100}).notNull().default("BD"),
+    shippingNotes: varchar("shipping_notes", {length: 500}),
 
     // Payment / channel metadata
-    paymentMethod: varchar("payment_method", { length: 50 }),
-    paymentProvider: varchar("payment_provider", { length: 50 }),
-    paymentReference: varchar("payment_reference", { length: 255 }),
-    externalOrderId: varchar("external_order_id", { length: 255 }),
-    notes: varchar("notes", { length: 1000 }),
+    paymentMethod: varchar("payment_method", {length: 50}),
+    paymentProvider: varchar("payment_provider", {length: 50}),
+    paymentReference: varchar("payment_reference", {length: 255}),
+    externalOrderId: varchar("external_order_id", {length: 255}),
+    notes: varchar("notes", {length: 1000}),
 
-    // Server
-    ipAddress: varchar("ip_address", { length: 45 }),
-    userAgent: varchar("user_agent", { length: 1000 }),
-    metadata: jsonb("metadata"),
+    // Analytics
+    ipAddress: varchar("ip_address", {length: 45}).notNull(),
+    userAgent: varchar("user_agent", {length: 1000}).notNull(),
+    actionSource: varchar("action_source", {length: 100}).notNull(),
+    eventSourceUrl: varchar("event_source_url", {length: 1000}).notNull(),
+    reportToPixel: boolean("report_to_pixel").notNull().default(false),
+    fbc: text("fbc"),
+    fbp: text("fbp").notNull(),
+    sourceChannel
+:
+jsonb("source_channel")
+    .$type<{ channel: string; source: string }>()
+    .notNull(),
 
     // Notes
-    customerNote: varchar("customer_note", { length: 1000 }),
-    merchantNote: varchar("merchant_note", { length: 1000 }),
+    customerNote
+:
+varchar("customer_note", {length: 1000}),
+    merchantNote
+:
+varchar("merchant_note", {length: 1000}),
 
-    reportToPixel: boolean("report_to_pixel").notNull().default(false),
-    sourceChannel: jsonb("source_channel")
-        .$type<{channel: string; source: string}>()
-        .notNull(),
 
-    ...timestamps,
-});
+...
+timestamps,
+})
+;
 
 export const orderItemTable = pgTable("order_item", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -125,19 +149,19 @@ export const orderItemTable = pgTable("order_item", {
         .references(() => productVariationTable.id),
 
     // Snapshot product data
-    sku: varchar("sku", { length: 100 }).notNull(),
-    variationName: varchar("variation_name", { length: 100 }),
+    sku: varchar("sku", {length: 100}).notNull(),
+    variationName: varchar("variation_name", {length: 100}),
     quantity: integer("quantity").notNull().default(1),
-    unitPrice: numeric("unit_price", { precision: 10, scale: 2, mode: "number" }).notNull(),
-    lineSubtotal: numeric("line_subtotal", { precision: 10, scale: 2, mode: "number" }).notNull().default(0),
-    lineDiscountAmount: numeric("line_discount_amount", { precision: 10, scale: 2, mode: "number" }).notNull().default(0),
-    lineTotal: numeric("line_total", { precision: 10, scale: 2, mode: "number" }).notNull().default(0),
-    weight: numeric("weight", { precision: 10, scale: 2, mode: "number" }),
+    unitPrice: numeric("unit_price", {precision: 10, scale: 2, mode: "number"}).notNull(),
+    lineSubtotal: numeric("line_subtotal", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
+    lineDiscountAmount: numeric("line_discount_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
+    lineTotal: numeric("line_total", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
+    weight: numeric("weight", {precision: 10, scale: 2, mode: "number"}),
 
     ...timestamps,
 });
 
-export const orderRelations = relations(orderTable, ({ one, many }) => ({
+export const orderRelations = relations(orderTable, ({one, many}) => ({
     customer: one(customerTable, {
         fields: [orderTable.customerId],
         references: [customerTable.id],
@@ -149,7 +173,7 @@ export const orderRelations = relations(orderTable, ({ one, many }) => ({
     items: many(orderItemTable),
 }));
 
-export const orderItemRelations = relations(orderItemTable, ({ one }) => ({
+export const orderItemRelations = relations(orderItemTable, ({one}) => ({
     order: one(orderTable, {
         fields: [orderItemTable.orderId],
         references: [orderTable.id],

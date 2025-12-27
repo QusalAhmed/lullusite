@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react'
 import Link from "next/link";
 import Image from "next/image";
@@ -12,8 +14,20 @@ import { Mail, MapPin, Phone } from "lucide-react";
 // Footer Component
 import MadeWith from "./made-with";
 
-const Footer = async ({storeSlug}: { storeSlug: string }) => {
-    const data = await getBusinessInfo();
+// Tanstack Query
+import { useQuery } from "@tanstack/react-query";
+
+const Footer = ({storeSlug}: { storeSlug: string }) => {
+    const {data, isLoading} = useQuery({
+        queryKey: ['business-info'],
+        queryFn: () => getBusinessInfo(),
+        staleTime: Infinity,
+    });
+
+    if (isLoading) {
+        return null;
+    }
+
     const year = new Date().getFullYear();
 
     const logoSrc = data?.logoImage?.thumbnailUrl;

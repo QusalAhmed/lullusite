@@ -11,7 +11,6 @@ import { getRequestSource } from "@/lib/request";
 export default async function getMerchant() {
     // Capture request source (origin/host/protocol)
     const req = await getRequestSource();
-    console.log("Request referer:", req.referer);
 
     // Extract store slug from referer
     const storeSlug = req.referer?.split('/store/')[1]?.split('/')[0]
