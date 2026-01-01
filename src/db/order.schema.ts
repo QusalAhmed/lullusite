@@ -19,29 +19,31 @@ import { user, productVariationTable, customerTable } from "./index.schema";
 // Helper
 import timestamps from "./columns.helpers";
 
-export const orderStatus = pgEnum("order_status", [
-    "pending",
-    "confirmed",
-    "ready_to_ship",
-    "shipped",
-    "delivered",
-    "partially_delivered",
-    "cancelled",
-    "returned",
-    "refunded",
-    "partially_refunded",
-]);
+// Constants / Enums
+import ORDER_STATUS from "@/constant/order-status";
+import PAYMENT_STATUS from "@/constant/payment-status";
+import ACTION_SOURCES from "@/constant/action-source";
+
+export const orderStatus = pgEnum(
+    "order_status",
+    ORDER_STATUS.map(s => s.value) as [string, ...string[]]
+);
 
 export type OrderStatusType = (typeof orderStatus.enumValues)[number];
 
-export const paymentStatus = pgEnum("payment_status", [
-    "unpaid",
-    "paid",
-    "partially_paid",
-    "refunded",
-    "partially_refunded",
-    "failed",
-]);
+export const paymentStatus = pgEnum(
+    "payment_status",
+    PAYMENT_STATUS.map(s => s.value) as [string, ...string[]]
+);
+
+export type PaymentStatusType = (typeof paymentStatus.enumValues)[number];
+
+export const actionSourceEnum = pgEnum(
+    "action_source_enum",
+    ACTION_SOURCES.map(s => s.value) as [string, ...string[]]
+);
+
+export type ActionSourceType = (typeof actionSourceEnum.enumValues)[number];
 
 export const orderNumberSeq = pgSequence("order_number_seq", {
     startWith: 1000,
@@ -82,23 +84,25 @@ export const orderTable = pgTable("orders", {
     subtotalAmount: numeric("subtotal_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
     discountAmount: numeric("discount_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
     shippingAmount: numeric("shipping_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
+    partialAmount: numeric("partial_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
+    taxAmount: numeric("tax_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
     totalAmount: numeric("total_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
 
     // Customer contact snapshot
+    customerName: varchar("customer_name", {length: 255}).notNull(),
     customerEmail: varchar("customer_email", {length: 255}),
     customerPhone: varchar("customer_phone", {length: 50}).notNull(),
     customerAdditionalPhone: varchar("customer_additional_phone", {length: 50}),
-    customerName: varchar("customer_name", {length: 255}).notNull(),
 
     // Shipping address snapshot
     shippingFullName: varchar("shipping_full_name", {length: 255}).notNull(),
     shippingPhone: varchar("shipping_phone", {length: 50}).notNull(),
-    shippingAddress: varchar("shipping_address", {length: 255}).notNull(),
+    shippingAddress: text("shipping_address").notNull(),
     shippingCity: varchar("shipping_city", {length: 100}).notNull(),
     shippingDivision: varchar("shipping_division", {length: 50}),
     shippingState: varchar("shipping_state", {length: 100}),
     shippingPostalCode: varchar("shipping_postal_code", {length: 20}),
-    shippingCountry: varchar("shipping_country", {length: 100}).notNull().default("BD"),
+    shippingCountry: varchar("shipping_country", {length: 100}).notNull().default("Bangladesh"),
     shippingNotes: varchar("shipping_notes", {length: 500}),
 
     // Payment / channel metadata
@@ -106,35 +110,30 @@ export const orderTable = pgTable("orders", {
     paymentProvider: varchar("payment_provider", {length: 50}),
     paymentReference: varchar("payment_reference", {length: 255}),
     externalOrderId: varchar("external_order_id", {length: 255}),
-    notes: varchar("notes", {length: 1000}),
+    paymentNote: varchar("notes", {length: 1000}),
 
     // Analytics
     ipAddress: varchar("ip_address", {length: 45}).notNull(),
     userAgent: varchar("user_agent", {length: 1000}).notNull(),
-    actionSource: varchar("action_source", {length: 100}).notNull(),
+    actionSource: actionSourceEnum("action_source").notNull(),
     eventSourceUrl: varchar("event_source_url", {length: 1000}).notNull(),
     reportToPixel: boolean("report_to_pixel").notNull().default(false),
     fbc: text("fbc"),
     fbp: text("fbp").notNull(),
-    sourceChannel
-:
-jsonb("source_channel")
-    .$type<{ channel: string; source: string }>()
-    .notNull(),
+    sourceChannel:
+        jsonb("source_channel")
+            .$type<{ channel: string; source: string }>()
+            .notNull(),
 
     // Notes
-    customerNote
-:
-varchar("customer_note", {length: 1000}),
-    merchantNote
-:
-varchar("merchant_note", {length: 1000}),
+    customerNote:
+        varchar("customer_note", {length: 1000}),
+    merchantNote:
+        varchar("merchant_note", {length: 1000}),
 
 
-...
-timestamps,
+    ...timestamps,
 })
-;
 
 export const orderItemTable = pgTable("order_item", {
     id: uuid("id").primaryKey().defaultRandom(),

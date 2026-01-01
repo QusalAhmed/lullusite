@@ -7,9 +7,6 @@ export const metadata: Metadata = {
     description: "User dashboard",
 }
 
-// Providers
-import { ReactQueryProvider } from "./providers";
-
 // Local
 import AutoHideHeader from "@/components/nav/auto-hide-header"
 import Loading from "./loading"
@@ -29,7 +26,7 @@ export default async function Layout({children}: { children: React.ReactNode }) 
                 <AutoHideHeader/>
                 <Suspense fallback={<Loading/>}>
                     <div className={'p-4'}>
-                        <ReactQueryProvider>{children}</ReactQueryProvider>
+                        {children}
                     </div>
                 </Suspense>
             </SidebarInset>

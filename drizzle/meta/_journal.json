@@ -211,6 +211,13 @@
       "when": 1766847771719,
       "tag": "0029_orange_doorman",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1767077707987,
+      "tag": "0030_talented_bastion",
+      "breakpoints": true
     }
   ]
 }

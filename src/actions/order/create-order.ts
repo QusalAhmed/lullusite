@@ -3,6 +3,7 @@
 import { validatePhoneNumber } from '@/lib/phone-number'
 import getMerchant from "@/lib/get-merchant";
 import { getRequestSource } from "@/lib/request";
+import {ActionSourceType} from "@/db/order.schema";
 
 // db
 import db from "@/lib/drizzle-agent"
@@ -32,7 +33,7 @@ interface OrderData {
     }>;
 }
 
-export default async function createOrder(orderData: OrderData, actionSource?: string) {
+export default async function createOrder(orderData: OrderData, actionSource?: ActionSourceType) {
     const phoneValidation = validatePhoneNumber(orderData.phoneNumber);
     if (!phoneValidation.isValid) {
         throw new Error('Invalid phone number')

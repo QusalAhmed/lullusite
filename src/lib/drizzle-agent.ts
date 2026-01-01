@@ -1,14 +1,18 @@
-import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from '@/db/index.schema'
 
-// You can specify any property from the node-postgres connection options
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+    throw new Error(
+        'DATABASE_URL is not set. Add it to .env/.env.local or configure it in your deployment environment.'
+    );
+}
 const db = drizzle({
     connection: {
-        connectionString: process.env.DATABASE_URL!,
+        connectionString,
         ssl: true,
     },
-    schema
+    schema,
 });
 
 export default db;

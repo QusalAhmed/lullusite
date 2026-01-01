@@ -445,6 +445,8 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                         <PaginationItem>
                             <PaginationPrevious
                                 href="#"
+                                aria-disabled={!table.getCanPreviousPage()}
+                                className={!table.getCanPreviousPage() ? 'pointer-events-none opacity-50' : ''}
                                 onClick={(e) => {
                                     e.preventDefault()
                                     if (table.getCanPreviousPage()) {
@@ -491,6 +493,8 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                         <PaginationItem>
                             <PaginationNext
                                 href="#"
+                                aria-disabled={!table.getCanNextPage()}
+                                className={!table.getCanNextPage() ? 'pointer-events-none opacity-50' : ''}
                                 onClick={(e) => {
                                     e.preventDefault()
                                     if (table.getCanNextPage()) {

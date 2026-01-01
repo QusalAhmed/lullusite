@@ -6,8 +6,10 @@ import "./globals.css";
 // Sonner
 import { Toaster } from 'sonner'
 
-// Local
+// Providers
 import { ThemeProvider } from "@/components/next-theme/theme-provider";
+import QueryProvider from "@/app/QueryProvider";
+import { ReduxProvider } from "./StoreProvider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -23,9 +25,6 @@ export const metadata: Metadata = {
     title: "Home",
     description: "Lullu Site | Website builder and business automation",
 };
-
-// Providers
-import { ReduxProvider } from "./StoreProvider";
 
 export default function RootLayout({
                                        children,
@@ -44,8 +43,10 @@ export default function RootLayout({
             disableTransitionOnChange
         >
             <ReduxProvider>
-                <Toaster position="top-right" richColors closeButton expand={false}/>
-                {children}
+                <QueryProvider>
+                    <Toaster position="top-right" richColors closeButton expand={false}/>
+                    {children}
+                </QueryProvider>
             </ReduxProvider>
         </ThemeProvider>
         </body>

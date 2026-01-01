@@ -1,9 +1,6 @@
 import React, { Suspense } from 'react';
 import localFont from 'next/font/local'
 
-// Provider
-import QueryProvider from "@/app/store/QueryProvider";
-
 // Analytics
 import FacebookPixel from '@/components/analytics/facebook-pixel';
 
@@ -19,9 +16,7 @@ const StoreLayout = ({children}: { children: React.ReactNode }) => {
             <Suspense fallback={<div>Loading Analytics...</div>}>
                 <FacebookPixel pixelId={'1234708877758735'}/>
             </Suspense>
-            <QueryProvider>
-                {children}
-            </QueryProvider>
+            {children}
         </div>
     );
 };
