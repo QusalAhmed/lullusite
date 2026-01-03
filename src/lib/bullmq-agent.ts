@@ -202,7 +202,7 @@ export async function initializeWorker() {
                             id: true,
                             totalAmount: true,
                             currency: true,
-                            customerPhone: true,
+                            shippingPhone: true,
                             actionSource: true,
                             eventSourceUrl: true,
                             shippingCity: true,
@@ -221,7 +221,7 @@ export async function initializeWorker() {
                 }
 
                 const userData_0 = (new UserData())
-                    .setPhones([orderDetails.customerPhone])
+                    .setPhones([orderDetails.shippingPhone])
                     .setCity(orderDetails.shippingCity)
                     .setState(orderDetails.shippingState || '') //  TODO: Handle undefined state properly
                     .setZip(orderDetails.shippingPostalCode || '')

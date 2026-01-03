@@ -3,7 +3,7 @@
 import React, { useEffect, useCallback } from "react"
 import Image from "next/image"
 import { useRouter } from 'next/navigation'
-import {v4} from 'uuid'
+import { v4 } from 'uuid'
 
 // Notification
 import { toast } from "sonner"
@@ -1152,16 +1152,18 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                     {subtotalAmount + shippingAmount - discountAmount}
                                 </div>
                             </div>
-                            <div className="flex items-center justify-between mt-2">
-                                <span className="text-sm text-muted-foreground">Amount Paid</span>
-                                <div className="text-xl font-semibold">
-                                    {amountPaid}
+                            <div className={'grid grid-cols-2 gap-4 mt-4'}>
+                                <div className="flex items-center justify-between bg-green-300 px-4 py-2 rounded-md">
+                                    <span className="text-sm text-muted-foreground">Amount Paid</span>
+                                    <div className="text-xl font-semibold">
+                                        {amountPaid}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex items-center justify-between mt-2">
-                                <span className="text-sm text-muted-foreground">Amount Due</span>
-                                <div className="text-xl font-bold">
-                                    {amountDue}
+                                <div className="flex items-center justify-between bg-amber-300 px-4 py-2 rounded-md">
+                                    <span className="text-sm text-muted-foreground">Amount Due</span>
+                                    <div className="text-xl font-bold">
+                                        {amountDue}
+                                    </div>
                                 </div>
                             </div>
 
