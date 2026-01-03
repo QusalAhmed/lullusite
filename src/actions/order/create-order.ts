@@ -121,6 +121,18 @@ export default async function createOrder(orderData: OrderData, actionSource?: A
             .query
             .productVariationTable
             .findMany({
+                with: {
+                    images: {
+                        with: {
+                            image: {
+                                columns: {
+                                    thumbnailUrl: true
+                                },
+                            },
+                        },
+                        limit: 1,
+                    },
+                },
                 columns: {
                     id: true,
                     name: true,
@@ -163,6 +175,7 @@ export default async function createOrder(orderData: OrderData, actionSource?: A
                         productVariationId: variation.id,
                         sku: variation.sku,
                         variationName: variation.name,
+                        thumbnailUrl: variation.images[0]?.image.thumbnailUrl,
                         quantity: quantity,
                         unitPrice: variation.price,
                         lineSubtotal: variation.price * quantity,

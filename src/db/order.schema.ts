@@ -149,8 +149,9 @@ export const orderItemTable = pgTable("order_item", {
 
     // Snapshot product data
     sku: varchar("sku", {length: 100}).notNull(),
-    variationName: varchar("variation_name", {length: 100}),
-    quantity: integer("quantity").notNull().default(1),
+    variationName: varchar("variation_name", {length: 100}).notNull(),
+    thumbnailUrl: varchar("thumbnail_url", {length: 1000}).notNull(),
+    quantity: integer("quantity").notNull().default(1).notNull(),
     unitPrice: numeric("unit_price", {precision: 10, scale: 2, mode: "number"}).notNull(),
     lineSubtotal: numeric("line_subtotal", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
     lineDiscountAmount: numeric("line_discount_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),

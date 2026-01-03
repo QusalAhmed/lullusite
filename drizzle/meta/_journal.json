@@ -218,6 +218,13 @@
       "when": 1767077707987,
       "tag": "0030_talented_bastion",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1767372138383,
+      "tag": "0031_unknown_gwen_stacy",
+      "breakpoints": true
     }
   ]
 }

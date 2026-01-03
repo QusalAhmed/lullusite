@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useEffect } from "react"
+import React, { useEffect, useCallback } from "react"
 import Image from "next/image"
+import { useRouter } from 'next/navigation'
 
 // Notification
 import { toast } from "sonner"
@@ -55,6 +56,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { Spinner } from "@/components/ui/spinner"
 
 // Icon
 import { AlertCircle, Clock, RefreshCcw, XIcon } from "lucide-react"
@@ -62,15 +64,18 @@ import { AlertCircle, Clock, RefreshCcw, XIcon } from "lucide-react"
 // Type
 import { GetOrderToEditReturnType } from '@/actions/order/get-order-to-edit'
 
-// db
-import { orderTable } from '@/db/index.schema'
 
 // Zod
-import { createSelectSchema } from 'drizzle-zod'
 import { z } from 'zod'
+
+// Schema
+import { OrderSelectSchemaType, orderSelectSchema } from '@/lib/validations/order.schema'
 
 // Local
 import ItemPicker from './item-picker'
+
+// Actions
+import merchantUpdateOrder from '@/actions/order/merchant-update-order'
 
 // Constant
 import DIVISION_LIST from '@/constant/division'
@@ -94,37 +99,13 @@ const formatDate = (date: Date | string) => {
 };
 
 export default function OrderForm({formData}: { formData?: GetOrderToEditReturnType }) {
-    const orderSelectSchema = createSelectSchema(orderTable, {
-        createdAt: z.undefined(),
-        updatedAt: z.undefined(),
-    }).extend({
-        items: z.array(z.object({
-            variationId: z.string(),
-            variationName: z.string().nullable(),
-            quantity: z.coerce.number<number>().min(1, "Quantity must be at least 1"),
-            unitPrice: z.coerce.number<number>().gte(0, "Unit price must be greater than 0"),
-            discountPrice: z.coerce.number<number>().gte(0, "Discount price must be greater than 0"),
-            totalPrice: z.number(),
-            thumbnailUrl: z.url(),
-        })).min(1, "Order must have at least one item"),
-    }).superRefine((values, ctx) => {
-        if (values.paymentStatus === 'partially_paid' && (!values.partialAmount || values.partialAmount <= 0)) {
-            ctx.addIssue({
-                code: 'custom',
-                message: 'Partial amount must be greater than 0 for partially paid orders',
-                path: ['partialAmount'],
-                input: values.partialAmount,
-            });
-        }
-    });
-
-    const form = useForm<z.infer<typeof orderSelectSchema>>({
+    const router = useRouter()
+    const form = useForm<OrderSelectSchemaType>({
         resolver: zodResolver(orderSelectSchema),
         defaultValues: {
             // Identifiers
             id: formData?.id,
             customerId: formData?.customerId,
-            merchantId: formData?.merchantId,
             orderNumber: formData?.orderNumber,
 
             // Customer contact snapshot
@@ -180,13 +161,13 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
 
             // Items
             items: formData?.items.map(item => ({
-                variationId: item.id,
-                variationName: item.variation?.name || null,
+                variationId: item.productVariationId,
+                variationName: item.variationName,
                 quantity: item.quantity,
                 unitPrice: item.unitPrice,
                 discountPrice: item.lineDiscountAmount,
                 totalPrice: item.lineTotal,
-                thumbnailUrl: item.variation?.images[0]?.image.thumbnailUrl || "",
+                thumbnailUrl: item.thumbnailUrl,
             })) || [],
         },
     })
@@ -207,8 +188,9 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
         name: "items",
     });
     const subtotalAmount = items.reduce((acc, item) => {
-        return acc + (item.unitPrice * item.quantity);
-    }, 0);
+        const itemTotal = (item.unitPrice * item.quantity) - item.discountPrice;
+        return acc + (itemTotal >= 0 ? itemTotal : 0);
+    }, 0)
 
     const shippingAmount = useWatch({
         control: form.control,
@@ -220,38 +202,58 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
         name: 'discountAmount',
     });
 
-    const {fields: itemFields, remove: itemRemove} = useFieldArray({
+    const {fields: itemFields, remove: itemRemove, prepend: itemPrepend} = useFieldArray({
         control: form.control,
         name: "items",
     })
 
-    function onSubmit(data: z.infer<typeof orderSelectSchema>) {
-        // Recompute derived line totals at submit-time so persisted data is consistent.
-        const normalized = {
-            ...data,
-            items: data.items.map((item) => {
-                const totalPrice = (item.unitPrice * item.quantity) - item.discountPrice;
-                return {
-                    ...item,
-                    totalPrice: totalPrice >= 0 ? totalPrice : 0,
-                };
-            }),
-        };
-
-        toast("You submitted the following values:", {
-            description: (
-                <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-          <code>{JSON.stringify(normalized, null, 2)}</code>
-        </pre>
-            ),
-            position: "bottom-right",
-            classNames: {
-                content: "flex flex-col gap-2",
-            },
-            style: {
-                "--border-radius": "calc(var(--radius)  + 4px)",
-            } as React.CSSProperties,
+    const handleAddItem = useCallback((item: {
+        variationId: string
+        variationName: string;
+        unitPrice: number;
+        thumbnailUrl: string;
+    }[]) => {
+        item.forEach((it) => {
+            if (form.getValues("items").some((existing) => existing.variationId === it.variationId)) {
+                return;
+            }
+            itemPrepend({
+                variationId: it.variationId,
+                variationName: it.variationName,
+                quantity: 1,
+                unitPrice: it.unitPrice,
+                discountPrice: 0,
+                totalPrice: it.unitPrice,
+                thumbnailUrl: it.thumbnailUrl,
+            });
         })
+
+        // Remove items with not selected variations
+        const selectedVariationIds = item.map(i => i.variationId);
+        form.getValues("items").forEach((existingItem) => {
+            if (!selectedVariationIds.includes(existingItem.variationId)) {
+                const fieldIndex = form.getValues("items").findIndex(i => i.variationId === existingItem.variationId);
+                if (fieldIndex !== -1) {
+                    itemRemove(fieldIndex);
+                }
+            }
+        })
+    }, [form, itemPrepend, itemRemove]);
+
+    async function onSubmit(data: z.infer<typeof orderSelectSchema>) {
+        if (formData) {
+            const response = await merchantUpdateOrder(data);
+
+            if (response.success) {
+                toast.success("Order updated successfully.");
+                router.push('/merchant/all-orders', {scroll: false});
+            } else {
+                toast.error(`Failed to update order: ${response.message || 'Unknown error'}`);
+            }
+        } else {
+            // Create new order logic here
+            toast.error("Creating new orders is not implemented yet.");
+        }
     }
 
     return (
@@ -897,7 +899,15 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                         <CardHeader>
                             <CardTitle>Items</CardTitle>
                             <CardAction>
-                                <ItemPicker/>
+                                <ItemPicker
+                                    handleAddItem={handleAddItem}
+                                    currentItems={items.map((item) => ({
+                                        variationId: item.variationId,
+                                        variationName: item.variationName || '',
+                                        unitPrice: item.unitPrice,
+                                        thumbnailUrl: item.thumbnailUrl,
+                                    }))}
+                                />
                             </CardAction>
                         </CardHeader>
                         <CardContent>
@@ -1115,12 +1125,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                             <div className="flex items-center justify-between">
                                 <span className="text-sm text-muted-foreground">Subtotal</span>
                                 <div className="text-xl font-semibold">
-                                    {(() => {
-                                        return items?.reduce((acc, item) => {
-                                            const itemTotal = (item.unitPrice * item.quantity) - item.discountPrice;
-                                            return acc + (itemTotal >= 0 ? itemTotal : 0);
-                                        }, 0) || 0;
-                                    })()}
+                                    {subtotalAmount}
                                 </div>
                             </div>
                             <div className="flex items-center justify-between">
@@ -1158,7 +1163,9 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                 type="submit"
                                 form="order-form"
                                 className="w-full"
+                                disabled={form.formState.isSubmitting}
                             >
+                                {form.formState.isSubmitting ? <Spinner/> : null}
                                 Submit
                             </Button>
                         </Field>

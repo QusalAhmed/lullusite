@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useEffectEvent, useState, RefObject } from 'react';
 
 // ShadCN
 import {
@@ -20,7 +20,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
-
+import { Input } from "@/components/ui/input";
 
 // Type
 import type OrderDataType from "@/types/order";
@@ -36,16 +36,30 @@ import {
     RowSelectionState,
     getExpandedRowModel,
     getPaginationRowModel,
+    getFilteredRowModel
 } from '@tanstack/react-table'
 
 const ItemTable = (
-    {orderData}: { orderData: OrderDataType[] }
+    {orderData, rowSelectionRef}:{ orderData: OrderDataType[], rowSelectionRef: RefObject<RowSelectionState> }
 ) => {
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>(rowSelectionRef.current || {});
     const [pagination, setPagination] = useState({
         pageIndex: 0, //initial page index
         pageSize: 10, //default page size
     });
+    console.log('Row Selection:', rowSelection);
+    
+    const setInitialRowSelection = useEffectEvent(() => {
+        setRowSelection(rowSelectionRef.current || {});
+    });
+
+    useEffect(() => {
+        setInitialRowSelection();
+    }, []);
+
+    useEffect(() => {
+        rowSelectionRef.current = rowSelection;
+    }, [rowSelection, rowSelectionRef]);
 
     // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
@@ -65,12 +79,21 @@ const ItemTable = (
         getPaginationRowModel: getPaginationRowModel(),
         manualPagination: false,
         onPaginationChange: setPagination,
+        paginateExpandedRows: false,
+        getFilteredRowModel: getFilteredRowModel(),
+        // filterFromLeafRows: true,
+        maxLeafRowFilterDepth: 1,
     })
-
-    console.log(table.getState().rowSelection) //get the row selection state - { 1: true, 2: false, etc... }
 
     return (
         <>
+            <Input
+                placeholder="Filter product name..."
+                value={table.getState().globalFilter ?? ''}
+                onChange={(event) =>
+                    table.setGlobalFilter(String(event.target.value))
+                }
+            />
             <div className="max-h-[60vh] overflow-y-auto border rounded-md">
                 <Table className="border-0">
                     <TableHeader>
@@ -93,18 +116,24 @@ const ItemTable = (
                     </TableHeader>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
+                            table.getRowModel().rows.map((row) => {
+                                if (!row.getCanExpand() && row.depth == 0) return null;
+                                return (
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && "selected"}
+                                        onClick={() => {
+                                            row.toggleSelected(!row.getIsSelected())
+                                        }}
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                )
+                            })
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={itemColumns.length} className="h-24 text-center">
@@ -131,7 +160,7 @@ const ItemTable = (
                         />
                     </PaginationItem>
 
-                    {table.getPageCount() >= 0 && Array.from({ length: table.getPageCount() }, (_, i) => i).map((pageIndex) => {
+                    {table.getPageCount() >= 0 && Array.from({length: table.getPageCount()}, (_, i) => i).map((pageIndex) => {
                         // Show first, last, current, and adjacent pages
                         if (
                             pageIndex === 0 ||
@@ -158,7 +187,7 @@ const ItemTable = (
                             pageIndex === table.getState().pagination.pageIndex - 2 ||
                             pageIndex === table.getState().pagination.pageIndex + 2
                         ) {
-                            return <PaginationEllipsis key={pageIndex} />;
+                            return <PaginationEllipsis key={pageIndex}/>;
                         } else {
                             return null;
                         }

@@ -18,25 +18,7 @@ const getOrderToEdit = async (orderId: string) => {
                 eq(orderTable.merchantId, session.user.id)
             ),
             with: {
-                items: {
-                    with: {
-                        variation: {
-                            with: {
-                                images: {
-                                    with: {
-                                        image: {
-                                            columns: {
-                                                thumbnailUrl: true,
-                                            },
-                                        }
-                                    },
-                                    limit: 1
-                                }
-                            }
-                        },
-                    }
-                },
-                customer: true
+                items: true,
             }
         })
 }

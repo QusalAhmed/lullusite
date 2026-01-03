@@ -1,0 +1,2 @@
+ALTER TABLE "order_item" ALTER COLUMN "variation_name" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "order_item" ADD COLUMN "thumbnail_url" varchar(1000) DEFAULT 'Functional Default' NOT NULL;--> statement-breakpoint

@@ -57,14 +57,15 @@ export const itemColumns = [
                     >
                         {info.row.getIsExpanded() ? <CornerLeftDown/> :<CornerDownRight/> }
                     </Button>
-                ) : (
-                    <Image src={info.row.original.imageUrl}
-                           alt={info.getValue()}
-                           width={40}
-                           height={40}
-                           className={'rounded object-cover'}
-                    />
-                )}
+                ) : info.row.original.imageUrl && (
+                        <Image src={info.row.original.imageUrl}
+                               alt={info.getValue()}
+                               width={40}
+                               height={40}
+                               className={'rounded object-cover'}
+                        />
+                    )
+                }
                 <div>
                     {info.getValue()}
                     {info.row.original.sku && (

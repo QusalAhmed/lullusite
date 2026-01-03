@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 
 // ShadCN
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -15,7 +14,6 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
 
 // Local
 import ItemTable from './item-table'
@@ -26,21 +24,40 @@ import getItems from '@/actions/product/get-items-for-order'
 // Tanstack Query
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 
-// Icon
-import { Search, RefreshCcw } from "lucide-react";
+// Tanstack Table
+import { type RowSelectionState } from "@tanstack/react-table";
 
-const ItemPicker = () => {
+// Icon
+import { RefreshCcw } from "lucide-react";
+
+interface ItemType {
+    variationId: string
+    variationName: string;
+    unitPrice: number;
+    thumbnailUrl: string;
+}
+
+const ItemPicker = (
+    {handleAddItem, currentItems}: { handleAddItem: (items: ItemType[]) => void, currentItems: ItemType[] }
+) => {
     const [open, setOpen] = useState(false);
-    const [searchText, setSearchText] = useState('')
-    const [draftSearchText, setDraftSearchText] = useState('')
+    const rowSelectionRef = useRef<RowSelectionState>({});
+    
+    useEffect(() => {
+        rowSelectionRef.current = currentItems.reduce((acc, item) => {
+            acc[item.variationId] = true;
+            return acc;
+        }, {} as RowSelectionState);
+    }, [currentItems]);
 
     const {data, isLoading, error, refetch} = useQuery({
-        queryKey: ['items-for-order', {searchText}],
-        queryFn: () => getItems({searchText}),
+        queryKey: ['items-for-order'],
+        queryFn: () => getItems(),
         placeholderData: keepPreviousData,
         gcTime: Infinity,
         staleTime: Infinity,
     })
+    console.log('Fetched Items:', data);
 
     const orderData =
         data?.map(item => {
@@ -56,7 +73,6 @@ const ItemPicker = () => {
             return {
                 id: item.id,
                 name: item.name,
-                imageUrl: '',
                 price: minPrice == maxPrice ? maxPrice.toString() : `${minPrice} - ${maxPrice}`,
                 stock: stock.toString(),
                 sku: '',
@@ -71,10 +87,6 @@ const ItemPicker = () => {
             }
         }) ?? [];
 
-    const commitSearch = () => {
-        setSearchText(draftSearchText.trim())
-    }
-
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -85,7 +97,7 @@ const ItemPicker = () => {
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle className="flex items-center">
-                        Add item
+                        Select item and click continue to add them
                         <Button variant="ghost" size="icon-sm" className="ml-2 p-0"
                                 onClick={() => {
                                     refetch().catch((error) => {
@@ -96,33 +108,7 @@ const ItemPicker = () => {
                             <RefreshCcw/>
                         </Button>
                     </DialogTitle>
-                    <DialogDescription>
-                        Select item and click continue to add them
-                    </DialogDescription>
                 </DialogHeader>
-                <InputGroup className="max-w-xs m-2">
-                    <InputGroupInput
-                        placeholder="Search..."
-                        value={draftSearchText}
-                        onChange={(e) => setDraftSearchText(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                commitSearch()
-                            }
-                        }}
-                    />
-                    <InputGroupAddon>
-                        <Search/>
-                    </InputGroupAddon>
-                    <InputGroupAddon align="inline-end">
-                        <InputGroupButton
-                            variant="outline"
-                            onClick={commitSearch}
-                        >
-                            Search
-                        </InputGroupButton>
-                    </InputGroupAddon>
-                </InputGroup>
                 {isLoading ? (
                     <div className="flex justify-center items-center h-full">
                         <Spinner/>
@@ -132,17 +118,46 @@ const ItemPicker = () => {
                         Error loading items.
                     </div>
                 ) : (
-                    <ItemTable orderData={orderData}/>
+                    <ItemTable
+                        orderData={orderData}
+                        rowSelectionRef={rowSelectionRef}
+                    />
                 )}
                 <DialogFooter>
                     <DialogClose asChild>
                         <Button variant="outline">Cancel</Button>
                     </DialogClose>
-                    <Button type="submit">Continue</Button>
+                    <Button
+                        type="submit"
+                        onClick={() => {
+                            const rowSelection = rowSelectionRef.current;
+                            const selectedItems: ItemType[] = [];
+                            for (const key in rowSelection) {
+                                const row = orderData.find(item =>
+                                    item.variations.some(variation => variation.id === key)
+                                );
+                                if (row) {
+                                    const variation = row.variations.find(variation => variation.id === key);
+                                    if (variation) {
+                                        selectedItems.push({
+                                            variationId: variation.id,
+                                            variationName: variation.name,
+                                            unitPrice: parseFloat(variation.price),
+                                            thumbnailUrl: variation.imageUrl || '',
+                                        });
+                                    }
+                                }
+                            }
+                            handleAddItem(selectedItems);
+                            setOpen(false);
+                        }}
+                    >
+                        Continue
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
     );
 };
 
-export default ItemPicker;
+export default memo(ItemPicker);
