@@ -3,6 +3,7 @@
 import React, { useEffect, useCallback } from "react"
 import Image from "next/image"
 import { useRouter } from 'next/navigation'
+import {v4} from 'uuid'
 
 // Notification
 import { toast } from "sonner"
@@ -104,60 +105,58 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
         resolver: zodResolver(orderSelectSchema),
         defaultValues: {
             // Identifiers
-            id: formData?.id,
-            customerId: formData?.customerId,
-            orderNumber: formData?.orderNumber,
+            id: formData?.id || v4(),
 
             // Customer contact snapshot
-            customerName: formData?.customerName,
-            customerEmail: formData?.customerEmail,
-            customerPhone: formData?.customerPhone,
-            customerAdditionalPhone: formData?.customerAdditionalPhone,
+            customerName: formData?.customerName || null,
+            customerEmail: formData?.customerEmail || null,
+            customerPhone: formData?.customerPhone || null,
+            customerAdditionalPhone: formData?.customerAdditionalPhone || null,
 
             // Status
-            status: "pending",
-            paymentStatus: "unpaid",
+            status: formData?.status || "pending",
+            paymentStatus: formData?.paymentStatus || "unpaid",
 
             // Monetary
             currency: "BDT",
-            subtotalAmount: formData?.subtotalAmount,
-            discountAmount: formData?.discountAmount,
-            shippingAmount: formData?.shippingAmount,
-            partialAmount: formData?.partialAmount,
-            taxAmount: formData?.taxAmount,
-            totalAmount: formData?.totalAmount,
+            subtotalAmount: formData?.subtotalAmount || 0,
+            discountAmount: formData?.discountAmount || 0,
+            shippingAmount: formData?.shippingAmount || 0,
+            partialAmount: formData?.partialAmount || 0,
+            taxAmount: formData?.taxAmount || 0,
+            totalAmount: formData?.totalAmount || 0,
 
             // Shipping address snapshot
-            shippingFullName: formData?.shippingFullName,
-            shippingPhone: formData?.shippingPhone,
-            shippingAddress: formData?.shippingAddress,
-            shippingCity: formData?.shippingCity,
-            shippingDivision: formData?.shippingDivision,
-            shippingState: formData?.shippingState,
-            shippingPostalCode: formData?.shippingPostalCode,
-            shippingCountry: formData?.shippingCountry,
-            shippingNotes: formData?.shippingNotes,
+            shippingFullName: formData?.shippingFullName || undefined,
+            shippingPhone: formData?.shippingPhone || undefined,
+            shippingAddress: formData?.shippingAddress || undefined,
+            shippingCity: formData?.shippingCity || '',
+            shippingDivision: formData?.shippingDivision || null,
+            shippingState: formData?.shippingState || null,
+            shippingPostalCode: formData?.shippingPostalCode || null,
+            shippingCountry: formData?.shippingCountry || '',
+            shippingNotes: formData?.shippingNotes || null,
 
             // Payment / channel metadata
-            paymentMethod: formData?.paymentMethod,
-            paymentProvider: formData?.paymentProvider,
-            paymentReference: formData?.paymentReference,
-            externalOrderId: formData?.externalOrderId,
-            paymentNote: formData?.paymentNote,
+            paymentMethod: formData?.paymentMethod || null,
+            paymentProvider: formData?.paymentProvider || null,
+            paymentReference: formData?.paymentReference || null,
+            externalOrderId: formData?.externalOrderId || null,
+            paymentNote: formData?.paymentNote || null,
 
             // Analytics
-            ipAddress: formData?.ipAddress,
-            userAgent: formData?.userAgent,
+            ipAddress: formData?.ipAddress || '',
+            userAgent: formData?.userAgent || '',
             actionSource: formData?.actionSource,
-            eventSourceUrl: formData?.eventSourceUrl,
-            reportToPixel: formData?.reportToPixel,
-            fbc: formData?.fbc,
-            fbp: formData?.fbp,
-            sourceChannel: formData?.sourceChannel,
+            eventSourceUrl: formData?.eventSourceUrl || '',
+            reportToPixel: formData?.reportToPixel || false,
+            fbc: formData?.fbc || null,
+            fbp: formData?.fbp || '',
+            sourceChannel: formData?.sourceChannel || {},
 
             // Notes
-            customerNote: formData?.customerNote || "",
-            merchantNote: formData?.merchantNote || "",
+            customerNote: formData?.customerNote || null,
+            merchantNote: formData?.merchantNote || null,
 
             // Items
             items: formData?.items.map(item => ({
@@ -171,6 +170,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
             })) || [],
         },
     })
+    console.log('error', form.formState.errors);
 
     const paymentStatus = useWatch({
         control: form.control,
@@ -180,6 +180,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
     useEffect(() => {
         if (paymentStatus !== 'partially_paid') {
             form.clearErrors('partialAmount');
+            form.setValue('partialAmount', 0);
         }
     }, [paymentStatus, form]);
 
@@ -201,6 +202,9 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
         control: form.control,
         name: 'discountAmount',
     });
+
+    const amountPaid = paymentStatus === 'partially_paid' ? (form.getValues('partialAmount') || 0) : 0;
+    const amountDue = subtotalAmount + shippingAmount - discountAmount - amountPaid;
 
     const {fields: itemFields, remove: itemRemove, prepend: itemPrepend} = useFieldArray({
         control: form.control,
@@ -288,6 +292,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                     {Object.entries(form.formState.errors).map(([key, error]) => (
                                         <li key={key}>
                                             {key}: {error?.message as string}
+                                            {error.root?.message}
                                         </li>
                                     ))}
                                 </ul>
@@ -470,6 +475,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                                 type="tel"
                                                 aria-invalid={fieldState.invalid}
                                                 autoComplete="off"
+                                                value={field.value ?? ""}
                                             />
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]}/>
@@ -494,7 +500,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                                 />
                                                 <InputGroupAddon align="block-end">
                                                     <InputGroupText className="tabular-nums">
-                                                        {field.value.length} characters
+                                                        {field.value?.length} characters
                                                     </InputGroupText>
                                                 </InputGroupAddon>
                                             </InputGroup>
@@ -696,7 +702,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                                 autoComplete="off"
                                                 disabled={paymentStatus !== 'partially_paid'}
                                                 onChange={(e) => {
-                                                    field.onChange(parseFloat(e.target.value));
+                                                    field.onChange(parseFloat(e.target.value || '0'));
                                                 }}
                                             />
                                             {fieldState.invalid && (
@@ -805,7 +811,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                             </FieldContent>
                                             <Select
                                                 name={field.name}
-                                                value={field.value || 'website'}
+                                                value={field.value}
                                                 onValueChange={field.onChange}
                                             >
                                                 <SelectTrigger
@@ -1040,7 +1046,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                                             variant="ghost"
                                                             size="icon-xs"
                                                             onClick={() => itemRemove(index)}
-                                                            aria-label={`Remove email ${index + 1}`}
+                                                            aria-label={`Remove item ${index + 1}`}
                                                         >
                                                             <XIcon color={'red'}/>
                                                         </InputGroupButton>
@@ -1079,7 +1085,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                                 aria-invalid={fieldState.invalid}
                                                 autoComplete="on"
                                                 onChange={(e) => {
-                                                    field.onChange(parseFloat(e.target.value));
+                                                    field.onChange(parseFloat(e.target.value || '0'));
                                                 }}
                                             />
                                             {fieldState.invalid && (
@@ -1105,7 +1111,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                                 aria-invalid={fieldState.invalid}
                                                 autoComplete="on"
                                                 onChange={(e) => {
-                                                    field.onChange(parseFloat(e.target.value));
+                                                    field.onChange(parseFloat(e.target.value || '0'));
                                                 }}
                                             />
                                             {fieldState.invalid && (
@@ -1146,6 +1152,19 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                     {subtotalAmount + shippingAmount - discountAmount}
                                 </div>
                             </div>
+                            <div className="flex items-center justify-between mt-2">
+                                <span className="text-sm text-muted-foreground">Amount Paid</span>
+                                <div className="text-xl font-semibold">
+                                    {amountPaid}
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-between mt-2">
+                                <span className="text-sm text-muted-foreground">Amount Due</span>
+                                <div className="text-xl font-bold">
+                                    {amountDue}
+                                </div>
+                            </div>
+
 
                         </CardContent>
                     </Card>

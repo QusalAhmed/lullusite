@@ -1,7 +1,7 @@
+import {validatePhoneNumber} from "@/lib/phone-number"
 // Zod
 import { z } from 'zod'
-import { createSelectSchema } from 'drizzle-zod'
-import { createUpdateSchema } from 'drizzle-zod';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod'
 
 // db
 import { orderTable } from '@/db/index.schema'
@@ -9,8 +9,9 @@ import { orderTable } from '@/db/index.schema'
 
 // Select Schema
 const orderSelectSchema = createSelectSchema(orderTable, {
-    id: z.uuid(),
     merchantId: z.undefined(),
+    customerId: z.undefined(),
+    orderNumber: z.undefined(),
     createdAt: z.undefined(),
     updatedAt: z.undefined(),
 }).extend({
@@ -30,6 +31,23 @@ const orderSelectSchema = createSelectSchema(orderTable, {
             message: 'Partial amount must be greater than 0 for partially paid orders',
             path: ['partialAmount'],
             input: values.partialAmount,
+        });
+    }
+
+    if (values.shippingDivision === 'auto') {
+        ctx.addIssue({
+            code: 'custom',
+            message: 'Auto detection of shipping division is not supported yet. Please select a specific division.',
+            path: ['shippingDivision'],
+        })
+    }
+
+    const phoneValidation = validatePhoneNumber(values.shippingPhone);
+    if (!phoneValidation.isValid) {
+        ctx.addIssue({
+            code: 'custom',
+            message: phoneValidation.error || 'Invalid phone number',
+            path: ['shippingPhone'],
         });
     }
 });

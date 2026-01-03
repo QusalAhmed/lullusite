@@ -87,11 +87,13 @@ export const orderTable = pgTable("orders", {
     partialAmount: numeric("partial_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
     taxAmount: numeric("tax_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
     totalAmount: numeric("total_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
+    amountPaid: numeric("amount_paid", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
+    amountDue: numeric("amount_due", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
 
     // Customer contact snapshot
-    customerName: varchar("customer_name", {length: 255}).notNull(),
+    customerName: varchar("customer_name", {length: 255}),
     customerEmail: varchar("customer_email", {length: 255}),
-    customerPhone: varchar("customer_phone", {length: 50}).notNull(),
+    customerPhone: varchar("customer_phone", {length: 50}),
     customerAdditionalPhone: varchar("customer_additional_phone", {length: 50}),
 
     // Shipping address snapshot

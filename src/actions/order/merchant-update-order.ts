@@ -9,10 +9,10 @@ import { orderTable, orderItemTable, productVariationTable } from '@/db/index.sc
 import getSession from '@/lib/get-session'
 
 // Schema
-import type {OrderSelectSchemaType} from '@/lib/validations/order.schema'
+import type { OrderSelectSchemaType } from '@/lib/validations/order.schema'
 import { orderUpdateSchema, orderSelectSchema } from '@/lib/validations/order.schema'
 
-const merchantUpdateOrder = async (data: OrderSelectSchemaType ) => {
+const merchantUpdateOrder = async (data: OrderSelectSchemaType) => {
     const session = await getSession()
 
     const orderParams = orderUpdateSchema.parse(data)
@@ -64,7 +64,7 @@ const merchantUpdateOrder = async (data: OrderSelectSchemaType ) => {
 
         console.log('Deleted Items:', itemDeleteResult)
 
-        if(itemDeleteResult.length < itemsToDeleteIds.length){
+        if (itemDeleteResult.length < itemsToDeleteIds.length) {
             throw new Error('Failed to delete some order items')
         }
 
@@ -139,17 +139,19 @@ const merchantUpdateOrder = async (data: OrderSelectSchemaType ) => {
 
             console.log('Updated Item:', itemUpdateResult)
 
-            if(itemUpdateResult.length === 0){
+            if (itemUpdateResult.length === 0) {
                 throw new Error(`Failed to update order item with id ${currentItem.id}`)
             }
         }
 
         // Update amount
-        const subtotalAmount = itemsNew.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0)
-        const discountAmount = itemsNew.reduce((acc, item) => acc + item.discountPrice, 0)
+        const subtotalAmount = itemsNew.reduce((acc, item) =>
+                acc + (item.unitPrice * item.quantity - item.discountPrice), 0)
+        const discountAmount = parsedOrder.discountAmount;
         const shippingAmount = parsedOrder.shippingAmount;
-        const partialAmount = parsedOrder.partialAmount;
-        const totalAmount = subtotalAmount + shippingAmount -partialAmount - discountAmount;
+        const amountPaid = (parsedOrder.paymentStatus === 'partially_paid' ? (parsedOrder.partialAmount || 0) : 0);
+        const totalAmount = subtotalAmount + shippingAmount - discountAmount;
+        const amountDue = totalAmount - amountPaid;
 
         const orderAmountUpdateResult = await tx
             .update(orderTable)
@@ -157,15 +159,16 @@ const merchantUpdateOrder = async (data: OrderSelectSchemaType ) => {
                 subtotalAmount,
                 discountAmount,
                 shippingAmount,
-                partialAmount,
                 totalAmount,
+                amountPaid,
+                amountDue,
             })
             .where(
                 eq(orderTable.id, orderParams.id)
             ).returning({id: orderTable.id})
         console.log('Order Amount Updated:', orderAmountUpdateResult)
 
-        if(orderAmountUpdateResult.length === 0){
+        if (orderAmountUpdateResult.length === 0) {
             new Error('Failed to update order amounts')
         }
     });

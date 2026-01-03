@@ -225,6 +225,20 @@
       "when": 1767372138383,
       "tag": "0031_unknown_gwen_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1767426297760,
+      "tag": "0032_hard_boomer",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1767478611146,
+      "tag": "0033_lucky_beast",
+      "breakpoints": true
     }
   ]
 }
