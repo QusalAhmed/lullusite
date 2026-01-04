@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 
 // TanStack Table
 import { flexRender, getCoreRowModel, PaginationState, useReactTable, } from "@tanstack/react-table"
@@ -327,6 +328,14 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                         </InputGroupButton>
                     </InputGroupAddon>
                 </InputGroup>
+                <Link href="/merchant/order/create">
+                    <Button
+                        variant="default"
+                        size="sm"
+                    >
+                        Create Order
+                    </Button>
+                </Link>
             </div>
             <div className="flex items-center gap-2">
                 <div className="text-muted-foreground">

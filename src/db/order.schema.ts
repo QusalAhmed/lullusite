@@ -99,6 +99,7 @@ export const orderTable = pgTable("orders", {
     // Shipping address snapshot
     shippingFullName: varchar("shipping_full_name", {length: 255}).notNull(),
     shippingPhone: varchar("shipping_phone", {length: 50}).notNull(),
+    shippingEmail: varchar("shipping_email", {length: 255}),
     shippingAddress: text("shipping_address").notNull(),
     shippingCity: varchar("shipping_city", {length: 100}).notNull(),
     shippingDivision: varchar("shipping_division", {length: 50}),

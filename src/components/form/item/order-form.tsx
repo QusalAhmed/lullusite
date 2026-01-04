@@ -77,6 +77,7 @@ import ItemPicker from './item-picker'
 
 // Actions
 import merchantUpdateOrder from '@/actions/order/merchant-update-order'
+import merchantCreateOrder from '@/actions/order/merchant-create-order'
 
 // Constant
 import DIVISION_LIST from '@/constant/division'
@@ -129,9 +130,10 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
             // Shipping address snapshot
             shippingFullName: formData?.shippingFullName || undefined,
             shippingPhone: formData?.shippingPhone || undefined,
+            shippingEmail: formData?.shippingEmail || null,
             shippingAddress: formData?.shippingAddress || undefined,
             shippingCity: formData?.shippingCity || '',
-            shippingDivision: formData?.shippingDivision || null,
+            shippingDivision: formData?.shippingDivision || 'auto',
             shippingState: formData?.shippingState || null,
             shippingPostalCode: formData?.shippingPostalCode || null,
             shippingCountry: formData?.shippingCountry || '',
@@ -181,6 +183,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
         control: form.control,
         name: "items",
     });
+
     const subtotalAmount = items.reduce((acc, item) => {
         const itemTotal = (item.unitPrice * item.quantity) - item.discountPrice;
         return acc + (itemTotal >= 0 ? itemTotal : 0);
@@ -265,8 +268,13 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                 toast.error(`Failed to update order: ${response.message || 'Unknown error'}`);
             }
         } else {
-            // Create new order logic here
-            toast.error("Creating new orders is not implemented yet.");
+            const response = await merchantCreateOrder(data);
+            if (response.success) {
+                toast.success("Order created successfully.");
+                router.push('/merchant/all-orders');
+            } else {
+                toast.error(`Failed to create order: ${response.message || 'Unknown error'}`);
+            }
         }
     }
 
@@ -309,137 +317,6 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                             </AlertDescription>
                         </Alert>
                     )}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Customer Details</CardTitle>
-                            <CardDescription>
-                                Shipping customer details. To chane associated customer details edit customer
-                            </CardDescription>
-                            <CardAction className={'whitespace-pre-wrap cursor-pointer'}>
-                                Edit Customer
-                            </CardAction>
-                        </CardHeader>
-                        <CardContent>
-                            <FieldGroup>
-                                <Controller
-                                    name="customerName"
-                                    control={form.control}
-                                    render={({field, fieldState}) => (
-                                        <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor="form-customer-name">
-                                                Customer Name
-                                            </FieldLabel>
-                                            <Input
-                                                {...field}
-                                                id="form-customer-name"
-                                                type="text"
-                                                aria-invalid={fieldState.invalid}
-                                                autoComplete="on"
-                                                value={field.value ?? ""}
-                                            />
-                                            {fieldState.invalid && (
-                                                <FieldError errors={[fieldState.error]}/>
-                                            )}
-                                        </Field>
-                                    )}
-                                />
-                                <Controller
-                                    name="customerPhone"
-                                    control={form.control}
-                                    render={({field, fieldState}) => (
-                                        <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor="form-customer-phone">
-                                                Customer Phone
-                                            </FieldLabel>
-                                            <Input
-                                                {...field}
-                                                id="form-customer-phone"
-                                                type="tel"
-                                                aria-invalid={fieldState.invalid}
-                                                autoComplete="on"
-                                                value={field.value ?? ""}
-                                            />
-                                            {fieldState.invalid && (
-                                                <FieldError errors={[fieldState.error]}/>
-                                            )}
-                                        </Field>
-                                    )}
-                                />
-                                <Controller
-                                    name="customerAdditionalPhone"
-                                    control={form.control}
-                                    render={({field, fieldState}) => (
-                                        <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor="form-customer-additional-phone">
-                                                Additional Phone
-                                            </FieldLabel>
-                                            <Input
-                                                {...field}
-                                                id="form-customer-additional-phone"
-                                                type="tel"
-                                                aria-invalid={fieldState.invalid}
-                                                autoComplete="on"
-                                                value={field.value ?? ""}
-                                            />
-                                            {fieldState.invalid && (
-                                                <FieldError errors={[fieldState.error]}/>
-                                            )}
-                                        </Field>
-                                    )}
-                                />
-                                <Controller
-                                    name="customerEmail"
-                                    control={form.control}
-                                    render={({field, fieldState}) => (
-                                        <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor="form-customer-email">
-                                                Customer Email
-                                            </FieldLabel>
-                                            <Input
-                                                {...field}
-                                                id="form-customer-email"
-                                                type="email"
-                                                aria-invalid={fieldState.invalid}
-                                                autoComplete="on"
-                                                value={field.value ?? ""}
-                                            />
-                                            {fieldState.invalid && (
-                                                <FieldError errors={[fieldState.error]}/>
-                                            )}
-                                        </Field>
-                                    )}
-                                />
-                                <Controller
-                                    name="customerNote"
-                                    control={form.control}
-                                    render={({field, fieldState}) => (
-                                        <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor="form-customer-note">
-                                                Customer Note
-                                            </FieldLabel>
-                                            <InputGroup>
-                                                <InputGroupTextarea
-                                                    {...field}
-                                                    id="form-customer-note"
-                                                    rows={2}
-                                                    aria-invalid={fieldState.invalid}
-                                                    value={field.value ?? ""}
-                                                />
-                                                <InputGroupAddon align="block-end">
-                                                    <InputGroupText className="tabular-nums">
-                                                        {field.value?.length} characters
-                                                    </InputGroupText>
-                                                </InputGroupAddon>
-                                            </InputGroup>
-                                            {fieldState.invalid && (
-                                                <FieldError errors={[fieldState.error]}/>
-                                            )}
-                                        </Field>
-                                    )}
-                                />
-                            </FieldGroup>
-                        </CardContent>
-                    </Card>
                     <Card>
                         <CardHeader>
                             <CardTitle>Shipping Address</CardTitle>
@@ -541,7 +418,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                             </FieldContent>
                                             <Select
                                                 name={field.name}
-                                                value={field.value || 'auto'}
+                                                value={field.value || ''}
                                                 onValueChange={field.onChange}
                                             >
                                                 <SelectTrigger

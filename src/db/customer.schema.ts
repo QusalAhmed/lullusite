@@ -21,6 +21,7 @@ export const customerTable = pgTable("customers", {
     name: varchar("name", {length: 255}),
     email: varchar("email", {length: 255}),
     phone: varchar("phone", {length: 50}).notNull(),
+    additionalPhone: varchar("additional_phone", {length: 50}),
     division: varchar("division", {length: 100}),
     address: text('address'),
 

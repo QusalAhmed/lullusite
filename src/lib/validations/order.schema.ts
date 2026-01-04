@@ -1,7 +1,7 @@
 import {validatePhoneNumber} from "@/lib/phone-number"
 // Zod
 import { z } from 'zod'
-import { createSelectSchema, createUpdateSchema } from 'drizzle-zod'
+import { createSelectSchema, createUpdateSchema, createInsertSchema } from 'drizzle-zod'
 
 // db
 import { orderTable } from '@/db/index.schema'
@@ -16,6 +16,11 @@ const orderSelectSchema = createSelectSchema(orderTable, {
     amountDue: z.undefined(),
     createdAt: z.undefined(),
     updatedAt: z.undefined(),
+
+    // Shipping details
+    shippingFullName: (schema) => schema.min(1, "Shipping full name is required"),
+    shippingAddress: (schema) => schema.min(1, "Shipping address is required"),
+    shippingPhone: (schema) => schema.min(1, "Shipping phone is required"),
 }).extend({
     items: z.array(z.object({
         variationId: z.string(),
@@ -27,6 +32,7 @@ const orderSelectSchema = createSelectSchema(orderTable, {
         thumbnailUrl: z.url(),
     })).min(1, "Order must have at least one item"),
 }).superRefine((values, ctx) => {
+    console.log('Refining order select schema with values:', values);
     if (values.paymentStatus === 'partially_paid' && (!values.partialAmount || values.partialAmount <= 0)) {
         ctx.addIssue({
             code: 'custom',
@@ -67,3 +73,13 @@ const orderUpdateSchema = createUpdateSchema(orderTable, {
 export { orderUpdateSchema }
 
 export type OrderUpdateSchemaType = z.infer<typeof orderUpdateSchema>
+
+// Insert Schema
+const orderInsertSchema = createInsertSchema(orderTable, {
+    merchantId: z.undefined(),
+    customerId: z.undefined(),
+})
+
+export { orderInsertSchema }
+
+export type OrderInsertSchemaType = z.infer<typeof orderInsertSchema>
