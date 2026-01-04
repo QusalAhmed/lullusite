@@ -149,8 +149,9 @@ const merchantUpdateOrder = async (data: OrderSelectSchemaType) => {
                 acc + (item.unitPrice * item.quantity - item.discountPrice), 0)
         const discountAmount = parsedOrder.discountAmount;
         const shippingAmount = parsedOrder.shippingAmount;
-        const amountPaid = (parsedOrder.paymentStatus === 'partially_paid' ? (parsedOrder.partialAmount || 0) : 0);
         const totalAmount = subtotalAmount + shippingAmount - discountAmount;
+        const amountPaid = parsedOrder.paymentStatus === 'partially_paid' ?
+            parsedOrder.partialAmount : parsedOrder.paymentStatus === 'paid' ? totalAmount : 0;
         const amountDue = totalAmount - amountPaid;
 
         const orderAmountUpdateResult = await tx

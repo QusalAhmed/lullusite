@@ -12,6 +12,8 @@ const orderSelectSchema = createSelectSchema(orderTable, {
     merchantId: z.undefined(),
     customerId: z.undefined(),
     orderNumber: z.undefined(),
+    amountPaid: z.undefined(),
+    amountDue: z.undefined(),
     createdAt: z.undefined(),
     updatedAt: z.undefined(),
 }).extend({

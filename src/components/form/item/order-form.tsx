@@ -177,13 +177,6 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
         name: "paymentStatus",
     });
 
-    useEffect(() => {
-        if (paymentStatus !== 'partially_paid') {
-            form.clearErrors('partialAmount');
-            form.setValue('partialAmount', 0);
-        }
-    }, [paymentStatus, form]);
-
     const items = useWatch({
         control: form.control,
         name: "items",
@@ -203,8 +196,25 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
         name: 'discountAmount',
     });
 
-    const amountPaid = paymentStatus === 'partially_paid' ? (form.getValues('partialAmount') || 0) : 0;
+    const partialAmount = useWatch({
+        control: form.control,
+        name: 'partialAmount',
+    });
+
+    const totalAmount = subtotalAmount + shippingAmount - discountAmount;
+    const amountPaid = paymentStatus === 'partially_paid' ?
+        partialAmount : paymentStatus === 'paid' ? totalAmount : 0;
     const amountDue = subtotalAmount + shippingAmount - discountAmount - amountPaid;
+
+    useEffect(() => {
+        if (paymentStatus !== 'partially_paid') {
+            form.clearErrors('partialAmount');
+            form.setValue('partialAmount', 0);
+        }
+        if (paymentStatus === 'paid') {
+            form.setValue('partialAmount', totalAmount);
+        }
+    }, [paymentStatus, form, totalAmount]);
 
     const {fields: itemFields, remove: itemRemove, prepend: itemPrepend} = useFieldArray({
         control: form.control,
@@ -250,7 +260,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
 
             if (response.success) {
                 toast.success("Order updated successfully.");
-                router.push('/merchant/all-orders', {scroll: false});
+                router.push('/merchant/all-orders');
             } else {
                 toast.error(`Failed to update order: ${response.message || 'Unknown error'}`);
             }
@@ -1153,15 +1163,15 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                 </div>
                             </div>
                             <div className={'grid grid-cols-2 gap-4 mt-4'}>
-                                <div className="flex items-center justify-between bg-green-300 px-4 py-2 rounded-md">
+                                <div className="flex items-center justify-between bg-muted px-4 py-2 rounded-md">
                                     <span className="text-sm text-muted-foreground">Amount Paid</span>
-                                    <div className="text-xl font-semibold">
+                                    <div className="text-xl font-semibold text-green-600">
                                         {amountPaid}
                                     </div>
                                 </div>
-                                <div className="flex items-center justify-between bg-amber-300 px-4 py-2 rounded-md">
+                                <div className="flex items-center justify-between bg-muted px-4 py-2 rounded-md">
                                     <span className="text-sm text-muted-foreground">Amount Due</span>
-                                    <div className="text-xl font-bold">
+                                    <div className="text-xl font-bold text-red-600">
                                         {amountDue}
                                     </div>
                                 </div>
