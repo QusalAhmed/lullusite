@@ -258,6 +258,15 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
     }, [form, itemPrepend, itemRemove]);
 
     async function onSubmit(data: z.infer<typeof orderSelectSchema>) {
+        // Warning
+        if (shippingAmount == 0) {
+            const proceed = confirm("Shipping amount is set to 0. Are you sure you want to continue?");
+            if (!proceed) {
+                form.setFocus('shippingAmount');
+                return;
+            }
+        }
+
         if (formData) {
             const response = await merchantUpdateOrder(data);
 

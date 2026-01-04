@@ -94,6 +94,35 @@ const merchantCreateOrder = async (data: OrderSelectSchemaType) => {
         if (itemsInsertResult.length < itemsInsertData.length) {
             throw new Error('Failed to insert some order items')
         }
+
+        // Update amount
+        const subtotalAmount = items.reduce((acc, item) =>
+            acc + (item.unitPrice * item.quantity - item.discountPrice), 0)
+        const discountAmount = parsedOrder.discountAmount || 0;
+        const shippingAmount = parsedOrder.shippingAmount || 0;
+        const totalAmount = subtotalAmount + shippingAmount - discountAmount;
+        const amountPaid = parsedOrder.paymentStatus === 'partially_paid' ?
+            parsedOrder.partialAmount || 0 : parsedOrder.paymentStatus === 'paid' ? totalAmount : 0;
+        const amountDue = totalAmount - amountPaid;
+
+        const orderAmountUpdateResult = await tx
+            .update(orderTable)
+            .set({
+                subtotalAmount,
+                discountAmount,
+                shippingAmount,
+                totalAmount,
+                amountPaid,
+                amountDue,
+            })
+            .where(
+                eq(orderTable.id, orderCreateResult[0].id)
+            ).returning({id: orderTable.id})
+        console.log('Order Amount Updated:', orderAmountUpdateResult)
+
+        if (orderAmountUpdateResult.length === 0) {
+            new Error('Failed to update order amounts')
+        }
     })
 
     return {
