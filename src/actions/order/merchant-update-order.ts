@@ -2,7 +2,7 @@
 
 //db
 import db from '@/lib/drizzle-agent'
-import { eq, and, inArray } from 'drizzle-orm'
+import { eq, and, inArray, sql, SQL } from 'drizzle-orm'
 import { orderTable, orderItemTable, productVariationTable } from '@/db/index.schema'
 
 // Auth
@@ -119,34 +119,83 @@ const merchantUpdateOrder = async (data: OrderSelectSchemaType) => {
         const itemsToUpdate = itemsNew.filter(newItem => (
             currentItems.items.find(currentItem => currentItem.productVariationId === newItem.variationId)
         ))
-        // Update existing items
-        for (const item of itemsToUpdate) {
-            const currentItem = currentItems.items.find(ci => ci.productVariationId === item.variationId)
-            if (!currentItem) continue
+        if (itemsToUpdate.length > 0) {
+            const sqlChunksQuantity: SQL[] = [];
+            const sqlChunksUnitPrice: SQL[] = [];
+            const sqlChunksDiscount: SQL[] = [];
+            const ids: string[] = [];
+
+            sqlChunksQuantity.push(sql`(case`);
+            sqlChunksUnitPrice.push(sql`(case`);
+            sqlChunksDiscount.push(sql`(case`);
+
+            for (const item of itemsToUpdate) {
+                sqlChunksQuantity.push(sql`when ${orderItemTable.productVariationId} = ${item.variationId} then ${item.quantity}`);
+                sqlChunksUnitPrice.push(sql`when ${orderItemTable.productVariationId} = ${item.variationId} then ${item.unitPrice}`);
+                sqlChunksDiscount.push(sql`when ${orderItemTable.productVariationId} = ${item.variationId} then ${item.discountPrice}`);
+                ids.push(item.variationId);
+            }
+
+            sqlChunksQuantity.push(sql`end)`);
+            sqlChunksUnitPrice.push(sql`end)`);
+            sqlChunksDiscount.push(sql`end)`);
+
+            // Explicit casts are important here; otherwise Postgres may infer TEXT for the CASE expression.
+            const quantitySql: SQL = sql`${sql.join(sqlChunksQuantity, sql.raw(' '))}::integer`;
+            const unitPriceSql: SQL = sql`${sql.join(sqlChunksUnitPrice, sql.raw(' '))}::numeric(10,2)`;
+            const discountSql: SQL = sql`${sql.join(sqlChunksDiscount, sql.raw(' '))}::numeric(10,2)`;
 
             const itemUpdateResult = await tx
                 .update(orderItemTable)
                 .set({
-                    quantity: item.quantity,
-                    unitPrice: item.unitPrice,
-                    lineSubtotal: item.unitPrice * item.quantity,
-                    lineDiscountAmount: item.discountPrice,
-                    lineTotal: item.totalPrice,
+                    quantity: quantitySql,
+                    unitPrice: unitPriceSql,
+                    lineSubtotal: sql`${unitPriceSql} * ${quantitySql}`,
+                    lineDiscountAmount: discountSql,
+                    lineTotal: sql`(${unitPriceSql} * ${quantitySql}) - ${discountSql}`,
                 })
                 .where(
-                    eq(orderItemTable.id, currentItem.id)
+                    and(
+                        eq(orderItemTable.orderId, orderParams.id),
+                        inArray(orderItemTable.productVariationId, ids)
+                    )
                 ).returning({id: orderItemTable.id})
 
-            console.log('Updated Item:', itemUpdateResult)
+            console.log('Updated Items:', itemUpdateResult)
 
-            if (itemUpdateResult.length === 0) {
-                throw new Error(`Failed to update order item with id ${currentItem.id}`)
+            if (itemUpdateResult.length < ids.length) {
+                throw new Error('Failed to update some order items')
             }
         }
 
+        // Update existing items
+        // for (const item of itemsToUpdate) {
+        //     const currentItem = currentItems.items.find(ci => ci.productVariationId === item.variationId)
+        //     if (!currentItem) continue
+        //
+        //     const itemUpdateResult = await tx
+        //         .update(orderItemTable)
+        //         .set({
+        //             quantity: item.quantity,
+        //             unitPrice: item.unitPrice,
+        //             lineSubtotal: item.unitPrice * item.quantity,
+        //             lineDiscountAmount: item.discountPrice,
+        //             lineTotal: item.totalPrice,
+        //         })
+        //         .where(
+        //             eq(orderItemTable.id, currentItem.id)
+        //         ).returning({id: orderItemTable.id})
+        //
+        //     console.log('Updated Item:', itemUpdateResult)
+        //
+        //     if (itemUpdateResult.length === 0) {
+        //         throw new Error(`Failed to update order item with id ${currentItem.id}`)
+        //     }
+        // }
+
         // Update amount
         const subtotalAmount = itemsNew.reduce((acc, item) =>
-                acc + (item.unitPrice * item.quantity - item.discountPrice), 0)
+            acc + (item.unitPrice * item.quantity - item.discountPrice), 0)
         const discountAmount = parsedOrder.discountAmount;
         const shippingAmount = parsedOrder.shippingAmount;
         const totalAmount = subtotalAmount + shippingAmount - discountAmount;

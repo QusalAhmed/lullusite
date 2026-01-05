@@ -8,7 +8,7 @@ import { productTable } from "@/db/product.schema";
 // Auth
 import getSession from "@/lib/get-session";
 
-export default async function getProducts(limit: number = 10, offset: number = 0) {
+export default async function getProducts(limit: number = -1, offset: number = 0) {
     const session = await getSession();
 
     return db

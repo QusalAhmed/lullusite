@@ -169,7 +169,7 @@ function MyDropzone(
         accept: {
             'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.bmp', '.webp'],
         },
-        maxSize: 5 * 1024 * 1024, // 5 MB
+        maxSize: 8 * 1024 * 1024, // 8 MB
         // validator: (file) => {
         //     if (file.size > 2 * 1024 * 1024) {
         //         return {
