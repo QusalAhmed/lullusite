@@ -159,7 +159,7 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
                                     <span className={coiny.className + " font-normal text-lg p-0 m-0"}>
                                         User Panel
                                     </span>
-                                    <span className="text-gray-300">v1.0.0</span>
+                                    <span className="text-gray-300">v0.1.0</span>
                                 </div>
                             </Link>
                         </SidebarMenuButton>

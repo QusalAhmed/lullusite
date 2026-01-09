@@ -33,7 +33,6 @@ import {
     InputGroup,
     InputGroupAddon,
     InputGroupInput,
-    InputGroupText,
     InputGroupButton
 } from "@/components/ui/input-group"
 
@@ -171,9 +170,6 @@ export default function SignInForm() {
                                             placeholder="Enter your Gmail address"
                                             autoComplete="email"
                                         />
-                                        <InputGroupAddon align="inline-end">
-                                            <InputGroupText>@gmail.com</InputGroupText>
-                                        </InputGroupAddon>
                                     </InputGroup>
                                     {fieldState.invalid && (
                                         <FieldError errors={[fieldState.error]}/>
@@ -267,7 +263,7 @@ export default function SignInForm() {
                             form="signup-form"
                             className={form.formState.isSubmitting ? "w-full opacity-70 pointer-events-none" : "w-full"}
                     >
-                        {form.formState.isSubmitting ? "Submitting..." : "Login"}
+                        {form.formState.isSubmitting ? "Submitting..." : "Signup"}
                     </Button>
                 </Field>
                 <Button className={'w-full'} variant="outline">
@@ -278,7 +274,7 @@ export default function SignInForm() {
                 </Button>
                 <Button className={'w-full'} variant="outline">
                     <div className={'flex items-center justify-center gap-2'}>
-                        <BsFacebook className="ml-2" size={48}/>
+                        <BsFacebook className="ml-2 text-blue-600" size={48}/>
                         <span>Sign up with Facebook</span>
                     </div>
                 </Button>
