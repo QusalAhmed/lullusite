@@ -15,7 +15,7 @@ export default async function StorePage(
     return (
         <>
             <StoreSlug storeSlug={storeSlug} />
-            <Theme/>
+            <Theme storeSlug={storeSlug}/>
             <CheckoutPage />
         </>
     )
