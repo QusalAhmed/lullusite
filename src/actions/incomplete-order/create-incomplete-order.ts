@@ -1,10 +1,11 @@
 "use server";
 
 import { getRequestSource } from "@/lib/request";
+import getMerchant from "@/lib/get-merchant";
 
 // db
 import db from "@/lib/drizzle-agent";
-import { incompleteOrderTable, incompleteOrderItemTable, pageTable, productVariationTable } from "@/db/index.schema";
+import { incompleteOrderTable, incompleteOrderItemTable, productVariationTable } from "@/db/index.schema";
 import { eq, and, or } from "drizzle-orm";
 
 // BullMQ
@@ -25,31 +26,8 @@ interface CreateIncompleteOrderParams {
 export async function createIncompleteOrder(
     {phoneNumber, items, metadata}: CreateIncompleteOrderParams
 ) {
-    // Capture request source (origin/host/protocol)
+    const merchant = await getMerchant();
     const req = await getRequestSource();
-    const storeSlug = req.referer?.split('/store/')[1]?.split('/')[0]
-
-    if (!storeSlug) {
-        return {
-            success: false,
-            error: "Store not found in referer",
-        };
-    }
-
-    // Find merchant id
-    const merchantId = await db
-        .select()
-        .from(pageTable)
-        .where(eq(pageTable.slug, storeSlug))
-        .limit(1)
-        .then((res) => (res.length > 0 ? res[0].userId : null));
-
-    if (!merchantId) {
-        return {
-            success: false,
-            error: "Merchant not found for store slug",
-        };
-    }
 
     // Merge metadata with request URL info
     const mergedMetadata = {
@@ -62,7 +40,7 @@ export async function createIncompleteOrder(
         const existingOrder = await db.query.incompleteOrderTable.findFirst({
             where: and(
                 eq(incompleteOrderTable.phoneNumber, phoneNumber),
-                eq(incompleteOrderTable.merchantId, merchantId),
+                eq(incompleteOrderTable.merchantId, merchant.merchantId),
                 eq(incompleteOrderTable.status, "active")
             ),
         });
@@ -90,7 +68,7 @@ export async function createIncompleteOrder(
                 .insert(incompleteOrderTable)
                 .values({
                     phoneNumber,
-                    merchantId,
+                    merchantId: merchant.merchantId,
                     customerName: metadata?.customerName || null,
                     customerAddress: metadata?.address || null,
                     metadata: mergedMetadata,
@@ -100,7 +78,7 @@ export async function createIncompleteOrder(
             incompleteOrderId = newOrder.id;
 
             await incompleteOrderQueue.add("send-incomplete-order-email", {
-                merchantName: merchantId,
+                merchantName: 'Qus Al CSE',
                 merchantEmail: 'qusalcse@gmail.com',
                 orderId: incompleteOrderId,
                 createdDate: new Date().toLocaleTimeString() + ' ' + new Date().toLocaleDateString(),

@@ -111,6 +111,10 @@ const data = {
                 {
                     title: "Add Landing Page",
                     url: "/merchant/add-landing-page",
+                },
+                {
+                    title: "Builder",
+                    url: "/merchant/builder",
                 }
             ],
         },
@@ -129,6 +133,14 @@ const data = {
                 {
                     title: "Courier",
                     url: "/merchant/settings/courier",
+                },
+                {
+                    title: "Messaging",
+                    url: "/merchant/settings/messaging",
+                },
+                {
+                    title: "Payment Gateway",
+                    url: "#",
                 },
                 {
                     title: "User & Permission",

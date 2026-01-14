@@ -34,7 +34,7 @@ const VideoPlayer = () => {
         <div className={'flex justify-center items-center my-8 px-4'}>
             <div className={'w-full max-w-4xl aspect-video bg-black rounded-lg overflow-hidden'}>
                 <ReactPlayer
-                    src='https://www.youtube.com/watch?v=LXb3EKWsInQ'
+                    src='https://youtu.be/NZwvHyh7NaI'
                     playing={playing}
                     controls
                     loop

@@ -13,7 +13,7 @@ export default async function getMerchant() {
     const req = await getRequestSource();
 
     // Extract store slug from referer
-    const storeSlug = req.referer?.split('/store/')[1]?.split('/')[0]
+    const storeSlug = req.referer?.split('/store/')[1]?.split('/')[0].split('?')[0];
 
     if (!storeSlug) {
         throw new Error("Store slug not found in request");

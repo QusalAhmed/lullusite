@@ -34,7 +34,6 @@ interface AnalyticsData {
     userId?: string;
     facebookPixelId?: string | null;
     facebookConversionApiKey?: string | null;
-    facebookConversionApiVersion?: string | null;
     googleAnalyticsKey?: string | null;
     googleAnalyticsMeasurementId?: string | null;
     googleAdsConversionId?: string | null;
@@ -56,7 +55,6 @@ export function AnalyticsForm({ analyticsData }: { analyticsData: AnalyticsData 
         defaultValues: {
             facebookPixelId: "",
             facebookConversionApiKey: "",
-            facebookConversionApiVersion: "",
             googleAnalyticsKey: "",
             googleAnalyticsMeasurementId: "",
             googleAdsConversionId: "",
@@ -76,7 +74,6 @@ export function AnalyticsForm({ analyticsData }: { analyticsData: AnalyticsData 
             form.reset({
                 facebookPixelId: analyticsData.facebookPixelId || "",
                 facebookConversionApiKey: analyticsData.facebookConversionApiKey || "",
-                facebookConversionApiVersion: analyticsData.facebookConversionApiVersion || "",
                 googleAnalyticsKey: analyticsData.googleAnalyticsKey || "",
                 googleAnalyticsMeasurementId: analyticsData.googleAnalyticsMeasurementId || "",
                 googleAdsConversionId: analyticsData.googleAdsConversionId || "",
@@ -124,6 +121,7 @@ export function AnalyticsForm({ analyticsData }: { analyticsData: AnalyticsData 
                                 <Switch
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
+                                    className='data-[state=checked]:bg-green-500'
                                 />
                             </div>
                         )}
@@ -180,29 +178,7 @@ export function AnalyticsForm({ analyticsData }: { analyticsData: AnalyticsData 
                                     id="form-facebook-conv-key"
                                     aria-invalid={fieldState.invalid}
                                     placeholder="Enter your Conversion API key"
-                                    type="password"
-                                    disabled={!form.getValues('isEnabled')}
-                                />
-                                {fieldState.invalid && (
-                                    <FieldError errors={[fieldState.error]} />
-                                )}
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="facebookConversionApiVersion"
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor="form-facebook-conv-version">
-                                    API Version
-                                </FieldLabel>
-                                <Input
-                                    {...field}
-                                    id="form-facebook-conv-version"
-                                    aria-invalid={fieldState.invalid}
-                                    placeholder="e.g., v18.0"
+                                    type="text"
                                     disabled={!form.getValues('isEnabled')}
                                 />
                                 {fieldState.invalid && (
