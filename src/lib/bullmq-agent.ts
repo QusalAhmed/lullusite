@@ -255,8 +255,8 @@ export async function initializeWorker() {
             const eventsData = [serverEvent_0];
             const eventRequest = (new EventRequest(accessToken, pixelId))
                 .setEvents(eventsData)
-                .setTestEventCode("TEST77174")
-                .setDebugMode(true);
+                // .setTestEventCode("TEST61190")
+                // .setDebugMode(true);
 
             await eventRequest.execute();
 

@@ -81,7 +81,7 @@ export default async function updateOrderStatus(
         if (successfullyReportedOrderIds.length > 0) {
             await db
                 .update(orderTable)
-                .set({ reportToPixel: false })
+                .set({ reportToPixel: true })
                 .where(
                     and(
                         eq(orderTable.merchantId, merchantId),
