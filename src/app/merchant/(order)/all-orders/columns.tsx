@@ -15,7 +15,6 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -24,13 +23,16 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
+import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
 
 // Icon
-import { X, ChevronDown } from "lucide-react";
+import { X, ChevronDown, FileType, Bike } from "lucide-react";
 import { FaBangladeshiTakaSign } from "react-icons/fa6";
 
 // Local
 import TrackingDialog from './tracking-dialog';
+import FraudReport from './fraud-report';
+import ImageDialog from '@/components/image-hub/image-dialog'
 
 const columnHelper = createColumnHelper<GetOrdersType>();
 
@@ -71,13 +73,15 @@ const orderColumns = [
                     const imageUrl = variation?.images?.[0]?.image?.thumbnailUrl || '/placeholder.png';
                     return (
                         <div key={item.id} className="flex items-start space-x-2 mb-4 w-80">
-                            <Image
-                                src={imageUrl}
-                                alt={item.variationName || 'Product Image'}
-                                width={50}
-                                height={50}
-                                className="object-cover rounded"
-                            />
+                            <ImageDialog imageSrc={imageUrl} imageAlt={item.variationName || 'Product Image'}>
+                                <Image
+                                    src={imageUrl}
+                                    alt={item.variationName || 'Product Image'}
+                                    width={50}
+                                    height={50}
+                                    className="object-cover rounded"
+                                />
+                            </ImageDialog>
                             <div className='w-full'>
                                 <div className='font-semibold'>{product.name}</div>
                                 <div className="flex flex-col">
@@ -118,25 +122,11 @@ const orderColumns = [
         id: 'customer',
         header: 'Customer',
         cell: (info) => (
-            <div className="flex flex-col gap-2">
-                <div className='text-sm text-gray-500 font-semibold'>{info.row.original.customerName}</div>
-                <div className="font-semibold">{info.row.original.customerPhone}</div>
-                <div className="flex flex-col gap-1">
-                    <div>Fraud Score: <span className='font-semibold text-red-500'>0/0</span></div>
-                    <Progress value={Math.random() * 100}/>
-                </div>
-                <Accordion type="single" collapsible>
-                    <AccordionItem value="item-details">
-                        <AccordionTrigger className="p-0 cursor-pointer text-cyan-800">Details</AccordionTrigger>
-                        <AccordionContent className="flex flex-col gap-4 text-balance">
-                            <section>
-                                <div>Courier: 1</div>
-                                <div>Courier: 2</div>
-                                <div>Courier: 3</div>
-                            </section>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
+            <div className="flex flex-col gap-2 max-w-xs whitespace-normal">
+                <div className='text-sm text-gray-500 font-semibold'>{info.row.original.shippingFullName}</div>
+                <div className="text-sm text-gray-500">{info.row.original.shippingAddress}</div>
+                <div className="font-semibold">{info.row.original.shippingPhone}</div>
+                <FraudReport phoneNumber={info.row.original.shippingPhone}/>
                 {info.row.original.customerNote && (
                     <div className="text-sm text-gray-800 bg-green-100 p-2 rounded wrap-break-word whitespace-pre-wrap">
                         {info.row.original.customerNote}
@@ -193,10 +183,32 @@ const orderColumns = [
         header: 'Actions',
         cell: (info) => (
             <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-1">
+                    {info.row.original.merchantNote && (
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <FileType />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                {info.row.original.merchantNote}
+                            </TooltipContent>
+                        </Tooltip>
+                    )}
+                    {!info.row.original.merchantNote && (
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <Bike />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Courier Booking Not Available
+                            </TooltipContent>
+                        </Tooltip>
+                    )}
+                </div>
                 <Button variant="outline" size="sm" className="cursor-pointer">
                     <Link href={`/merchant/order/${info.row.original.id}/edit`}>View Details</Link>
                 </Button>
-                <TrackingDialog orderId={info.row.original.id} />
+                <TrackingDialog orderId={info.row.original.id}/>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" size="sm" className="cursor-pointer">

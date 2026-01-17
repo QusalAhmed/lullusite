@@ -16,7 +16,9 @@ const ImageDialog = (
     return (
         <Dialog>
             <DialogTrigger asChild>
-                {children}
+                <div className="cursor-zoom-in">
+                    {children}
+                </div>
             </DialogTrigger>
             <DialogContent className="p-0 overflow-hidden max-w-3xl max-h-[80vh]">
                 <DialogTitle className="sr-only">{imageAlt}</DialogTitle>

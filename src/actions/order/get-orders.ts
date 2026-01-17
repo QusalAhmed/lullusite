@@ -34,9 +34,9 @@ export default async function getOrders(
                 case 'orderNumber':
                     return ilike(orderTable.orderNumber, pattern)
                 case 'customerName':
-                    return ilike(orderTable.customerName, pattern)
+                    return ilike(orderTable.shippingFullName, pattern)
                 case 'customerPhone':
-                    return ilike(orderTable.customerPhone, pattern)
+                    return ilike(orderTable.shippingPhone, pattern)
                 default:
                     return undefined
             }
@@ -86,9 +86,13 @@ export default async function getOrders(
                     id: true,
                     customerPhone: true,
                     customerName: true,
+                    shippingFullName: true,
+                    shippingPhone: true,
+                    shippingAddress: true,
                     status: true,
                     customerNote: true,
                     orderNumber: true,
+                    merchantNote: true,
                     totalAmount: true,
                     paymentStatus: true,
                     createdAt: true,
