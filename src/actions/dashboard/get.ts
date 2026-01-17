@@ -2,8 +2,8 @@
 
 // db
 import db from '@/lib/drizzle-agent'
-import { eq, and, gte, lte, count, sum } from 'drizzle-orm'
-import { orderTable, productTable, customerTable } from '@/db/index.schema'
+import { eq, and, gte, lte, count, sum, sql } from 'drizzle-orm'
+import { orderTable, orderItemTable, productTable, customerTable } from '@/db/index.schema'
 
 // Auth
 import getSession from '@/lib/get-session'
@@ -48,10 +48,40 @@ export default async function getDashboard(range: { from?: string; to?: string }
             )
         )
 
+    const orderItems = await db
+        .select({
+            productVariationId: orderItemTable.productVariationId,
+            variationName: orderItemTable.variationName,
+            totalQuantity: sql<number>`SUM(${orderItemTable.quantity})`,
+        })
+        .from(orderItemTable)
+        .innerJoin(
+            orderTable,
+            eq(orderItemTable.orderId, orderTable.id)
+        )
+        .where(
+            and(
+                eq(orderTable.merchantId, session.user.id),
+                eq(orderTable.status, "confirmed"),
+                range?.from
+                    ? gte(orderTable.createdAt, new Date(range.from))
+                    : undefined,
+                range?.to
+                    ? lte(orderTable.createdAt, new Date(range.to))
+                    : undefined,
+            )
+        )
+        .groupBy(
+            orderItemTable.productVariationId,
+            orderItemTable.variationName,
+        );
+
+
     return {
         order,
-        productsCount: productsCount,
-        customersCount: customersCount,
+        productsCount,
+        customersCount,
+        orderItems,
     }
 }
 

@@ -33,6 +33,7 @@ import { RefreshCcw } from "lucide-react";
 interface ItemType {
     variationId: string
     variationName: string;
+    quantity: number;
     unitPrice: number;
     thumbnailUrl: string;
 }
@@ -142,6 +143,7 @@ const ItemPicker = (
                                         selectedItems.push({
                                             variationId: variation.id,
                                             variationName: variation.name,
+                                            quantity: 1,
                                             unitPrice: parseFloat(variation.price),
                                             thumbnailUrl: variation.imageUrl || '',
                                         });

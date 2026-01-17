@@ -1,11 +1,11 @@
 import React from 'react';
 
-const BuilderPage = () => {
+const Page = () => {
     return (
         <div>
-            <h1>Builder Page</h1>
+
         </div>
     );
 };
 
-export default BuilderPage;
+export default Page;

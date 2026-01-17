@@ -71,7 +71,7 @@ function MyDropzone(
             } else {
                 if (files.length + acceptedFiles.length > maxFiles) {
                     toast.error(`You can only upload up to ${maxFiles} images.`);
-                    return;
+                    // return;
                 }
             }
         }

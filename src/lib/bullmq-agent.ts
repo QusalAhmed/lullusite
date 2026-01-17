@@ -200,6 +200,7 @@ export async function initializeWorker() {
                         where: eq(orderTable.id, orderId),
                         columns: {
                             id: true,
+                            shippingFullName: true,
                             totalAmount: true,
                             currency: true,
                             shippingPhone: true,
@@ -221,6 +222,8 @@ export async function initializeWorker() {
                 }
 
                 const userData_0 = (new UserData())
+                    .setFirstName(orderDetails.shippingFullName.split(' ')[0])
+                    .setLastName(orderDetails.shippingFullName.split(' ').slice(1).join(' '))
                     .setPhones([orderDetails.shippingPhone])
                     .setCity(orderDetails.shippingCity)
                     .setState(orderDetails.shippingState || '') //  TODO: Handle undefined state properly

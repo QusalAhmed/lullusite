@@ -29,6 +29,7 @@ import { useQuery } from "@tanstack/react-query"
 // Local
 import DataPage from "./data"
 import OrderChart from "./order-chart"
+import OrderItem from "./order-item"
 
 // User
 import { authClient } from "@/lib/auth-client"
@@ -208,6 +209,7 @@ export default function DashboardPage() {
                 {error && <p>Error loading data.</p>}
                 {isRefetching && <p>Updating data...</p>}
                 <DataPage data={data} />
+                <OrderItem data={data} />
                 <OrderChart />
             </div>
         </section>

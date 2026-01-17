@@ -227,6 +227,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
     const handleAddItem = useCallback((item: {
         variationId: string
         variationName: string;
+        quantity: number;
         unitPrice: number;
         thumbnailUrl: string;
     }[]) => {
@@ -237,7 +238,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
             itemPrepend({
                 variationId: it.variationId,
                 variationName: it.variationName,
-                quantity: 1,
+                quantity: it.quantity,
                 unitPrice: it.unitPrice,
                 discountPrice: 0,
                 totalPrice: it.unitPrice,
@@ -807,6 +808,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                         variationId: item.variationId,
                                         variationName: item.variationName || '',
                                         unitPrice: item.unitPrice,
+                                        quantity: item.quantity,
                                         thumbnailUrl: item.thumbnailUrl,
                                     }))}
                                 />
