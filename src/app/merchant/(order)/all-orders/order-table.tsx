@@ -337,7 +337,7 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                     </Button>
                 </Link>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto">
                 <div className="text-muted-foreground">
                     {Object.entries(table.getState().rowSelection).length} of{" "}
                     {total} row(s) selected.
