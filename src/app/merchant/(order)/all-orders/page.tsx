@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, {useEffectEvent, useEffect} from 'react';
 import {useRouter, useSearchParams} from "next/navigation";
 
 // Local
@@ -17,7 +17,15 @@ const Page = () => {
     const tabs = [{ value: "all-orders", label: "All Orders" }, ...ORDER_STATUS];
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [activeTab, setActiveTab] = React.useState(searchParams.get('status') || 'all-orders');
+    const status = searchParams.get('status') || 'all-orders'
+    const [activeTab, setActiveTab] = React.useState(status);
+
+    const setStatus = useEffectEvent(() => {
+        setActiveTab(status);
+    });
+    useEffect(() => {
+        setStatus();
+    }, [status]);
 
     return (
         <>

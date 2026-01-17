@@ -23,7 +23,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
-import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Icon
 import { X, ChevronDown, FileType, Bike } from "lucide-react";
@@ -33,6 +33,8 @@ import { FaBangladeshiTakaSign } from "react-icons/fa6";
 import TrackingDialog from './tracking-dialog';
 import FraudReport from './fraud-report';
 import ImageDialog from '@/components/image-hub/image-dialog'
+import Copy from '@/components/Copy';
+
 
 const columnHelper = createColumnHelper<GetOrdersType>();
 
@@ -67,54 +69,58 @@ const orderColumns = [
             }
 
             return (
-                items.map((item) => {
-                    const product = item.variation.product;
-                    const variation = item.variation;
-                    const imageUrl = variation?.images?.[0]?.image?.thumbnailUrl || '/placeholder.png';
-                    return (
-                        <div key={item.id} className="flex items-start space-x-2 mb-4 w-80">
-                            <ImageDialog imageSrc={imageUrl} imageAlt={item.variationName || 'Product Image'}>
-                                <Image
-                                    src={imageUrl}
-                                    alt={item.variationName || 'Product Image'}
-                                    width={50}
-                                    height={50}
-                                    className="object-cover rounded"
-                                />
-                            </ImageDialog>
-                            <div className='w-full'>
-                                <div className='font-semibold'>{product.name}</div>
-                                <div className="flex flex-col">
-                                    <div className="text-sm text-gray-500">
-                                        Variation: {item.variationName}
-                                    </div>
-                                    <div className="flex items-center text-sm text-gray-500">
-                                        Qty:
-                                        <span className='font-semibold text-lg text-amber-400 pl-2'>{item.quantity}</span>
-                                        <X className="inline-block mx-1 text-gray-400" size={16}/>
-                                        <FaBangladeshiTakaSign/>
-                                        {item.unitPrice.toFixed(2)}
-                                    </div>
-                                    <Badge variant="outline">{info.row.original.paymentStatus}</Badge>
-                                </div>
-                                <Accordion type="single" collapsible>
-                                    <AccordionItem value="item-details">
-                                        <AccordionTrigger className="p-0 cursor-pointer text-cyan-800">More</AccordionTrigger>
-                                        <AccordionContent className="flex flex-col gap-2 text-balance">
-                                            <div className="text-sm text-gray-500 mt-1">
-                                                <div>SKU: {item.sku}</div>
-                                                <div>
-                                                    Order Number:{' '}
-                                                    <span className='font-semibold'>{info.row.original.orderNumber}</span>
-                                                </div>
-                                            </div>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                </Accordion>
-                            </div>
+                <div className="flex flex-col">
+                    <div className="flex justify-between items-center mb-4">
+                        <div>
+                            Order Number:{' '}
+                            <span className='font-semibold'>{info.row.original.orderNumber}</span>
                         </div>
-                    );
-                })
+                        <Badge variant="default">{info.row.original.paymentStatus}</Badge>
+                    </div>
+                    {items.map((item) => {
+                        const product = item.variation.product;
+                        const variation = item.variation;
+                        const imageUrl = variation?.images?.[0]?.image?.thumbnailUrl || '/placeholder.png';
+                        return (
+                            <div key={item.id} className="flex items-start space-x-2 mb-4 w-80">
+                                <ImageDialog imageSrc={imageUrl} imageAlt={item.variationName || 'Product Image'}>
+                                    <Image
+                                        src={imageUrl}
+                                        alt={item.variationName || 'Product Image'}
+                                        width={50}
+                                        height={50}
+                                        className="object-cover rounded"
+                                    />
+                                </ImageDialog>
+                                <div className='w-full'>
+                                    <div className='font-semibold'>{product.name}</div>
+                                    <div className="flex flex-col">
+                                        <div className="text-sm text-gray-500">
+                                            Variation: {item.variationName}
+                                        </div>
+                                        <div className="flex items-center text-sm text-gray-500">
+                                            Qty:
+                                            <span className='font-semibold text-lg text-amber-400 pl-2'>{item.quantity}</span>
+                                            <X className="inline-block mx-1 text-gray-400" size={16}/>
+                                            <FaBangladeshiTakaSign/>
+                                            {item.unitPrice.toFixed(2)}
+                                        </div>
+                                    </div>
+                                    <Accordion type="single" collapsible>
+                                        <AccordionItem value="item-details">
+                                            <AccordionTrigger className="p-0 cursor-pointer text-cyan-800">More</AccordionTrigger>
+                                            <AccordionContent className="flex flex-col gap-2 text-balance">
+                                                <div className="text-sm text-gray-500 mt-1">
+                                                    <div>SKU: {item.sku}</div>
+                                                </div>
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    </Accordion>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             )
         },
     }),
@@ -122,10 +128,14 @@ const orderColumns = [
         id: 'customer',
         header: 'Customer',
         cell: (info) => (
-            <div className="flex flex-col gap-2 max-w-xs whitespace-normal">
-                <div className='text-sm text-gray-500 font-semibold'>{info.row.original.shippingFullName}</div>
-                <div className="text-sm text-gray-500">{info.row.original.shippingAddress}</div>
-                <div className="font-semibold">{info.row.original.shippingPhone}</div>
+            <div className="flex flex-col gap-2 min-w-xs max-w-md whitespace-normal">
+                <div className='text-sm text-gray-500 font-semibold'>
+                    <Copy text={info.row.original.shippingFullName}/>
+                </div>
+                <div className="text-sm text-gray-500">
+                    <Copy text={info.row.original.shippingAddress}/>
+                </div>
+                <div className="font-semibold"><Copy text={info.row.original.shippingPhone}/></div>
                 <FraudReport phoneNumber={info.row.original.shippingPhone}/>
                 {info.row.original.customerNote && (
                     <div className="text-sm text-gray-800 bg-green-100 p-2 rounded wrap-break-word whitespace-pre-wrap">
@@ -146,6 +156,7 @@ const orderColumns = [
                     thousandSeparator
                     decimalScale={2}
                     fixedDecimalScale
+                    className="font-semibold text-lg ml-1"
                 />
             </div>
         ),
@@ -187,7 +198,7 @@ const orderColumns = [
                     {info.row.original.merchantNote && (
                         <Tooltip>
                             <TooltipTrigger>
-                                <FileType />
+                                <FileType/>
                             </TooltipTrigger>
                             <TooltipContent>
                                 {info.row.original.merchantNote}
@@ -197,7 +208,7 @@ const orderColumns = [
                     {!info.row.original.merchantNote && (
                         <Tooltip>
                             <TooltipTrigger>
-                                <Bike />
+                                <Bike/>
                             </TooltipTrigger>
                             <TooltipContent>
                                 Courier Booking Not Available

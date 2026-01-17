@@ -41,8 +41,8 @@ const FraudReport = ({phoneNumber}: { phoneNumber: string }) => {
         <>
             <div className="flex flex-col gap-1">
                 <div>
-                    Fraud Score:
-                    <Badge variant={data.data.riskColor === 'success' ? 'outline' : 'destructive'} className="ml-2">
+                    <div className='font-semibold text-gray-700'>Fraud Score:</div>
+                    <Badge variant={data.data.riskColor === 'success' ? 'secondary' : 'destructive'} className="ml-2">
                         {data.data.totalDelivered} / {data.data.totalOrders}
                     </Badge>
                     <span className="ml-4 font-medium text-sm text-gray-700">
