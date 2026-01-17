@@ -182,7 +182,7 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
 
     return (
         <div className="w-full overflow-auto space-y-4">
-            <div className="mb-4 font-medium flex items-center gap-2">
+            <div className="mb-4 font-medium flex items-center gap-2 overflow-x-auto">
                 <span className={'font-semibold'}>Order Date:</span>
                 <Button
                     variant="secondary"
@@ -279,7 +279,7 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                     Clear
                 </Button>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col items-center md:flex-row md:gap-4">
                 <Select
                     value={searchFor}
                     onValueChange={(value) => {
