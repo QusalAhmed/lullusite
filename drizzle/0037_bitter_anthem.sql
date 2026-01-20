@@ -1,0 +1,1 @@
+ALTER TABLE "orders" RENAME COLUMN "consignment_id" TO "consignments_id";

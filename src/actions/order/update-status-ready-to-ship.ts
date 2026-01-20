@@ -124,7 +124,7 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
                          .update(orderTable)
                          .set({
                              isCourierBooked: true,
-                             consignmentId: finalSql,
+                             consignmentsId: finalSql,
                          })
                          .where(and(
                              inArray(orderTable.id, successParcels.map(p => p.invoice)),
