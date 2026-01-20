@@ -161,6 +161,11 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
             customerNote: formData?.customerNote || null,
             merchantNote: formData?.merchantNote || null,
 
+            // Courier
+            courierCode: formData?.courierCode || null,
+            consignmentsId: formData?.consignmentsId || null,
+            isCourierBooked: formData?.isCourierBooked || false,
+
             // Items
             items: formData?.items.map(item => ({
                 variationId: item.productVariationId,

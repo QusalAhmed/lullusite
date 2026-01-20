@@ -33,6 +33,14 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
                 amountDue: true,
                 shippingNotes: true,
             },
+            with: {
+                items: {
+                    columns: {
+                        variationName: true,
+                        quantity: true,
+                    },
+                }
+            },
             where: and(
                 inArray(orderTable.id, order.map(o => o.orderId)),
                 eq(orderTable.merchantId, merchant.user.id),
@@ -66,6 +74,7 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
                         recipient_phone: details.shippingPhone || '',
                         cod_amount: details.amountDue,
                         note: details.shippingNotes || '',
+                        item_description: details.items.map(i => `${i.variationName} (x${i.quantity})`).join(', '),
                     }
                 })
                 .filter(item => item !== null) as Array<{
