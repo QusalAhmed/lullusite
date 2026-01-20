@@ -94,8 +94,8 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
     })
 
     // search/filter state
-    const [searchFor, setSearchFor] = useState<OrderSearchFilter extends { searchFor: infer K } ? K : 'orderNumber'>(
-        'orderNumber'
+    const [searchFor, setSearchFor] = useState<OrderSearchFilter extends { searchFor: infer K } ? K : 'customerPhone'>(
+        'customerPhone'
     )
     const [searchText, setSearchText] = useState<string>("")
     const [filter, setFilter] = useState<OrderSearchFilter>(null)
@@ -111,7 +111,8 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                 filter,
             ),
         placeholderData: keepPreviousData,
-        refetchOnMount: "always",
+        refetchOnMount: true,
+        refetchOnWindowFocus: true,
         staleTime: Infinity,
     });
     console.log('Fetched orders data:', data);
@@ -280,20 +281,20 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                     Clear
                 </Button>
             </div>
-            <div className="flex flex-col items-center md:flex-row md:gap-4">
+            <div className="flex items-center">
                 <Select
                     value={searchFor}
                     onValueChange={(value) => {
                         setSearchFor(value as typeof searchFor)
                     }}
                 >
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger>
                         <SelectValue placeholder="Column"/>
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="customerPhone">Customer Phone</SelectItem>
                         <SelectItem value="orderNumber">Order Number</SelectItem>
                         <SelectItem value="customerName">Customer Name</SelectItem>
-                        <SelectItem value="customerPhone">Customer Phone</SelectItem>
                     </SelectContent>
                 </Select>
                 <InputGroup className="max-w-sm m-2">
@@ -329,14 +330,6 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                         </InputGroupButton>
                     </InputGroupAddon>
                 </InputGroup>
-                <Link href="/merchant/order/create">
-                    <Button
-                        variant="default"
-                        size="sm"
-                    >
-                        Create Order
-                    </Button>
-                </Link>
             </div>
             <div className="flex items-center gap-2 overflow-x-auto">
                 <div className="text-muted-foreground">
@@ -367,7 +360,35 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                 >
                     Print
                 </Button>
-                <SetStatusDialog selectedOrderIds={Object.keys(rowSelection)} refetch={refetchOrders}/>
+                <SetStatusDialog
+                    selectedOrder={
+                        table
+                            .getSelectedRowModel()
+                            .rows.map((row) => ({
+                            orderId: row.original.id,
+                            orderNumber: row.original.orderNumber,
+                            customerName: row.original.shippingFullName,
+                            phone: row.original.shippingPhone,
+                            address: row.original.shippingAddress,
+                            amount: row.original.totalAmount,
+                            items: row.original.items.map((item) => ({
+                                id: item.id,
+                                name: item.variationName,
+                                quantity: item.quantity,
+                                image: item.variation.images[0].image,
+                            })),
+                        }))
+                    }
+                    refetch={refetchOrders}
+                />
+                <Link href="/merchant/order/create">
+                    <Button
+                        variant="default"
+                        size="sm"
+                    >
+                        Create Order
+                    </Button>
+                </Link>
             </div>
             {isRefetching && (
                 <div className="fixed inset-0 z-40 flex items-center justify-center pointer-events-none">

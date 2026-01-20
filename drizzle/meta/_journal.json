@@ -246,6 +246,27 @@
       "when": 1767547530066,
       "tag": "0034_nostalgic_thunderball",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1768856848353,
+      "tag": "0035_clear_metal_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1768858373210,
+      "tag": "0036_cultured_victor_mancha",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1768881924287,
+      "tag": "0037_bitter_anthem",
+      "breakpoints": true
     }
   ]
 }

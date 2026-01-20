@@ -23,6 +23,7 @@ import timestamps from "./columns.helpers";
 import ORDER_STATUS from "@/constant/order-status";
 import PAYMENT_STATUS from "@/constant/payment-status";
 import ACTION_SOURCES from "@/constant/action-source";
+import {courierCodeEnum} from "@/db/courier.schema";
 
 export const orderStatus = pgEnum(
     "order_status",
@@ -134,6 +135,10 @@ export const orderTable = pgTable("orders", {
     merchantNote:
         varchar("merchant_note", {length: 1000}),
 
+    // Courier
+    courierCode: courierCodeEnum("courier_code").$defaultFn(() => 'steadfast'),
+    isCourierBooked: boolean("is_courier_booked").notNull().default(false),
+    consignmentsId: varchar("consignments_id", {length: 100}),
 
     ...timestamps,
 })

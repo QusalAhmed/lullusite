@@ -4,6 +4,7 @@ import React, { useEffect, useCallback } from "react"
 import Image from "next/image"
 import { useRouter } from 'next/navigation'
 import { v4 } from 'uuid'
+import { validatePhoneNumber } from '@/lib/phone-number'
 
 // Notification
 import { toast } from "sonner"
@@ -65,7 +66,6 @@ import { AlertCircle, Clock, RefreshCcw, XIcon } from "lucide-react"
 // Type
 import { GetOrderToEditReturnType } from '@/actions/order/get-order-to-edit'
 
-
 // Zod
 import { z } from 'zod'
 
@@ -74,6 +74,7 @@ import { OrderSelectSchemaType, orderSelectSchema } from '@/lib/validations/orde
 
 // Local
 import ItemPicker from './item-picker'
+import FraudReport from '@/components/fraud-report'
 
 // Actions
 import merchantUpdateOrder from '@/actions/order/merchant-update-order'
@@ -173,6 +174,11 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
         },
     })
     console.log('error', form.formState.errors);
+
+    const phoneNumber = useWatch({
+        control: form.control,
+        name: "shippingPhone",
+    });
 
     const paymentStatus = useWatch({
         control: form.control,
@@ -288,6 +294,8 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
         }
     }
 
+
+
     return (
         <>
             {formData ? (
@@ -374,6 +382,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                                 autoComplete="off"
                                                 value={field.value ?? ""}
                                             />
+                                            {phoneNumber && validatePhoneNumber(phoneNumber).isValid && <FraudReport phoneNumber={phoneNumber}/>}
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]}/>
                                             )}

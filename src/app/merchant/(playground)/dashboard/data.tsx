@@ -61,6 +61,11 @@ const DataPage = ({data}: { data?: DashboardData }) => {
                 amount={data ? data.order.filter(row => row.shippingStatus === 'pending')[0]?.sum || 0 : undefined}
             />
             <DataBlock
+                title='Confirmed'
+                value={data ? data.order.filter(row => row.shippingStatus === 'confirmed')[0]?.count || 0 : undefined}
+                amount={data ? data.order.filter(row => row.shippingStatus === 'confirmed')[0]?.sum || 0 : undefined}
+            />
+            <DataBlock
                 title='Delivered'
                 value={data ? data.order.filter(row => row.shippingStatus === 'delivered')[0]?.count || 0 : undefined}
                 amount={data ? data.order.filter(row => row.shippingStatus === 'delivered')[0]?.sum || 0 : undefined}

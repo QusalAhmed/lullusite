@@ -95,6 +95,8 @@ export default async function getOrders(
                     merchantNote: true,
                     totalAmount: true,
                     paymentStatus: true,
+                    isCourierBooked: true,
+                    consignmentsId: true,
                     createdAt: true,
                 },
                 where: and(

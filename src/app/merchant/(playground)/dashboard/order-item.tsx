@@ -1,5 +1,5 @@
 import React from 'react';
-import Image from "next/image";
+// import Image from "next/image";
 
 // Types
 import type { DashboardData } from "@/actions/dashboard/get";
@@ -19,9 +19,9 @@ import {
 
 const OrderItem = ({data}: { data?: DashboardData }) => {
     return (
-        <ItemGroup>
+        <ItemGroup className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             {data?.orderItems.map((item) => (
-                <Item key={item.productVariationId} variant="outline" className="mb-2">
+                <Item key={item.productVariationId} variant="outline">
                     <ItemMedia>
                         {/*<Image*/}
                         {/*    src={item.thumbnailUrl}*/}
@@ -39,7 +39,7 @@ const OrderItem = ({data}: { data?: DashboardData }) => {
                             Variation: {item.variationName}
                         </ItemDescription>
                     </ItemContent>
-                    <ItemActions>
+                    <ItemActions className="font-semibold text-cyan-800 text-xl">
                         {item.totalQuantity}
                     </ItemActions>
                 </Item>

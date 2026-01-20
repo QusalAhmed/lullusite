@@ -26,12 +26,12 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Icon
-import { X, ChevronDown, FileType, Bike } from "lucide-react";
+import { X, ChevronDown, FileType, Bike, Phone } from "lucide-react";
 import { FaBangladeshiTakaSign } from "react-icons/fa6";
 
 // Local
 import TrackingDialog from './tracking-dialog';
-import FraudReport from './fraud-report';
+import FraudReport from '../../../../components/fraud-report';
 import ImageDialog from '@/components/image-hub/image-dialog'
 import Copy from '@/components/Copy';
 
@@ -135,7 +135,12 @@ const orderColumns = [
                 <div className="text-sm text-gray-500">
                     <Copy text={info.row.original.shippingAddress}/>
                 </div>
-                <div className="font-semibold"><Copy text={info.row.original.shippingPhone}/></div>
+                <div className="font-semibold flex items-center justify-between gap-2">
+                    <Copy text={info.row.original.shippingPhone}/>
+                    <Link href={`tel:${info.row.original.shippingPhone}`}>
+                        <Phone className="inline-block text-green-600 hover:scale-110 transition-transform" size={16}/>
+                    </Link>
+                </div>
                 <FraudReport phoneNumber={info.row.original.shippingPhone}/>
                 {info.row.original.customerNote && (
                     <div className="text-sm text-gray-800 bg-green-100 p-2 rounded wrap-break-word whitespace-pre-wrap">
@@ -205,15 +210,13 @@ const orderColumns = [
                             </TooltipContent>
                         </Tooltip>
                     )}
-                    {!info.row.original.merchantNote && (
-                        <Tooltip>
-                            <TooltipTrigger>
-                                <Bike/>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                Courier Booking Not Available
-                            </TooltipContent>
-                        </Tooltip>
+                    {info.row.original.isCourierBooked && (
+                        <Badge variant="outline">
+                            <Bike/>
+                            <div className="font-semibold text-orange-400">
+                                {info.row.original.consignmentsId}
+                            </div>
+                        </Badge>
                     )}
                 </div>
                 <Button variant="outline" size="sm" className="cursor-pointer">

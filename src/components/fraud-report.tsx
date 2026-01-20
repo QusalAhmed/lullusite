@@ -10,6 +10,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Progress } from "@/components/ui/progress"
+import {Spinner} from "@/components/ui/spinner";
 
 // Tanstack Query
 import { useQuery } from "@tanstack/react-query"
@@ -30,7 +31,7 @@ const FraudReport = ({phoneNumber}: { phoneNumber: string }) => {
     console.log(data);
 
     if (isLoading) {
-        return <div>Loading fraud report...</div>;
+        return <div className={'text-gray-600 flex items-center gap-2'}><Spinner/>Loading fraud report...</div>;
     }
 
     if (isError) {
@@ -45,7 +46,7 @@ const FraudReport = ({phoneNumber}: { phoneNumber: string }) => {
                     <Badge variant={data.data.riskColor === 'success' ? 'secondary' : 'destructive'} className="ml-2">
                         {data.data.totalDelivered} / {data.data.totalOrders}
                     </Badge>
-                    <span className="ml-4 font-medium text-sm text-gray-700">
+                    <span className="ml-4 font-semibold text-sm text-gray-700">
                         {data.data.deliveryRate} %
                     </span>
                 </div>

@@ -19,8 +19,8 @@ const CopyUI = ({text}: { text: string }) => {
     }
 
     return (
-        <div className="flex items-center">
-            {text}
+        <div className="flex items-center gap-1">
+            <div>{text}</div>
             {
                 copied ?
                     <motion.div initial={{opacity: 0, scale: 0.2}} animate={{opacity: 1, scale: 1}} transition={{duration: 0.2}}>
