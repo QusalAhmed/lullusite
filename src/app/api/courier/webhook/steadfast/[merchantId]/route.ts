@@ -1,7 +1,10 @@
 import { NextResponse, NextRequest } from 'next/server';
 
-export async function POST(request: NextRequest, { params }: { params: { merchantId: string } }) {
-    const { merchantId } = params;
+export async function POST(
+    request: NextRequest,
+    {params}: { params: { merchantId: string } }
+) {
+    const {merchantId} = params
     const requestBody = await request.json();
     console.log(`Received webhook for merchant ID: ${merchantId}`);
     console.log('Request body:', requestBody);
@@ -11,8 +14,8 @@ export async function POST(request: NextRequest, { params }: { params: { merchan
         console.log('Raw request body:', text)
         // Process the webhook payload
     } catch (error) {
-        return NextResponse.json({ status: 'error', message: error }, { status: 500 });
+        return NextResponse.json({status: 'error', message: error}, {status: 500});
     }
 
-    return NextResponse.json({ status: 'success', message: 'Webhook received successfully.' });
+    return NextResponse.json({status: 'success', message: 'Webhook received successfully.'});
 }
