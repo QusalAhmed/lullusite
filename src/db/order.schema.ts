@@ -14,7 +14,7 @@ import {
 import { relations, sql } from "drizzle-orm";
 
 // Schemas
-import { user, productVariationTable, customerTable } from "./index.schema";
+import { user, productVariationTable, customerTable, orderTrackingTable } from "./index.schema";
 
 // Helper
 import timestamps from "./columns.helpers";
@@ -179,6 +179,7 @@ export const orderRelations = relations(orderTable, ({one, many}) => ({
         references: [user.id],
     }),
     items: many(orderItemTable),
+    tracking: many(orderTrackingTable),
 }));
 
 export const orderItemRelations = relations(orderItemTable, ({one}) => ({

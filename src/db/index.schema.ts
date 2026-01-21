@@ -9,3 +9,4 @@ export * from "./customer.schema";
 export * from "./business-information.schema";
 export * from "./analytics.schema";
 export * from "./courier.schema";
+export * from "./order-tracking.schema";

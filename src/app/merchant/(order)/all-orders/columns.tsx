@@ -64,16 +64,23 @@ const orderColumns = [
         header: 'Product',
         cell: (info) => {
             const items = info.row.original.items;
-            if (items.length === 0) {
-                return <div>No items</div>;
-            }
 
             return (
                 <div className="flex flex-col">
                     <div className="flex justify-between items-center mb-4">
-                        <div>
-                            Order Number:{' '}
-                            <span className='font-semibold'>{info.row.original.orderNumber}</span>
+                        <div className="flex flex-col gap-1">
+                            <div>
+                                Order Number:{' '}
+                                <span className='font-semibold'>{info.row.original.orderNumber}</span>
+                            </div>
+                            {info.row.original.isCourierBooked && (
+                                <Badge variant="outline">
+                                    <Bike/>
+                                    <div className="font-semibold text-orange-400">
+                                        {info.row.original.consignmentsId}
+                                    </div>
+                                </Badge>
+                            )}
                         </div>
                         <Badge variant="default">{info.row.original.paymentStatus}</Badge>
                     </div>
@@ -209,14 +216,6 @@ const orderColumns = [
                                 {info.row.original.merchantNote}
                             </TooltipContent>
                         </Tooltip>
-                    )}
-                    {info.row.original.isCourierBooked && (
-                        <Badge variant="outline">
-                            <Bike/>
-                            <div className="font-semibold text-orange-400">
-                                {info.row.original.consignmentsId}
-                            </div>
-                        </Badge>
                     )}
                 </div>
                 <Button variant="outline" size="sm" className="cursor-pointer">

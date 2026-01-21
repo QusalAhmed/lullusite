@@ -267,6 +267,13 @@
       "when": 1768881924287,
       "tag": "0037_bitter_anthem",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1768981804608,
+      "tag": "0038_unknown_maelstrom",
+      "breakpoints": true
     }
   ]
 }

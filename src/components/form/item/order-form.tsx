@@ -902,7 +902,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                                                             aria-invalid={fieldState.invalid}
                                                                             type="number"
                                                                             min={0}
-                                                                            step={1}
+                                                                            step={0.5}
                                                                         />
                                                                     </InputGroup>
                                                                     {fieldState.invalid && (

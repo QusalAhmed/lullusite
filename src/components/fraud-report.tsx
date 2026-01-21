@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {memo} from 'react';
 import axios from 'axios';
 
 // ShadCN
@@ -86,4 +86,4 @@ const FraudReport = ({phoneNumber}: { phoneNumber: string }) => {
     );
 };
 
-export default FraudReport;
+export default memo(FraudReport);

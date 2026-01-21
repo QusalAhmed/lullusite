@@ -27,6 +27,7 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
         .findMany({
             columns: {
                 id: true,
+                orderNumber: true,
                 shippingFullName: true,
                 shippingPhone: true,
                 shippingAddress: true,
@@ -38,6 +39,7 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
                     columns: {
                         variationName: true,
                         quantity: true,
+                        weight: true,
                     },
                 }
             },
@@ -66,6 +68,7 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
             const parcelData = orderSteadfast
                 .map(o => {
                     const details = orderDetails.find(od => od.id === o.orderId)
+                    const totalWeight = details?.items.reduce((sum, item) => sum + (item.weight || 0) * item.quantity, 0) || 0
                     if (details == null) return null
                     return {
                         invoice: details.id,
@@ -73,7 +76,7 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
                         recipient_address: details.shippingAddress || 'N/A',
                         recipient_phone: details.shippingPhone || '',
                         cod_amount: details.amountDue,
-                        note: details.shippingNotes || '',
+                        note: `Weight: ${totalWeight} kg` + details.shippingNotes && ` | Notes: ${details.shippingNotes}`,
                         item_description: details.items.map(i => `${i.variationName} (x${i.quantity})`).join(', '),
                     }
                 })
@@ -107,14 +110,14 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
                 }[] = response.data.data || []
 
                 const errorParcels = createdParcels.filter(p => p.status !== 'success')
-                const successParcels = createdParcels.filter(p => p.status === 'success')
+                const successfulParcels = createdParcels.filter(p => p.status === 'success')
 
                 // Save successful parcels to steadfast_parcel table
-                if (successParcels.length > 0) {
+                if (successfulParcels.length > 0) {
                     await db
                         .insert(steadfastParcelTable)
                         .values(
-                            successParcels.map(p => ({
+                            successfulParcels.map(p => ({
                                 orderId: p.invoice,
                                 consignmentId: p.consignment_id,
                                 trackingCode: p.tracking_code,
@@ -123,7 +126,7 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
 
                     // Update orders as courier booked
                     const caseSql = sql.join(
-                        successParcels.map(parcel =>
+                        successfulParcels.map(parcel =>
                             sql`when ${orderTable.id} = ${parcel.invoice} then ${parcel.consignment_id}`
                         ),
                         sql` `,
@@ -136,7 +139,7 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
                              consignmentsId: finalSql,
                          })
                          .where(and(
-                             inArray(orderTable.id, successParcels.map(p => p.invoice)),
+                             inArray(orderTable.id, successfulParcels.map(p => p.invoice)),
                              eq(orderTable.merchantId, merchant.user.id),
                          ))
                 }
