@@ -46,6 +46,7 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
             where: and(
                 inArray(orderTable.id, order.map(o => o.orderId)),
                 eq(orderTable.merchantId, merchant.user.id),
+                eq(orderTable.isCourierBooked, false)
             ),
         })
 
