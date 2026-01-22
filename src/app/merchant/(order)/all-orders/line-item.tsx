@@ -82,8 +82,8 @@ const LineItem = ({selectedOrder}: { selectedOrder: Record<string, GetOrdersType
             <SheetContent>
                 <SheetHeader>
                     <SheetTitle>Individual total</SheetTitle>
-                    <OrderItem data={itemCount}/>
                 </SheetHeader>
+                <OrderItem data={itemCount}/>
             </SheetContent>
         </Sheet>
     );

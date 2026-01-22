@@ -74,7 +74,7 @@ export default async function createOrder(orderData: OrderData, actionSource?: A
     // Create order
     const requestSource = await getRequestSource();
     console.log('Request Source:', requestSource);
-    const deliveryCharge = 100;
+    const deliveryCharge = 50;
 
 
     const [createdOrder] = await db

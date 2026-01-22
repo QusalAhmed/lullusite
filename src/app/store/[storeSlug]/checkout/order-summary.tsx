@@ -21,7 +21,7 @@ const OrderSummary = () => {
     const cartItems = useSelector(
         (state: RootState) => state.cart.carts
     );
-    const deliveryCharge = 100;
+    const deliveryCharge = 50;
 
     // Simple currency/number formatter
     const formatMoney = React.useCallback((n: number) => {
