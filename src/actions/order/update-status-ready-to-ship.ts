@@ -88,6 +88,7 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
                 recipient_phone: string
                 cod_amount: number
                 note: string
+                item_description: string
             }>
             try {
                 const response = await axios.post(`${baseUrl}/create_order/bulk-order`, {

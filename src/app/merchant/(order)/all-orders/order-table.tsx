@@ -36,11 +36,12 @@ import { Search } from "lucide-react"
 import { keepPreviousData, useQuery, } from '@tanstack/react-query'
 
 // Actions
-import getOrders, { OrdersResponse, type OrderSearchFilter } from '@/actions/order/get-orders';
+import getOrders, { OrdersResponse, type OrderSearchFilter, type GetOrdersType } from '@/actions/order/get-orders';
 
 // Local
 import orderColumns from './columns'
 import SetStatusDialog from './set-status-dialog';
+import LineItem from './line-item';
 
 // Status
 import { OrderStatusType } from '@/db/order.schema'
@@ -146,6 +147,9 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
         debugTable: true,
     })
 
+    // Store selected row data with IDs
+    const [selectedRowsData, setSelectedRowsData] = useState<Record<string, GetOrdersType>>({})
+
     useEffect(() => {
         // Reset to first page when filters change
         setPagination((old) => ({
@@ -156,6 +160,28 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
         // Clear row selection on filter change
         table.resetRowSelection()
     }, [dateRange, filter, status, table])
+
+    // Update selectedRowsData whenever rowSelection changes
+    useEffect(() => {
+        setSelectedRowsData((prevState) => {
+            const newSelectedRowsData: Record<string, GetOrdersType> = {}
+            Object.keys(rowSelection).forEach((rowId) => {
+                let row: GetOrdersType | undefined
+
+                try {
+                    row = table.getRow(rowId)?.original
+                } catch (error) {
+                    console.log('Error getting row from table:', error)
+                    row = prevState[rowId]
+                }
+
+                if (row) {
+                    newSelectedRowsData[rowId] = row
+                }
+            })
+            return newSelectedRowsData
+        })
+    }, [rowSelection, table])
 
     const currentPage = pagination.pageIndex + 1
     const totalPages = table.getPageCount() || 1
@@ -389,6 +415,7 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                         Create Order
                     </Button>
                 </Link>
+                <LineItem selectedOrder={selectedRowsData}/>
             </div>
             {isRefetching && (
                 <div className="fixed inset-0 z-40 flex items-center justify-center pointer-events-none">
@@ -539,7 +566,7 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
             </div>
 
             {/*<pre>{JSON.stringify(pagination, null, 2)}</pre>*/}
-            {/*<pre>{JSON.stringify(rowSelection, null, 2)}</pre>*/}
+            {/*<pre>{JSON.stringify(selectedRowsData, null, 2)}</pre>*/}
         </div>
     )
 }

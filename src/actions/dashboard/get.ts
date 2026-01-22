@@ -2,7 +2,7 @@
 
 // db
 import db from '@/lib/drizzle-agent'
-import { eq, and, gte, lte, count, sum, sql } from 'drizzle-orm'
+import { eq, and, gte, lte, count, sum, sql, inArray } from 'drizzle-orm'
 import { orderTable, orderItemTable, productTable, customerTable } from '@/db/index.schema'
 
 // Auth
@@ -62,7 +62,7 @@ export default async function getDashboard(range: { from?: string; to?: string }
         .where(
             and(
                 eq(orderTable.merchantId, session.user.id),
-                eq(orderTable.status, "confirmed"),
+                inArray(orderTable.status, ['ready_to_ship', "confirmed", 'pending']),
                 range?.from
                     ? gte(orderTable.createdAt, new Date(range.from))
                     : undefined,
