@@ -53,7 +53,7 @@ export default function DashboardPage() {
     return (
         <section>
             <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center mb-8">
-                <h1 className="scroll-m-20 text-4xl font-semibold tracking-tight text-balance flex items-center">
+                <h1 className="scroll-m-20 text-lg md:text-4xl font-semibold tracking-tight text-balance flex items-center">
                     {sessionError && <span className="text-red-600">Error loading session</span>}
                     Hi,{' '}
                     {isSessionPending ? (

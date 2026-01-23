@@ -46,7 +46,7 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
             where: and(
                 inArray(orderTable.id, order.map(o => o.orderId)),
                 eq(orderTable.merchantId, merchant.user.id),
-                eq(orderTable.isCourierBooked, false)
+                // eq(orderTable.isCourierBooked, false)
             ),
         })
 
@@ -75,9 +75,9 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
                         invoice: details.id,
                         recipient_name: details.shippingFullName || 'N/A',
                         recipient_address: details.shippingAddress || 'N/A',
-                        recipient_phone: details.shippingPhone || '',
+                        recipient_phone: details.shippingPhone.replace('+880', '0'),
                         cod_amount: details.amountDue,
-                        note: `Weight: ${totalWeight} kg` + details.shippingNotes && ` | Notes: ${details.shippingNotes}`,
+                        note: `Weight: ${totalWeight} kg` + (details.shippingNotes ? ` | Notes: ${details.shippingNotes}` : ''),
                         item_description: details.items.map(i => `${i.variationName} (x${i.quantity})`).join(', '),
                     }
                 })
@@ -91,6 +91,10 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
                 item_description: string
             }>
             try {
+                if (parcelData.length === 0) {
+                    return {success: true, message: 'No valid orders found for Steadfast booking'}
+                }
+                console.log('Steadfast create order payload:', parcelData)
                 const response = await axios.post(`${baseUrl}/create_order/bulk-order`, {
                     data: JSON.stringify(parcelData),
                 }, {

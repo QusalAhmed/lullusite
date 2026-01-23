@@ -241,7 +241,7 @@ export async function initializeWorker() {
                     .setNumItems(orderDetails.items.length);
                 serverEvent_0 = (new ServerEvent())
                     .setEventId(orderDetails.id)
-                    .setEventName("Purchase")
+                    .setEventName('Purchase')
                     .setOptOut(false)
                     .setActionSource(orderDetails.actionSource)
                     .setEventTime(Math.trunc(orderDetails.createdAt.getTime() / 1000))

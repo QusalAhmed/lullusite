@@ -26,7 +26,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Icon
-import { X, ChevronDown, FileType, Bike, Phone } from "lucide-react";
+import { X, ChevronDown, FileType, Phone } from "lucide-react";
 import { FaBangladeshiTakaSign } from "react-icons/fa6";
 
 // Local
@@ -34,6 +34,7 @@ import TrackingDialog from './tracking-dialog';
 import FraudReport from '../../../../components/fraud-report';
 import ImageDialog from '@/components/image-hub/image-dialog'
 import Copy from '@/components/Copy';
+import CourierMarkingDialog from './courier-marking-dialog';
 
 
 const columnHelper = createColumnHelper<GetOrdersType>();
@@ -73,13 +74,8 @@ const orderColumns = [
                                 Order Number:{' '}
                                 <span className='font-semibold'>{info.row.original.orderNumber}</span>
                             </div>
-                            {info.row.original.isCourierBooked && (
-                                <Badge variant="outline">
-                                    <Bike/>
-                                    <div className="font-semibold text-orange-400">
-                                        {info.row.original.consignmentsId}
-                                    </div>
-                                </Badge>
+                            {info.row.original.isCourierBooked && info.row.original.consignmentsId && (
+                                <CourierMarkingDialog parcelId={info.row.original.consignmentsId} orderNumber={info.row.original.orderNumber} />
                             )}
                         </div>
                         <Badge variant="default">{info.row.original.paymentStatus}</Badge>
