@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from 'next/server';
 // db
 import db from '@/lib/drizzle-agent';
 import { eq, and } from 'drizzle-orm';
-import { orderTable, orderTrackingTable } from '@/db/index.schema';
+import { orderTable, orderTrackingTable, webhookTable } from '@/db/index.schema';
 
 // Constants
 import ORDER_STATUS from '@/constant/order-status';
@@ -63,6 +63,15 @@ export async function POST(
 ) {
     const {merchantId} = await params
     const requestBody: DeliveryStatus | TrackingUpdate = await request.json();
+
+    // Save to db
+    await db
+        .insert(webhookTable)
+        .values({
+            type: 'Steadfast webhook',
+            merchantId: merchantId,
+            payload: requestBody,
+        });
 
     let orderId: string | undefined = requestBody.invoice;
     if (!orderId) {

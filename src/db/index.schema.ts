@@ -10,3 +10,4 @@ export * from "./business-information.schema";
 export * from "./analytics.schema";
 export * from "./courier.schema";
 export * from "./order-tracking.schema";
+export * from "./webhook.schema";

@@ -24,7 +24,7 @@ function DataBlock({title, value, amount}: { title: string; value?: number, amou
                 <CardTitle><h1 className={'text-md text-gray-500'}>{title}</h1></CardTitle>
                 {/*<CardDescription>Card Description</CardDescription>*/}
             </CardHeader>
-            <CardContent className='flex justify-around items-baseline'>
+            <CardContent className='flex flex-col md:flex-row justify-around items-baseline'>
                 {value === undefined ? (
                     <Spinner className='size-8 text-gray-400'/>
                 ) : (
