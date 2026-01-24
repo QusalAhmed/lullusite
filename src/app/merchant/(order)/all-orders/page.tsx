@@ -1,21 +1,21 @@
 'use client';
 
-import React, {useEffectEvent, useEffect} from 'react';
-import {useRouter, useSearchParams} from "next/navigation";
+import React, { useEffectEvent, useEffect } from 'react';
+import { useSearchParams } from "next/navigation";
 
 // Local
 import OrderTable from './order-table';
 
 // ShadCN
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Constant
 import ORDER_STATUS from '@/constant/order-status';
 
 const Page = () => {
-    const tabs = [{ value: "all-orders", label: "All Orders" }, ...ORDER_STATUS];
-    const router = useRouter();
+    const tabs = [{value: "all-orders", label: "All Orders"}, ...ORDER_STATUS];
     const searchParams = useSearchParams();
     const status = searchParams.get('status') || 'all-orders'
     const [activeTab, setActiveTab] = React.useState(status);
@@ -29,26 +29,28 @@ const Page = () => {
 
     return (
         <>
-            <ScrollArea className="mb-2">
-                <div className="flex gap-2 mb-2 pb-2">
-                    {tabs.map((tab) => (
-                        <Button
-                            key={tab.value}
-                            variant="outline"
-                            size="sm"
-                            className={activeTab === tab.value ? 'bg-secondary' : ''}
-                            onClick={() => {
-                                router.push(`/merchant/all-orders${tab.value === 'all-orders' ? '' : `?status=${tab.value}`}`)
-                                setActiveTab(tab.value)
-                            }}
-                        >
-                            {tab.label}
-                        </Button>
-                    ))}
-                </div>
-                <ScrollBar orientation="horizontal"/>
-            </ScrollArea>
-            <OrderTable status={activeTab === 'all-orders' ? undefined : activeTab}/>
+            <Tabs defaultValue={activeTab} onValueChange={(value) => {
+                window.history.pushState(null, '', `/merchant/all-orders?status=${value}`);
+                setActiveTab(value);
+            }}>
+                <ScrollArea className="h-12">
+                    <TabsList>
+                        {tabs.map((tab) => (
+                            <TabsTrigger
+                                key={tab.value}
+                                value={tab.value}
+                                className="cursor-pointer whitespace-nowrap"
+                            >
+                                {tab.label}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                    <ScrollBar orientation="horizontal"/>
+                </ScrollArea>
+                <TabsContent value={activeTab}>
+                    <OrderTable status={activeTab === 'all-orders' ? undefined : activeTab}/>
+                </TabsContent>
+            </Tabs>
         </>
     )
 };

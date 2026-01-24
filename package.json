@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/genai": "^1.38.0",
     "@grapesjs/studio-sdk": "^1.0.57",
     "@hookform/resolvers": "^5.2.2",
     "@imagekit/next": "^2.1.3",

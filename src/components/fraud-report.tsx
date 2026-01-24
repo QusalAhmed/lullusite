@@ -38,6 +38,10 @@ const FraudReport = ({phoneNumber}: { phoneNumber: string }) => {
         return null;
     }
 
+    if (!data || !data.data) {
+        return <div className={'text-gray-600'}>No fraud data available.</div>;
+    }
+
     return (
         <>
             <div className="flex flex-col gap-1">
@@ -63,8 +67,8 @@ const FraudReport = ({phoneNumber}: { phoneNumber: string }) => {
                                 cancelled: number;
                                 delivery_rate: string;
                                 name: string;
-                            }) => (
-                                <div key={courier.name} className="mb-2">
+                            }, index: number) => (
+                                <div key={index} className="mb-2">
                                     {courier.orders > 0 && (
                                         <>
                                             <h4 className="font-semibold">{courier.name}</h4>
