@@ -42,9 +42,6 @@ export default async function createOrder(orderData: OrderData, actionSource?: A
     const merchant = await getMerchant()
 
     // Create customer if not exists
-    if (!merchant.merchantId) {
-        throw new Error('Merchant ID not found')
-    }
     let customerId: string;
     const [customer] = await db
         .select()
@@ -85,16 +82,11 @@ export default async function createOrder(orderData: OrderData, actionSource?: A
                 customerId,
                 merchantId: merchant.merchantId,
 
-                // Customer
-                customerName: orderData.name,
-                customerPhone: phoneValidation.normalized || orderData.phoneNumber,
-                customerNote: orderData.remark || '',
-
                 // Shipping details
                 shippingAddress: orderData.address,
                 shippingFullName: orderData.name,
                 shippingPhone: phoneValidation.normalized || orderData.phoneNumber,
-                shippingPostalCode: '',
+                shippingPostalCode: '', // TODO: postal code field
                 shippingCountry: 'Bangladesh',
                 shippingCity: orderData.division,
                 shippingDivision: orderData.division,
@@ -153,11 +145,13 @@ export default async function createOrder(orderData: OrderData, actionSource?: A
         }, 0);
 
         // Update order with subtotal amount
+        const totalAmount = subtotalAmount + deliveryCharge;
         await db
             .update(orderTable)
             .set({
                 subtotalAmount: subtotalAmount,
-                totalAmount: subtotalAmount, // Assuming no additional fees for simplicity
+                totalAmount: totalAmount,
+                amountDue: totalAmount,
             })
             .where(eq(orderTable.id, createdOrder.id));
 

@@ -19,7 +19,7 @@ const FraudReport = ({phoneNumber}: { phoneNumber: string }) => {
     const {data, isLoading, isError} = useQuery({
         queryKey: ['fraudReport', phoneNumber],
         queryFn: async () => {
-            const response = await axios.get('https://fraudchecker.link/free-fraud-checker-bd/api/search.php', {
+            const response = await axios.get('https://fraud-checker-proxy.qusalcse.workers.dev/', {
                 params: {phone: phoneNumber}
             });
             return response.data;
