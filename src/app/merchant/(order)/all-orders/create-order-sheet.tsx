@@ -1,7 +1,7 @@
 import React from 'react';
 
 // ShadCN
-import {Button} from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import {
     Sheet,
     SheetContent,
@@ -17,10 +17,10 @@ import {
     DrawerTitle,
     DrawerTrigger,
 } from "@/components/ui/drawer"
-import {Spinner} from "@/components/ui/spinner"
+import { Spinner } from "@/components/ui/spinner"
 
 // Hook
-import {useIsMobile} from '@/hooks/use-mobile'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 // Action
 import getOrderToEdit from '@/actions/order/get-order-to-edit'
@@ -29,9 +29,9 @@ import getOrderToEdit from '@/actions/order/get-order-to-edit'
 import OrderForm from "@/components/form/item/order-form"
 
 // Tanstack Query
-import {useQuery} from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
-const CreateOrderSheet = ({orderId}: {orderId: string}) => {
+const CreateOrderSheet = ({orderId}: { orderId: string }) => {
     const {data: order, isLoading, isError} = useQuery({
         queryKey: ['order', orderId],
         queryFn: () => getOrderToEdit(orderId),
@@ -42,14 +42,18 @@ const CreateOrderSheet = ({orderId}: {orderId: string}) => {
     function printOrder() {
         return (
             <div className="no-scrollbar overflow-y-auto p-4">
-                {isLoading && <p><Spinner size={18}/> Loading...</p>}
+                {isLoading &&
+                    <p className={'flex items-center gap-2 justify-center mb-4 text-lg font-medium'}>
+                        <Spinner className={'size-8'}/> Loading...
+                    </p>
+                }
                 {isError && <p>Error loading order.</p>}
-                {order && <OrderForm formData={order} />}
+                {order && <OrderForm formData={order}/>}
             </div>
         )
     }
 
-    if(isMobile) {
+    if (isMobile) {
         return (
             <Drawer direction="bottom">
                 <DrawerTrigger asChild>
