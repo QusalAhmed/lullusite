@@ -307,7 +307,7 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                     Clear
                 </Button>
             </div>
-            <div className="flex items-center flex-col md:flex-row">
+            <div className="flex items-center flex-col md:flex-row w-full md:w-auto">
                 <Select
                     value={searchFor}
                     onValueChange={(value) => {

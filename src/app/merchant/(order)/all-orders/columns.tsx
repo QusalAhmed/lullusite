@@ -19,11 +19,18 @@ import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuItem,
+    DropdownMenuPortal,
+    DropdownMenuShortcut,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { toast } from "sonner"
 
 // Icon
 import { X, ChevronDown, FileType, Phone } from "lucide-react";
@@ -37,8 +44,24 @@ import Copy from '@/components/Copy';
 import CourierMarkingDialog from './courier-marking-dialog';
 import CreateOrderSheet from './create-order-sheet';
 
+// Actions
+import updateOrderStatus from "@/actions/order/update-status";
 
 const columnHelper = createColumnHelper<GetOrdersType>();
+
+function handleStatusUpdate(orderId: string, newStatus: string) {
+    updateOrderStatus([orderId], newStatus)
+        .then((res) => {
+            if (res.success) {
+                toast.success('Order status updated successfully');
+            } else {
+                toast.error(res.error || 'Failed to update order status');
+            }
+        })
+        .catch(() => {
+            toast.error('Failed to update order status');
+        });
+}
 
 const orderColumns = [
     columnHelper.display({
@@ -76,7 +99,8 @@ const orderColumns = [
                                 <span className='font-semibold'>{info.row.original.orderNumber}</span>
                             </div>
                             {info.row.original.isCourierBooked && info.row.original.consignmentsId && (
-                                <CourierMarkingDialog parcelId={info.row.original.consignmentsId} orderNumber={info.row.original.orderNumber} />
+                                <CourierMarkingDialog parcelId={info.row.original.consignmentsId}
+                                                      orderNumber={info.row.original.orderNumber}/>
                             )}
                         </div>
                         <Badge variant="default">{info.row.original.paymentStatus}</Badge>
@@ -215,7 +239,7 @@ const orderColumns = [
                         </Tooltip>
                     )}
                 </div>
-                <CreateOrderSheet orderId={info.row.original.id} />
+                <CreateOrderSheet orderId={info.row.original.id}/>
                 <TrackingDialog orderId={info.row.original.id}/>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -225,8 +249,27 @@ const orderColumns = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                        <DropdownMenuItem>Add Note</DropdownMenuItem>
-                        <DropdownMenuItem>Print Invoice</DropdownMenuItem>
+                        <DropdownMenuGroup>
+                            <DropdownMenuSub>
+                                <DropdownMenuSubTrigger>Update Status</DropdownMenuSubTrigger>
+                                <DropdownMenuPortal>
+                                    <DropdownMenuSubContent>
+                                        <DropdownMenuItem onSelect={() => handleStatusUpdate(info.row.original.id, 'pending')}>
+                                            Confirmed
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onSelect={() => handleStatusUpdate(info.row.original.id, 'shipped')}>
+                                            Ready To Ship
+                                        </DropdownMenuItem>
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuPortal>
+                            </DropdownMenuSub>
+                            <DropdownMenuItem>Add Note</DropdownMenuItem>
+                            <DropdownMenuItem>Print Invoice</DropdownMenuItem>
+                            <DropdownMenuItem>
+                                New Team
+                                <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
