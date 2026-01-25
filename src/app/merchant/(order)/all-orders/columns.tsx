@@ -254,10 +254,10 @@ const orderColumns = [
                                 <DropdownMenuSubTrigger>Update Status</DropdownMenuSubTrigger>
                                 <DropdownMenuPortal>
                                     <DropdownMenuSubContent>
-                                        <DropdownMenuItem onSelect={() => handleStatusUpdate(info.row.original.id, 'pending')}>
+                                        <DropdownMenuItem onSelect={() => handleStatusUpdate(info.row.original.id, 'confirmed')}>
                                             Confirmed
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onSelect={() => handleStatusUpdate(info.row.original.id, 'shipped')}>
+                                        <DropdownMenuItem onSelect={() => handleStatusUpdate(info.row.original.id, 'ready_to_ship')}>
                                             Ready To Ship
                                         </DropdownMenuItem>
                                     </DropdownMenuSubContent>
