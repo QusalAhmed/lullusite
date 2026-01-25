@@ -77,7 +77,9 @@ const LineItem = ({selectedOrder}: { selectedOrder: Record<string, GetOrdersType
     return (
         <Sheet>
             <SheetTrigger asChild>
-                <Button variant="secondary">Line Item</Button>
+                <Button variant="secondary" size={'sm'} disabled={Object.keys(itemCount).length === 0}>
+                    Line Item
+                </Button>
             </SheetTrigger>
             <SheetContent>
                 <SheetHeader>

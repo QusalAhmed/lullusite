@@ -83,8 +83,8 @@ const CreateOrderSheet = ({orderId}: { orderId: string }) => {
                 <SheetHeader hidden>
                     <SheetTitle>View Order</SheetTitle>
                 </SheetHeader>
+                {printOrder()}
             </SheetContent>
-            {printOrder()}
         </Sheet>
     );
 };
