@@ -1,3 +1,5 @@
+'use server'
+
 // db
 import db from '@/lib/drizzle-agent'
 import { eq, and } from 'drizzle-orm'

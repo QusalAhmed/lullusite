@@ -473,14 +473,16 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                             <FieldLabel htmlFor="form-shipping-postal-code">
                                                 Postal Code
                                             </FieldLabel>
-                                            <Input
-                                                {...field}
-                                                id="form-shipping-postal-code"
-                                                type="number"
-                                                aria-invalid={fieldState.invalid}
-                                                autoComplete="on"
-                                                value={field.value ?? ""}
-                                            />
+                                            <InputGroup>
+                                                <Input
+                                                    {...field}
+                                                    id="form-shipping-postal-code"
+                                                    type="number"
+                                                    aria-invalid={fieldState.invalid}
+                                                    autoComplete="on"
+                                                    value={field.value ?? ""}
+                                                />
+                                            </InputGroup>
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]}/>
                                             )}

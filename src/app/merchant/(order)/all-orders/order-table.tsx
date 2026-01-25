@@ -30,7 +30,7 @@ import {
 import { type DateRange } from "react-day-picker"
 
 // Icons
-import { Search } from "lucide-react"
+import { Search, X } from "lucide-react"
 
 // Tanstack Query
 import { keepPreviousData, useQuery, } from '@tanstack/react-query'
@@ -307,7 +307,7 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                     Clear
                 </Button>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center flex-col md:flex-row">
                 <Select
                     value={searchFor}
                     onValueChange={(value) => {
@@ -323,7 +323,7 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                         <SelectItem value="customerName">Customer Name</SelectItem>
                     </SelectContent>
                 </Select>
-                <InputGroup className="max-w-sm m-2">
+                <InputGroup className="max-w-sm w-[90%] m-2">
                     <InputGroupInput
                         placeholder="Search..."
                         value={searchText}
@@ -340,6 +340,17 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                     />
                     <InputGroupAddon>
                         <Search/>
+                    </InputGroupAddon>
+                    <InputGroupAddon align="inline-end">
+                        <InputGroupButton
+                            variant="ghost"
+                            onClick={() => {
+                                setSearchText("")
+                                setFilter(null)
+                            }}
+                        >
+                            <X color={'red'}/>
+                        </InputGroupButton>
                     </InputGroupAddon>
                     <InputGroupAddon align="inline-end">
                         <InputGroupButton

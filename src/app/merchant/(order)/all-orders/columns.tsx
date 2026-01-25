@@ -35,6 +35,7 @@ import FraudReport from '../../../../components/fraud-report';
 import ImageDialog from '@/components/image-hub/image-dialog'
 import Copy from '@/components/Copy';
 import CourierMarkingDialog from './courier-marking-dialog';
+import CreateOrderSheet from './create-order-sheet';
 
 
 const columnHelper = createColumnHelper<GetOrdersType>();
@@ -214,9 +215,7 @@ const orderColumns = [
                         </Tooltip>
                     )}
                 </div>
-                <Button variant="outline" size="sm" className="cursor-pointer">
-                    <Link href={`/merchant/order/${info.row.original.id}/edit`}>View Details</Link>
-                </Button>
+                <CreateOrderSheet orderId={info.row.original.id} />
                 <TrackingDialog orderId={info.row.original.id}/>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>

@@ -26,6 +26,7 @@ export default async function getOrders(
     filter?: OrderSearchFilter,
 ) {
     const session = await getSession()
+    status = status === 'all-orders' ? undefined : status
 
     const searchCondition = filter?.searchText.trim()
         ? (() => {
