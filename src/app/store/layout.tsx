@@ -3,6 +3,7 @@ import localFont from 'next/font/local'
 
 // Analytics
 import FacebookPixel from '@/components/analytics/facebook-pixel';
+import ClaritySetup from '@/components/analytics/clarity-setup';
 
 // Fonts
 const AdorNoirrit = localFont({
@@ -15,6 +16,7 @@ const StoreLayout = ({children}: { children: React.ReactNode }) => {
         <div className={AdorNoirrit.className}>
             <Suspense fallback={<div>Loading Analytics...</div>}>
                 <FacebookPixel pixelId={'1234708877758735'}/>
+                <ClaritySetup projectId={'t2ddqcy0gs'}/>
             </Suspense>
             {children}
         </div>

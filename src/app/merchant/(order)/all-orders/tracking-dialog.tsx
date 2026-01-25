@@ -41,7 +41,7 @@ const TrackingDialog = ({orderId}: { orderId: string }) => {
                         View the tracking history for this order.
                     </SheetDescription>
                 </SheetHeader>
-                <div className="mt-4">
+                <div className="mt-4 overflow-y-auto max-h-96">
                     {isLoading && <p>Loading tracking information...</p>}
                     {error && <p className="text-red-500">Error loading tracking information.</p>}
                     {data && data.length === 0 && <p className={'text-gray-600 text-center'}>No tracking information available.</p>}
