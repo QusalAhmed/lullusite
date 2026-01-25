@@ -17,6 +17,7 @@ import {
     DrawerTitle,
     DrawerTrigger,
 } from "@/components/ui/drawer"
+import {Spinner} from "@/components/ui/spinner"
 
 // Hook
 import {useIsMobile} from '@/hooks/use-mobile'
@@ -31,12 +32,22 @@ import OrderForm from "@/components/form/item/order-form"
 import {useQuery} from "@tanstack/react-query"
 
 const CreateOrderSheet = ({orderId}: {orderId: string}) => {
-    const {data: order} = useQuery({
+    const {data: order, isLoading, isError} = useQuery({
         queryKey: ['order', orderId],
         queryFn: () => getOrderToEdit(orderId),
         enabled: !!orderId,
     });
     const isMobile = useIsMobile();
+
+    function printOrder() {
+        return (
+            <div className="no-scrollbar overflow-y-auto p-4">
+                {isLoading && <p><Spinner size={18}/> Loading...</p>}
+                {isError && <p>Error loading order.</p>}
+                {order && <OrderForm formData={order} />}
+            </div>
+        )
+    }
 
     if(isMobile) {
         return (
@@ -51,9 +62,7 @@ const CreateOrderSheet = ({orderId}: {orderId: string}) => {
                         <DrawerTitle>View Order</DrawerTitle>
                         <DrawerDescription>View and edit order</DrawerDescription>
                     </DrawerHeader>
-                    <div className="no-scrollbar overflow-y-auto px-4">
-                        <OrderForm formData={order} />
-                    </div>
+                    {printOrder()}
                 </DrawerContent>
             </Drawer>
         );
@@ -70,8 +79,8 @@ const CreateOrderSheet = ({orderId}: {orderId: string}) => {
                 <SheetHeader hidden>
                     <SheetTitle>View Order</SheetTitle>
                 </SheetHeader>
-                <OrderForm formData={order} />
             </SheetContent>
+            {printOrder()}
         </Sheet>
     );
 };
