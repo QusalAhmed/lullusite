@@ -73,7 +73,7 @@ const Contact = () => {
                                     <Icon className="size-5" />
                                 </ItemMedia>
                                 <ItemContent>
-                                    <ItemTitle>{title}</ItemTitle>
+                                    <ItemTitle className={'text-lg'}>{title}</ItemTitle>
                                     <ItemDescription>{description}</ItemDescription>
                                 </ItemContent>
                                 <ItemActions>

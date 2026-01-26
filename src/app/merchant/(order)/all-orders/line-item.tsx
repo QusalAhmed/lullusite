@@ -32,7 +32,7 @@ interface ItemCount {
 
 const OrderItem = ({data}: { data: ItemCount }) => {
     return (
-        <ItemGroup className="m-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ItemGroup className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {Object.entries(data).map(([sku, item]) => (
                 <Item key={sku} className="border p-4 rounded-lg" variant="outline" role="listitem">
                     <ItemMedia>
@@ -85,7 +85,9 @@ const LineItem = ({selectedOrder}: { selectedOrder: Record<string, GetOrdersType
                 <SheetHeader>
                     <SheetTitle>Individual total</SheetTitle>
                 </SheetHeader>
-                <OrderItem data={itemCount}/>
+                <div className="overflow-y-auto h-full p-4">
+                    <OrderItem data={itemCount}/>
+                </div>
             </SheetContent>
         </Sheet>
     );

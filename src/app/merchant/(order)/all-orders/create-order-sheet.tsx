@@ -79,7 +79,7 @@ const CreateOrderSheet = ({orderId}: { orderId: string }) => {
                     View Order
                 </Button>
             </SheetTrigger>
-            <SheetContent className={'overflow-y-auto p-4'}>
+            <SheetContent>
                 <SheetHeader hidden>
                     <SheetTitle>View Order</SheetTitle>
                 </SheetHeader>

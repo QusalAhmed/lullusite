@@ -61,7 +61,7 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 
 // Icon
-import { AlertCircle, Clock, RefreshCcw, XIcon } from "lucide-react"
+import { AlertCircle, Clock, RefreshCcw, XIcon, SearchIcon } from "lucide-react"
 
 // Type
 import { GetOrderToEditReturnType } from '@/actions/order/get-order-to-edit'
@@ -79,6 +79,7 @@ import FraudReport from '@/components/fraud-report'
 // Actions
 import merchantUpdateOrder from '@/actions/order/merchant-update-order'
 import merchantCreateOrder from '@/actions/order/merchant-create-order'
+import {getPostalCode} from "@/lib/gimini";
 
 // Constant
 import DIVISION_LIST from '@/constant/division'
@@ -299,7 +300,28 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
         }
     }
 
+    function setPostalCode() {
+        const address = form.getValues('shippingAddress') || '';
+        if (address.trim() === '') {
+            toast.error('Shipping address is empty.');
+            return;
+        }
 
+        toast.promise(
+            getPostalCode(address).then((postalCode) => {
+                if (postalCode && postalCode.trim() !== '') {
+                    form.setValue('shippingPostalCode', postalCode.trim());
+                } else {
+                    toast.error('Could not find postal code for the given address.');
+                }
+            }),
+            {
+                loading: 'Fetching postal code...',
+                success: 'Postal code updated.',
+                error: 'Failed to fetch postal code.',
+            }
+        );
+    }
 
     return (
         <>
@@ -474,7 +496,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                                 Postal Code
                                             </FieldLabel>
                                             <InputGroup>
-                                                <Input
+                                                <InputGroupInput
                                                     {...field}
                                                     id="form-shipping-postal-code"
                                                     type="number"
@@ -482,6 +504,13 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                                     autoComplete="on"
                                                     value={field.value ?? ""}
                                                 />
+                                                <InputGroupButton
+                                                    type="button"
+                                                    variant="ghost"
+                                                    onClick={setPostalCode}
+                                                >
+                                                    <SearchIcon className="h-4 w-4"/>
+                                                </InputGroupButton>
                                             </InputGroup>
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]}/>

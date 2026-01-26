@@ -1,5 +1,7 @@
 'use server'
 
+import {revalidatePath} from "next/cache";
+
 //db
 import db from '@/lib/drizzle-agent'
 import { eq, and, inArray, sql, SQL } from 'drizzle-orm'
@@ -222,6 +224,9 @@ const merchantUpdateOrder = async (data: OrderSelectSchemaType) => {
             new Error('Failed to update order amounts')
         }
     });
+
+    // Revalidate the order page
+    revalidatePath('/merchant/orders')
 
     return {
         success: true,
