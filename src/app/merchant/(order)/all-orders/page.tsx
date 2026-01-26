@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffectEvent, useEffect } from 'react';
 import { useSearchParams } from "next/navigation";
 
 // Local
@@ -17,6 +17,19 @@ const Page = () => {
     const tabs = [{value: "all-orders", label: "All Orders"}, ...ORDER_STATUS];
     const searchParams = useSearchParams();
     const status = searchParams.get('status') || 'all-orders'
+    const [currentStatus, setCurrentStatus] = useState<string>(status);
+    
+    const handlePopState = useEffectEvent(() => {
+        setCurrentStatus(status);
+    });
+
+    useEffect(() => {
+        window.addEventListener('popstate', handlePopState);
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, []);
+    
     const onStatusChange = useCallback((value: string) => {
         const params = new URLSearchParams(window.location.search);
         if (value === 'all-orders') {
@@ -30,7 +43,7 @@ const Page = () => {
     }, []);
 
     return (
-        <Tabs defaultValue={status} onValueChange={onStatusChange}>
+        <Tabs defaultValue={currentStatus} onValueChange={onStatusChange}>
             <ScrollArea>
                 <TabsList className="mb-4">
                     {tabs.map((tab) => (

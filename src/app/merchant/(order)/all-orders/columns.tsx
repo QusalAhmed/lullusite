@@ -47,6 +47,9 @@ import CreateOrderSheet from './create-order-sheet';
 // Actions
 import updateOrderStatus from "@/actions/order/update-status";
 
+// Constant
+import PAYMENT_STATUS from '@/constant/payment-status';
+
 const columnHelper = createColumnHelper<GetOrdersType>();
 
 function handleStatusUpdate(orderId: string, newStatus: string) {
@@ -100,10 +103,13 @@ const orderColumns = [
                             </div>
                             {info.row.original.isCourierBooked && info.row.original.consignmentsId && (
                                 <CourierMarkingDialog parcelId={info.row.original.consignmentsId}
-                                                      orderNumber={info.row.original.orderNumber}/>
+                                                      orderNumber={info.row.original.orderNumber}
+                                />
                             )}
                         </div>
-                        <Badge variant="default">{info.row.original.paymentStatus}</Badge>
+                        <Badge variant="default">
+                            {PAYMENT_STATUS.find(status => status.value === info.row.original.paymentStatus)?.label || 'Unknown'}
+                        </Badge>
                     </div>
                     {items.map((item) => {
                         const product = item.variation.product;
