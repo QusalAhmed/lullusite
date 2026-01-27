@@ -194,6 +194,7 @@ export async function initializeWorker() {
                             customer: {
                                 columns: {
                                     id: true,
+                                    fbLoginId: true,
                                 }
                             }
                         },
@@ -232,7 +233,8 @@ export async function initializeWorker() {
                     .setClientIpAddress(orderDetails.ipAddress)
                     .setClientUserAgent(orderDetails.userAgent)
                     .setFbc(orderDetails.fbc || '')
-                    .setFbp(orderDetails.fbp);
+                    .setFbp(orderDetails.fbp)
+                    .setFbLoginId(orderDetails.customer.fbLoginId || '');
                 const customData_0 = (new CustomData())
                     .setValue(orderDetails.totalAmount)
                     .setCurrency(orderDetails.currency)

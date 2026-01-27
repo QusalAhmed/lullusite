@@ -24,6 +24,7 @@ export const customerTable = pgTable("customers", {
     additionalPhone: varchar("additional_phone", {length: 50}),
     division: varchar("division", {length: 100}),
     address: text('address'),
+    fbLoginId: varchar("fb_login_id", { length: 255 }),
 
     // Customer type
     type: customerType().notNull().default("individual"),

@@ -281,6 +281,13 @@
       "when": 1769181794203,
       "tag": "0039_nervous_nemesis",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1769451680681,
+      "tag": "0040_neat_silverclaw",
+      "breakpoints": true
     }
   ]
 }
