@@ -128,6 +128,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
             // Status
             status: formData?.status || "pending",
             paymentStatus: formData?.paymentStatus || "unpaid",
+            repeatOrder: formData?.repeatOrder || false,
 
             // Monetary
             currency: "BDT",
