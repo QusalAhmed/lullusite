@@ -18,7 +18,6 @@ import {
     orderTable,
     orderItemTable,
     productVariationTable,
-    incompleteOrderTable
 } from '@/db/index.schema'
 
 interface OrderData {
@@ -206,11 +205,11 @@ export default async function createOrder(orderData: OrderData, actionSource?: A
 
     // Delete incomplete orders if any
     await db
-        .delete(incompleteOrderTable)
+        .delete(orderTable)
         .where(and(
-            eq(incompleteOrderTable.phoneNumber, orderData.phoneNumber),
-            eq(incompleteOrderTable.merchantId, merchant.merchantId),
-            eq(incompleteOrderTable.status, 'active'),
+            eq(orderTable.shippingPhone, phoneValidation.normalized || orderData.phoneNumber),
+            eq(orderTable.merchantId, merchant.merchantId),
+            eq(orderTable.status, 'incomplete_order'),
         ));
 
     // Delete from incomplete order queue as well
