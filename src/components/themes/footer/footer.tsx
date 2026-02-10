@@ -89,16 +89,16 @@ const Footer = ({storeSlug}: { storeSlug: string }) => {
 
     return (
         <footer className="mt-10 border-t border-border/50 bg-background/60">
-            <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 md:flex-row justify-between md:py-12">
+            <div className="grid gap-10 px-4 py-10 md:grid-cols-2 lg:grid-cols-3 xl:gap-16">
                 <div className="flex flex-col gap-4 md:max-w-md">
                     <div className="flex items-center gap-3">
                         {logoSrc ? (
                             <Image
                                 src={logoSrc}
                                 alt={logoAlt}
-                                width={48}
-                                height={48}
-                                className="h-12 w-12 rounded bg-white object-contain p-1"
+                                width={80}
+                                height={80}
+                                className="rounded object-contain"
                             />
                         ) : (
                             <div

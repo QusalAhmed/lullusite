@@ -1,4 +1,5 @@
 const ORDER_STATUS = [
+    {value: 'incomplete_order', label: 'Incomplete', description: 'Order has been created but not yet completed.' },
     { value: 'pending', label: 'Pending', description: 'Order has been placed but not yet confirmed.' },
     { value: 'confirmed', label: 'Confirmed', description: 'Order has been confirmed and is being processed.' },
     { value: 'ready_to_ship', label: 'Ready to Ship', description: 'Order is packed and ready to be shipped.' },

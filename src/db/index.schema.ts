@@ -11,3 +11,4 @@ export * from "./analytics.schema";
 export * from "./courier.schema";
 export * from "./order-tracking.schema";
 export * from "./webhook.schema";
+export * from "./auth-relation";

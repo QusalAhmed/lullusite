@@ -25,7 +25,7 @@ const orderSelectSchema = createSelectSchema(orderTable, {
     items: z.array(z.object({
         variationId: z.string(),
         variationName: z.string().nullable(),
-        quantity: z.coerce.number<number>().min(1, "Quantity must be at least 1"),
+        quantity: z.coerce.number<number>().gte(0, "Quantity must be greater than 0"),
         unitPrice: z.coerce.number<number>().gte(0, "Unit price must be greater than 0"),
         discountPrice: z.coerce.number<number>().gte(0, "Discount price must be greater than 0"),
         totalPrice: z.number(),

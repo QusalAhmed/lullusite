@@ -275,7 +275,7 @@ function generateEmailTemplate(data: OrderConfirmationData): string {
             </div>
 
             <p style="margin-bottom: 20px; line-height: 1.6; font-size: 14px;">
-                Thank you for your order! We're delighted to confirm that your purchase has been successfully received. 
+                Thank you for your order! We're delighted to confirm that your purchase has been successfully received.
                 Your order is now being prepared for shipment.
             </p>
 

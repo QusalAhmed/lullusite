@@ -1,0 +1,1 @@
+ALTER TABLE "orders" ADD COLUMN "repeat_order" boolean DEFAULT false NOT NULL;

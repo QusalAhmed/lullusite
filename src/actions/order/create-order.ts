@@ -2,6 +2,7 @@
 
 import { validatePhoneNumber } from '@/lib/phone-number'
 import getMerchant from "@/lib/get-merchant";
+import createCustomer from "@/actions/customer/create-customer";
 import { getRequestSource } from "@/lib/request";
 import {ActionSourceType} from "@/db/order.schema";
 
@@ -15,7 +16,6 @@ import { orderConfirmationQueue, incompleteOrderQueue } from "@/lib/bullmq-agent
 // Schema
 import {
     orderTable,
-    customerTable,
     orderItemTable,
     productVariationTable,
     incompleteOrderTable
@@ -41,32 +41,13 @@ export default async function createOrder(orderData: OrderData, actionSource?: A
 
     const merchant = await getMerchant()
 
-    // Create customer if not exists
-    let customerId: string;
-    const [customer] = await db
-        .select()
-        .from(customerTable)
-        .where(and(
-            eq(customerTable.phone, orderData.phoneNumber),
-            eq(customerTable.userId, merchant.merchantId),
-        ))
-        .limit(1);
-
-    if (customer) {
-        customerId = customer.id;
-    } else {
-        customerId = await db
-            .insert(customerTable)
-            .values({
-                userId: merchant.merchantId,
-                name: orderData.name,
-                phone: orderData.phoneNumber,
-                address: orderData.address,
-                division: orderData.division,
-            })
-            .returning({id: customerTable.id})
-            .then(res => res[0].id);
-    }
+    const {customerId} = await createCustomer({
+        phoneNumber: phoneValidation.normalized || orderData.phoneNumber,
+        name: orderData.name,
+        merchantId: merchant.merchantId,
+        address: orderData.address,
+        division: orderData.division,
+    });
 
     // Create order
     const requestSource = await getRequestSource();

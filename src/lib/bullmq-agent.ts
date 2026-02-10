@@ -208,7 +208,7 @@ export async function initializeWorker() {
                             actionSource: true,
                             eventSourceUrl: true,
                             shippingCity: true,
-                            shippingState: true,
+                            shippingDivision: true,
                             shippingPostalCode: true,
                             ipAddress: true,
                             userAgent: true,
@@ -227,8 +227,9 @@ export async function initializeWorker() {
                     .setLastName(orderDetails.shippingFullName.split(' ').slice(1).join(' '))
                     .setPhones([orderDetails.shippingPhone])
                     .setCity(orderDetails.shippingCity)
-                    .setState(orderDetails.shippingState || '') //  TODO: Handle undefined state properly
+                    .setState(orderDetails.shippingDivision || '')
                     .setZip(orderDetails.shippingPostalCode || '')
+                    .setCountry('bd')
                     .setExternalId(orderDetails.customer.id)
                     .setClientIpAddress(orderDetails.ipAddress)
                     .setClientUserAgent(orderDetails.userAgent)

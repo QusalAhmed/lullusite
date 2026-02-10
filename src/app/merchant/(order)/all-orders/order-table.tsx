@@ -113,7 +113,7 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
             ),
         placeholderData: keepPreviousData,
         refetchOnMount: true,
-        refetchOnWindowFocus: true,
+        refetchOnWindowFocus: false,
         staleTime: Infinity,
     });
     console.log('Fetched orders data:', data);

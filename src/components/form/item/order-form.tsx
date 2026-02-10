@@ -59,6 +59,14 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Spinner } from "@/components/ui/spinner"
+import {
+    Combobox,
+    ComboboxContent,
+    ComboboxEmpty,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxList,
+} from "@/components/ui/combobox"
 
 // Icon
 import { AlertCircle, Clock, RefreshCcw, XIcon, SearchIcon } from "lucide-react"
@@ -79,13 +87,14 @@ import FraudReport from '@/components/fraud-report'
 // Actions
 import merchantUpdateOrder from '@/actions/order/merchant-update-order'
 import merchantCreateOrder from '@/actions/order/merchant-create-order'
-import {getPostalCode} from "@/lib/gimini";
+import { getPostalCode } from "@/lib/gimini";
 
 // Constant
 import DIVISION_LIST from '@/constant/division'
 import ORDER_STATUS from "@/constant/order-status";
 import PAYMENT_STATUS from "@/constant/payment-status";
 import ACTION_SOURCES from "@/constant/action-source";
+import DISTRICT_LIST from "@/constant/district-list";
 
 const formatDate = (date: Date | string) => {
     const d = (date instanceof Date) ? date : new Date(date)
@@ -185,6 +194,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
         control: form.control,
         name: "shippingPhone",
     });
+    const phoneNumberInstance = validatePhoneNumber(phoneNumber);
 
     const paymentStatus = useWatch({
         control: form.control,
@@ -409,7 +419,8 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                                 autoComplete="off"
                                                 value={field.value ?? ""}
                                             />
-                                            {phoneNumber && validatePhoneNumber(phoneNumber).isValid && <FraudReport phoneNumber={phoneNumber}/>}
+                                            {phoneNumberInstance.isValid &&
+                                                <FraudReport phoneNumber={phoneNumberInstance.normalized!}/>}
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]}/>
                                             )}
@@ -440,6 +451,45 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]}/>
                                             )}
+                                        </Field>
+                                    )}
+                                />
+                                <Controller
+                                    name="shippingCity"
+                                    control={form.control}
+                                    render={({field, fieldState}) => (
+                                        <Field
+                                            orientation="responsive"
+                                            data-invalid={fieldState.invalid}
+                                        >
+                                            <FieldContent>
+                                                <FieldLabel htmlFor="form-shipping-district">
+                                                    Shipping District
+                                                </FieldLabel>
+                                                <FieldDescription>
+                                                    Important for conversion API
+                                                </FieldDescription>
+                                                {fieldState.invalid && (
+                                                    <FieldError errors={[fieldState.error]}/>
+                                                )}
+                                            </FieldContent>
+                                            <Combobox
+                                                name={field.name}
+                                                onValueChange={field.onChange}
+                                                items={DISTRICT_LIST.map(district => district.value)}
+                                            >
+                                                <ComboboxInput placeholder="Select a district" showClear/>
+                                                <ComboboxContent>
+                                                    <ComboboxEmpty>No items found.</ComboboxEmpty>
+                                                    <ComboboxList>
+                                                        {(district) => (
+                                                            <ComboboxItem key={district} value={district}>
+                                                                {DISTRICT_LIST.find(d => d.value === district)?.label || district}
+                                                            </ComboboxItem>
+                                                        )}
+                                                    </ComboboxList>
+                                                </ComboboxContent>
+                                            </Combobox>
                                         </Field>
                                     )}
                                 />
@@ -933,7 +983,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                                                             aria-invalid={fieldState.invalid}
                                                                             type="number"
                                                                             min={0}
-                                                                            step={0.5}
+                                                                            step={0.01}
                                                                         />
                                                                     </InputGroup>
                                                                     {fieldState.invalid && (

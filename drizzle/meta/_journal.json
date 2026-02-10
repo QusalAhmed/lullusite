@@ -288,6 +288,48 @@
       "when": 1769451680681,
       "tag": "0040_neat_silverclaw",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1769622237657,
+      "tag": "0041_motionless_norman_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1769878622670,
+      "tag": "0042_thin_swordsman",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1769941884423,
+      "tag": "0043_damp_carmella_unuscione",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1769942228121,
+      "tag": "0044_closed_iceman",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1770607761322,
+      "tag": "0045_windy_giant_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1770717856739,
+      "tag": "0046_fine_lily_hollister",
+      "breakpoints": true
     }
   ]
 }

@@ -4,12 +4,12 @@ import {
     pgEnum,
     uuid,
     varchar,
-    integer,
     numeric,
     jsonb,
     bigint,
     boolean,
-    text
+    text,
+    index
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
@@ -23,7 +23,7 @@ import timestamps from "./columns.helpers";
 import ORDER_STATUS from "@/constant/order-status";
 import PAYMENT_STATUS from "@/constant/payment-status";
 import ACTION_SOURCES from "@/constant/action-source";
-import {courierCodeEnum} from "@/db/courier.schema";
+import { courierCodeEnum } from "@/db/courier.schema";
 
 export const orderStatus = pgEnum(
     "order_status",
@@ -79,6 +79,7 @@ export const orderTable = pgTable("orders", {
     // Statuses
     status: orderStatus().notNull().default("pending"),
     paymentStatus: paymentStatus("payment_status").notNull().default("unpaid"),
+    repeatOrder: boolean("repeat_order").notNull().default(false),
 
     // Monetary totals
     currency: varchar("currency", {length: 3}).notNull().default("BDT"),
@@ -141,7 +142,11 @@ export const orderTable = pgTable("orders", {
     consignmentsId: varchar("consignments_id", {length: 100}),
 
     ...timestamps,
-})
+}, (table) => [
+    index("idx_shipping_phone").on(table.shippingPhone),
+    index("idx_shipping_name").on(table.shippingFullName),
+    index("idx_status").on(table.status),
+]);
 
 export const orderItemTable = pgTable("order_item", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -159,7 +164,7 @@ export const orderItemTable = pgTable("order_item", {
     sku: varchar("sku", {length: 100}).notNull(),
     variationName: varchar("variation_name", {length: 100}).notNull(),
     thumbnailUrl: varchar("thumbnail_url", {length: 1000}).notNull(),
-    quantity: integer("quantity").notNull().default(1).notNull(),
+    quantity: numeric("quantity", {precision: 10, scale: 2, mode: "number"}).notNull(),
     unitPrice: numeric("unit_price", {precision: 10, scale: 2, mode: "number"}).notNull(),
     lineSubtotal: numeric("line_subtotal", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),
     lineDiscountAmount: numeric("line_discount_amount", {precision: 10, scale: 2, mode: "number"}).notNull().default(0),

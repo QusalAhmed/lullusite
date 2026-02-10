@@ -7,14 +7,15 @@ import { Controller, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
 import { validatePhoneNumber } from '@/lib/phone-number'
+import { useDebouncedCallback } from 'use-debounce';
 
 // Redux
 import { useSelector } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
 
 // Actions
-import { createIncompleteOrder } from "@/actions/incomplete-order/create-incomplete-order"
 import createOrder from "@/actions/order/create-order"
+import createIncompleteOrder from "@/actions/order/create-incomplete-order"
 
 // Zod schema
 import { checkoutFormSchema } from "@/lib/validations/checkout.schema"
@@ -44,6 +45,9 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
+// Tanstack Query
+import { useMutation } from "@tanstack/react-query"
+
 export const divisions = [
     {value: "dhaka", label: "ঢাকা বিভাগ"},
     {value: "chattogram", label: "চট্টগ্রাম বিভাগ"},
@@ -70,6 +74,47 @@ export function CheckoutForm() {
         control: form.control,
         name: "phoneNumber",
     })
+    const watchAddress = useWatch({
+        control: form.control,
+        name: "address",
+    })
+
+    const mutation = useMutation({
+        mutationKey: ["incomplete-order", watchPhoneNumber],
+        mutationFn: (
+            {address, variations}: {address: string, variations: Array<{variationId: string, quantity: number}>}
+        ) => createIncompleteOrder({
+            name: form.getValues("name"),
+            phoneNumber: watchPhoneNumber,
+            address: address,
+            division: form.getValues("division"),
+            remark: form.getValues("remarks"),
+            variations: variations,
+            source: "checkout_form",
+        }),
+        onSuccess: () => {
+            console.log("Incomplete order saved:")
+        },
+        onError: (error) => {
+            console.error("Failed to save incomplete order:", error)
+        },
+        scope: {
+            id: "incomplete_order",
+        },
+        retry: false,
+    })
+
+    const debouncedMutation = useDebouncedCallback(
+        (data: {address: string, variations: Array<{variationId: string, quantity: number}>}) => {
+            console.log("Triggering debounced mutation with data:", data)
+            mutation.mutate(data)
+        },
+        5000,
+        {
+            leading: true,
+            trailing: true,
+        }
+    )
 
     const cartItems = useSelector((state: RootState) => state.cart.carts);
     const storeSlug = useSelector((state: RootState) => state.store.storeSlug);
@@ -77,30 +122,15 @@ export function CheckoutForm() {
 
     useEffect(() => {
         if (watchPhoneNumber && validatePhoneNumber(watchPhoneNumber).isValid) {
-            // Create incomplete order
-            createIncompleteOrder({
-                phoneNumber: watchPhoneNumber,
-                items: cartItems.map(item => ({
+            debouncedMutation({
+                address: watchAddress.trim(),
+                variations: cartItems.map(item => ({
                     variationId: item.id,
                     quantity: item.quantity,
                 })),
-                metadata: {
-                    customerName: form.getValues("name"),
-                    address: form.getValues("address"),
-                    division: form.getValues("division"),
-                    remarks: form.getValues("remarks"),
-                }
-            }).then((response) => {
-                if (response.success) {
-                    console.log("Incomplete order created/updated successfully.")
-                } else {
-                    console.error(`Failed to create/update incomplete order: ${response.error}`)
-                }
-            }).catch((error) => {
-                console.error(error)
             })
         }
-    }, [cartItems, form, watchPhoneNumber])
+    }, [cartItems, watchPhoneNumber, watchAddress, debouncedMutation])
 
     async function onSubmit(data: z.infer<typeof checkoutFormSchema>) {
         const toastId = toast.loading("Creating your order...")
@@ -130,7 +160,7 @@ export function CheckoutForm() {
 
     return (
         <form id="form-checkout" onSubmit={form.handleSubmit(onSubmit)}>
-            <h1 className='text-2xl text-center text-cyan-800'>Fill the form</h1>
+            <h1 className='text-2xl text-center text-cyan-800 mb-2'>Fill the form to complete order</h1>
             <FieldGroup>
                 <Controller
                     name="name"
@@ -187,7 +217,7 @@ export function CheckoutForm() {
                                 <InputGroupTextarea
                                     {...field}
                                     id="form-checkout-address"
-                                    placeholder="I'm having an issue with the login button on mobile."
+                                    placeholder="Full address including house number, road number, city"
                                     rows={2}
                                     className="min-h-24 resize-none"
                                     aria-invalid={fieldState.invalid}
@@ -199,9 +229,6 @@ export function CheckoutForm() {
                                     </InputGroupText>
                                 </InputGroupAddon>
                             </InputGroup>
-                            <FieldDescription>
-                                Full address including street, city, and postal code.
-                            </FieldDescription>
                             {fieldState.invalid && (
                                 <FieldError errors={[fieldState.error]}/>
                             )}

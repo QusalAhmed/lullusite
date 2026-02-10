@@ -1,8 +1,15 @@
 'use server';
 
+// react email
+import React from 'react';
 import nodemailer from 'nodemailer';
-// import fs from 'fs';
-// import path from 'path';
+import { render } from '@react-email/components';
+import { Email } from './email';
+
+// db
+import db from "@/lib/drizzle-agent"
+import { eq, and } from "drizzle-orm";
+import { orderTable } from "@/db/index.schema";
 
 interface IncompleteOrderData {
     merchantName: string;
@@ -14,57 +21,107 @@ interface IncompleteOrderData {
     phoneNumber: string;
 }
 
-
-// function replaceTemplateVariables(
-//     template: string,
-//     data: IncompleteOrderData
-// ): string {
-//     let html = template;
-//
-//     html = html.replace('{{merchantName}}', data.merchantName);
-//     html = html.replace('{{orderId}}', data.orderId);
-//     html = html.replace('{{phoneNumber}}', data.phoneNumber);
-//     html = html.replace('{{createdDate}}', data.createdDate)
-//     html = html.replace('{{supportEmail}}', data.supportEmail);
-//     html = html.replace('{{storeName}}', data.storeName);
-//     html = html.replace('{{currentYear}}', new Date().getFullYear().toString());
-//
-//     return html;
-// }
-
 export async function sendEmail(
     data: IncompleteOrderData
 ) {
-    // const templatePath = path.join(
-    //     process.cwd(),
-    //     'src/lib/mail/incomplete-order/body.html'
-    // );
-    //
-    // let htmlTemplate: string;
-    // try {
-    //     htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
-    // } catch (error) {
-    //     console.error('Failed to read email template:', error);
-    //     return { success: false, message: 'Failed to load email template.' };
-    // }
-    //
-    // const htmlBody = replaceTemplateVariables(htmlTemplate, data);
-
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 587,
+        secure: false,
         auth: {
             user: process.env.GMAIL_USERNAME,
             pass: process.env.GMAIL_PASSWORD,
         },
     });
 
+    const orderDetails = await db
+        .query
+        .orderTable
+        .findFirst({
+            where: and(
+                eq(orderTable.id, data.orderId)
+            ),
+            columns: {
+                id: true,
+                orderNumber: true,
+                shippingFullName: true,
+                shippingPhone: true,
+                createdAt: true,
+                shippingAddress: true,
+                subtotalAmount: true,
+                shippingAmount: true,
+                totalAmount: true,
+            },
+            with: {
+                items: {
+                    columns: {
+                        id: true,
+                        variationName: true,
+                        quantity: true,
+                        unitPrice: true,
+                        lineTotal: true,
+                        thumbnailUrl: true,
+                    },
+                },
+                merchant: {
+                    with: {
+                        businessInformation: {
+                            columns: {
+                                email: true,
+                                businessName: true,
+                            },
+                        }
+                    }
+                }
+            },
+        });
+
+    if (!orderDetails) {
+        console.error('Order details not found');
+        return { success: false, message: 'Order details not found.' };
+    }
+
+    const merchantEmail = orderDetails?.merchant.businessInformation?.email;
+    if (!merchantEmail) {
+        console.error('Merchant email not found');
+        return { success: false, message: 'Merchant email not found.' };
+    }
+
+    const htmlContent = await render(
+        React.createElement(Email, {
+            storeName: orderDetails.merchant.businessInformation?.businessName || 'Lullu Site',
+            supportEmail: merchantEmail,
+            customerName: orderDetails.shippingFullName,
+            customerEmail: '',
+            phoneNumber: orderDetails.shippingPhone,
+            orderNumber: orderDetails.orderNumber,
+            createdAt: orderDetails.createdAt.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            }),
+            currency: 'BDT',
+            shippingAddress: orderDetails.shippingAddress,
+            subtotalAmount: orderDetails.subtotalAmount,
+            shippingAmount: orderDetails.shippingAmount,
+            discountAmount: 0,
+            totalAmount: orderDetails.totalAmount,
+            items: orderDetails.items.map(item => ({
+                productName: item.variationName || '',
+                variationName: item.variationName || '',
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                lineTotal: item.lineTotal,
+            })),
+        })
+    );
+
     try {
         await transporter.sendMail({
             from: process.env.GMAIL_USERNAME,
-            to: data.merchantEmail,
-            subject: `Incomplete Order Alert - Order #${data.orderId}`,
-            text: `You have a new incomplete order (Order ID: ${data.orderId}). Please follow up with the customer at ${data.phoneNumber}.`,
+            to: merchantEmail,
+            subject: 'Incomplete Order Alert',
+            html: htmlContent,
         });
         return { success: true, message: 'Email sent successfully!' };
     } catch (error) {

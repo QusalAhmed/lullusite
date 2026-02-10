@@ -10,37 +10,44 @@ export function validatePhoneNumber(phone: string): {
     normalized?: string;
     error?: string;
 } {
-    // Remove all whitespace and special characters except +
-    const cleaned = phone.replace(/[\s()-]/g, "");
+    try {
+        // Remove all whitespace and special characters except +
+        const cleaned = phone.replace(/[\s()-]/g, "");
 
-    // Pattern for Bangladesh phone numbers
-    const patterns = [
-        /^01[3-9]\d{8}$/, // 01XXXXXXXXX (11 digits)
-        /^\+8801[3-9]\d{8}$/, // +8801XXXXXXXXX (14 chars)
-        /^8801[3-9]\d{8}$/, // 8801XXXXXXXXX (13 digits)
-    ];
+        // Pattern for Bangladesh phone numbers
+        const patterns = [
+            /^01[3-9]\d{8}$/, // 01XXXXXXXXX (11 digits)
+            /^\+8801[3-9]\d{8}$/, // +8801XXXXXXXXX (14 chars)
+            /^8801[3-9]\d{8}$/, // 8801XXXXXXXXX (13 digits)
+        ];
 
-    for (const pattern of patterns) {
-        if (pattern.test(cleaned)) {
-            // Normalize to +8801XXXXXXXXX format
-            let normalized = cleaned;
-            if (normalized.startsWith("01")) {
-                normalized = "+88" + normalized;
-            } else if (normalized.startsWith("88")) {
-                normalized = "+" + normalized;
+        for (const pattern of patterns) {
+            if (pattern.test(cleaned)) {
+                // Normalize to +8801XXXXXXXXX format
+                let normalized = cleaned;
+                if (normalized.startsWith("01")) {
+                    normalized = "+88" + normalized;
+                } else if (normalized.startsWith("88")) {
+                    normalized = "+" + normalized;
+                }
+
+                return {
+                    isValid: true,
+                    normalized,
+                };
             }
-
-            return {
-                isValid: true,
-                normalized,
-            };
         }
-    }
 
-    return {
-        isValid: false,
-        error: "Invalid Bangladesh phone number format. Expected format: 01XXXXXXXXX",
-    };
+        return {
+            isValid: false,
+            error: "Invalid Bangladesh phone number format. Expected format: 01XXXXXXXXX",
+        };
+    } catch (error: unknown) {
+        return {
+            isValid: false,
+            error: error instanceof Error ? error.message : "Unknown error during phone number validation",
+        };
+    }
 }
 
 /**
