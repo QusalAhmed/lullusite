@@ -89,7 +89,19 @@ export default async function addUpdateOrderItem(
                     sku: true,
                     name: true,
                     price: true,
-                }
+                },
+                with: {
+                    images: {
+                        with: {
+                            image: {
+                                columns: {
+                                    thumbnailUrl: true,
+                                },
+                            },
+                        },
+                        limit: 1,
+                    },
+                },
             });
         const variationDetailsMap = new Map(variationDetails.map(v => [v.id, v]));
 
@@ -105,7 +117,7 @@ export default async function addUpdateOrderItem(
                         productVariationId: item.variationId,
                         sku: variationDetailsMap.get(item.variationId)?.sku || '',
                         variationName: variationDetailsMap.get(item.variationId)?.name || '',
-                        thumbnailUrl: '',
+                        thumbnailUrl: variationDetailsMap.get(item.variationId)?.images?.[0]?.image?.thumbnailUrl || '',
                         quantity: item.quantity,
                         unitPrice: unitPrice,
                         lineSubtotal: unitPrice * item.quantity,
