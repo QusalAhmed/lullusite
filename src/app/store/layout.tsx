@@ -4,6 +4,7 @@ import localFont from 'next/font/local'
 // Analytics
 import FacebookPixel from '@/components/analytics/facebook-pixel';
 import ClaritySetup from '@/components/analytics/clarity-setup';
+import { Analytics } from "@vercel/analytics/next"
 
 // Fonts
 const AdorNoirrit = localFont({
@@ -19,6 +20,7 @@ const StoreLayout = ({children}: { children: React.ReactNode }) => {
                 <ClaritySetup projectId={'t2ddqcy0gs'}/>
             </Suspense>
             {children}
+            <Analytics />
         </div>
     );
 };
