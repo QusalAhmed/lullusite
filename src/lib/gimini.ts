@@ -9,7 +9,7 @@ const ai = new GoogleGenAI({
 
 export async function getPostalCode(address: string) {
     const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-2.5-flash",
         contents: `What is the postal code for this address: ${address}? Give me only numbers. If you don't know, respond with "".`,
     });
     return response.text;
