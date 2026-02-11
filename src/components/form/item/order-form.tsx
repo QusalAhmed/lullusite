@@ -96,6 +96,9 @@ import PAYMENT_STATUS from "@/constant/payment-status";
 import ACTION_SOURCES from "@/constant/action-source";
 import DISTRICT_LIST from "@/constant/district-list";
 
+// Tanstack Query
+import { useQueryClient } from "@tanstack/react-query";
+
 const formatDate = (date: Date | string) => {
     const d = (date instanceof Date) ? date : new Date(date)
     if (Number.isNaN(d.getTime())) return ""
@@ -227,6 +230,8 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
         name: 'partialAmount',
     });
 
+    const queryClient = useQueryClient()
+
     const totalAmount = subtotalAmount + shippingAmount - discountAmount;
     const amountPaid = paymentStatus === 'partially_paid' ?
         partialAmount : paymentStatus === 'paid' ? totalAmount : 0;
@@ -296,6 +301,10 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
 
             if (response.success) {
                 toast.success("Order updated successfully.");
+                await Promise.all([
+                    queryClient.invalidateQueries({ queryKey: ['order', formData.id] }),
+                    queryClient.invalidateQueries({ queryKey: ['orders'] }),
+                ])
                 router.push('/merchant/all-orders');
             } else {
                 toast.error(`Failed to update order: ${response.message || 'Unknown error'}`);
@@ -304,6 +313,10 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
             const response = await merchantCreateOrder(data);
             if (response.success) {
                 toast.success("Order created successfully.");
+                await Promise.all([
+                    queryClient.invalidateQueries({ queryKey: ['order', response.orderId] }),
+                    queryClient.invalidateQueries({ queryKey: ['orders'] }),
+                ])
                 router.push('/merchant/all-orders');
             } else {
                 toast.error(`Failed to create order: ${response.message || 'Unknown error'}`);

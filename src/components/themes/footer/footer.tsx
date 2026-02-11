@@ -117,7 +117,7 @@ const Footer = ({storeSlug}: { storeSlug: string }) => {
                     </div>
                 </div>
 
-                <div className="grid gap-8 text-sm sm:grid-cols-2 md:grid-cols-3">
+                <div className="col-span-2 grid gap-2 text-sm sm:grid-cols-3 md:grid-cols-4">
                     <div className="space-y-3">
                         <p className="text-base font-semibold">Quick Links</p>
                         <div className="flex flex-col gap-2 text-muted-foreground">
@@ -129,7 +129,7 @@ const Footer = ({storeSlug}: { storeSlug: string }) => {
                         </div>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-3 col-span-2">
                         <p className="text-base font-semibold">Contact</p>
                         <div className="flex flex-col gap-3 text-muted-foreground">
                             {contactItems.length > 0 ? contactItems.map(({icon: Icon, label, href}) => (

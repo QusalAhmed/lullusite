@@ -17,6 +17,8 @@ const merchantCreateOrder = async (data: OrderSelectSchemaType) => {
 
     const parsedOrder = orderInsertSchema.parse(data)
 
+    let orderId: string | null = null
+
     await db.transaction(async (tx) => {
         const customer = await tx
             .select()
@@ -45,7 +47,7 @@ const merchantCreateOrder = async (data: OrderSelectSchemaType) => {
             customerId = customer[0].id
         }
 
-        const orderCreateResult = await tx
+        const [orderCreateResult] = await tx
             .insert(orderTable)
             .values({
                 ...parsedOrder,
@@ -54,9 +56,11 @@ const merchantCreateOrder = async (data: OrderSelectSchemaType) => {
             })
             .returning({ id: orderTable.id })
 
-        if (orderCreateResult.length === 0) {
+        if (!orderCreateResult) {
             throw new Error('Failed to create order')
         }
+
+        orderId = orderCreateResult.id
 
         const items = orderSelectSchema.parse(data).items
         const itemDetails = await tx
@@ -73,7 +77,7 @@ const merchantCreateOrder = async (data: OrderSelectSchemaType) => {
 
         // Insert order items
         const itemsInsertData = items.map(item => ({
-            orderId: orderCreateResult[0].id,
+            orderId: orderCreateResult.id,
             productVariationId: item.variationId,
             sku: variationDetailsMap.get(item.variationId)?.sku || '',
             variationName: variationDetailsMap.get(item.variationId)?.name || '',
@@ -116,7 +120,7 @@ const merchantCreateOrder = async (data: OrderSelectSchemaType) => {
                 amountDue,
             })
             .where(
-                eq(orderTable.id, orderCreateResult[0].id)
+                eq(orderTable.id, orderCreateResult.id)
             ).returning({id: orderTable.id})
         console.log('Order Amount Updated:', orderAmountUpdateResult)
 
@@ -128,6 +132,7 @@ const merchantCreateOrder = async (data: OrderSelectSchemaType) => {
     return {
         success: true,
         message: 'Order created successfully',
+        orderId
     }
 }
 
