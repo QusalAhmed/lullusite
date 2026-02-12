@@ -229,7 +229,7 @@ const orderColumns = [
                         variant="outline"
                         className={cn(
                             paymentStatus === 'paid' && 'bg-green-100 text-green-800',
-                            paymentStatus === 'unpaid' && 'bg-cyan-400 text-cyan-900',
+                            paymentStatus === 'unpaid' && 'bg-cyan-100 text-cyan-500',
                             paymentStatus === 'refunded' && 'bg-red-100 text-red-800',
                         )}
                     >

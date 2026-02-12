@@ -262,7 +262,7 @@ export async function initializeWorker() {
             const eventRequest = (new EventRequest(accessToken, pixelId))
                 .setEvents(eventsData)
                 // .setTestEventCode("TEST61190")
-                // .setDebugMode(true);
+                .setDebugMode(true);
 
             await eventRequest.execute();
 

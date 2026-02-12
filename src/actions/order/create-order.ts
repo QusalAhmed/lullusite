@@ -40,7 +40,7 @@ export default async function createOrder(orderData: OrderData, actionSource?: A
 
     const merchant = await getMerchant()
 
-    const {customerId, isOldCustomer} = await createCustomer({
+    const {customerId} = await createCustomer({
         phoneNumber: phoneValidation.normalized || orderData.phoneNumber,
         name: orderData.name,
         merchantId: merchant.merchantId,
@@ -71,7 +71,10 @@ export default async function createOrder(orderData: OrderData, actionSource?: A
                 shippingCity: orderData.division,
                 shippingDivision: orderData.division,
                 shippingAmount: deliveryCharge,
-                repeatOrder: isOldCustomer,
+                // repeatOrder: isOldCustomer,
+
+                // Payment details
+                paymentMethod: "Cash on Delivery",
 
                 // Analytics
                 ipAddress: requestSource.ipAddress || '0.0.0.0',

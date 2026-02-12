@@ -8,9 +8,8 @@ export default function getOrderInfo(orderId: string) {
         .findFirst({
             columns: {
                 orderNumber: true,
-                customerName: true,
+                shippingPhone: true,
                 customerEmail: true,
-                customerPhone: true,
                 shippingFullName: true,
                 shippingAddress: true,
                 shippingCity: true,

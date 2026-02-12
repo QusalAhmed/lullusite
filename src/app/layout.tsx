@@ -44,7 +44,7 @@ export default function RootLayout({
         >
             <ReduxProvider>
                 <QueryProvider>
-                    <Toaster position="top-right" richColors closeButton expand={false} className={'z-99'}/>
+                    <Toaster position="top-right" richColors closeButton expand={false}/>
                     {children}
                 </QueryProvider>
             </ReduxProvider>

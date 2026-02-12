@@ -111,7 +111,7 @@ export const orderTable = pgTable("orders", {
     shippingNotes: varchar("shipping_notes", {length: 500}),
 
     // Payment / channel metadata
-    paymentMethod: varchar("payment_method", {length: 50}),
+    paymentMethod: varchar("payment_method", {length: 50}).default('COD'),
     paymentProvider: varchar("payment_provider", {length: 50}),
     paymentReference: varchar("payment_reference", {length: 255}),
     externalOrderId: varchar("external_order_id", {length: 255}),
