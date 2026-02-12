@@ -210,6 +210,9 @@ const SetStatusDialog = (
                                     if (res.success) {
                                         refetch()
                                         setOpen(false);
+                                        toast.success('Order status updated successfully');
+                                    } else {
+                                        toast.error(res.error || 'Failed to update order status');
                                     }
                                 })
                             }
