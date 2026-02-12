@@ -143,7 +143,7 @@ const merchantUpdateOrder = async (data: OrderSelectSchemaType) => {
             sqlChunksDiscount.push(sql`end)`);
 
             // Explicit casts are important here; otherwise Postgres may infer TEXT for the CASE expression.
-            const quantitySql: SQL = sql`${sql.join(sqlChunksQuantity, sql.raw(' '))}::integer`;
+            const quantitySql: SQL = sql`${sql.join(sqlChunksQuantity, sql.raw(' '))}::numeric(10,2)`;
             const unitPriceSql: SQL = sql`${sql.join(sqlChunksUnitPrice, sql.raw(' '))}::numeric(10,2)`;
             const discountSql: SQL = sql`${sql.join(sqlChunksDiscount, sql.raw(' '))}::numeric(10,2)`;
 
@@ -169,31 +169,6 @@ const merchantUpdateOrder = async (data: OrderSelectSchemaType) => {
                 throw new Error('Failed to update some order items')
             }
         }
-
-        // Update existing items
-        // for (const item of itemsToUpdate) {
-        //     const currentItem = currentItems.items.find(ci => ci.productVariationId === item.variationId)
-        //     if (!currentItem) continue
-        //
-        //     const itemUpdateResult = await tx
-        //         .update(orderItemTable)
-        //         .set({
-        //             quantity: item.quantity,
-        //             unitPrice: item.unitPrice,
-        //             lineSubtotal: item.unitPrice * item.quantity,
-        //             lineDiscountAmount: item.discountPrice,
-        //             lineTotal: item.totalPrice,
-        //         })
-        //         .where(
-        //             eq(orderItemTable.id, currentItem.id)
-        //         ).returning({id: orderItemTable.id})
-        //
-        //     console.log('Updated Item:', itemUpdateResult)
-        //
-        //     if (itemUpdateResult.length === 0) {
-        //         throw new Error(`Failed to update order item with id ${currentItem.id}`)
-        //     }
-        // }
 
         // Update amount
         const subtotalAmount = itemsNew.reduce((acc, item) =>

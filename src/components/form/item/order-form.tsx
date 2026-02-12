@@ -593,9 +593,8 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                                             <Input
                                                 {...field}
                                                 id="form-shipping-note"
-                                                type="tel"
+                                                type="text"
                                                 aria-invalid={fieldState.invalid}
-                                                autoComplete="off"
                                                 value={field.value ?? ""}
                                             />
                                             {fieldState.invalid && (

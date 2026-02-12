@@ -98,6 +98,7 @@ export default async function getOrders(
                     paymentStatus: true,
                     isCourierBooked: true,
                     consignmentsId: true,
+                    repeatOrder: true,
                     createdAt: true,
                 },
                 where: and(

@@ -29,11 +29,10 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner"
 
 // Icon
-import { X, ChevronDown, FileType, Phone } from "lucide-react";
+import { X, ChevronDown, Phone } from "lucide-react";
 import { FaBangladeshiTakaSign } from "react-icons/fa6";
 
 // Local
@@ -43,6 +42,7 @@ import ImageDialog from '@/components/image-hub/image-dialog'
 import Copy from '@/components/Copy';
 import CourierMarkingDialog from './courier-marking-dialog';
 import CreateOrderSheet from './create-order-sheet';
+import SellerNote from './seller-note';
 
 // Actions
 import updateOrderStatus from "@/actions/order/update-status";
@@ -94,8 +94,8 @@ const orderColumns = [
             const items = info.row.original.items;
 
             return (
-                <div className="flex flex-col">
-                    <div className="flex justify-between items-center mb-4">
+                <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-center">
                         <div className="flex flex-col gap-1">
                             <div>
                                 Order Number:{' '}
@@ -108,7 +108,7 @@ const orderColumns = [
                             )}
                         </div>
                         <Badge variant="default">
-                            {PAYMENT_STATUS.find(status => status.value === info.row.original.paymentStatus)?.label || 'Unknown'}
+                            {items.length} {items.length > 1 ? 'Items' : 'Item'}
                         </Badge>
                     </div>
                     {items.map((item) => {
@@ -200,22 +200,49 @@ const orderColumns = [
             </div>
         ),
     }),
-    columnHelper.accessor('status', {
-        header: 'Status',
-        cell: (info) => (
-            <Badge
-                variant="outline"
-                className={cn(
-                    info.getValue() === 'pending' && 'bg-yellow-100 text-yellow-800',
-                    info.getValue() === 'confirmed' && 'bg-blue-100 text-blue-800',
-                    info.getValue() === 'shipped' && 'bg-indigo-100 text-indigo-800',
-                    info.getValue() === 'delivered' && 'bg-green-100 text-green-800',
-                    info.getValue() === 'cancelled' && 'bg-red-100 text-red-800',
-                )}
-            >
-                {info.getValue().charAt(0).toUpperCase() + info.getValue().slice(1).replaceAll('_', ' ')}
-            </Badge>
+    columnHelper.display({
+        id: 'status',
+        header: () => (
+            <div className="text-center">
+                Status
+            </div>
         ),
+        cell: (info) => {
+            const orderStatus = info.row.original.status;
+            const paymentStatus = info.row.original.paymentStatus;
+            const isRepeatOrder = info.row.original.repeatOrder;
+            return (
+                <div className="flex flex-col gap-1 items-center">
+                    <Badge
+                        variant="outline"
+                        className={cn(
+                            orderStatus === 'pending' && 'bg-yellow-100 text-yellow-800',
+                            orderStatus === 'confirmed' && 'bg-blue-100 text-blue-800',
+                            orderStatus === 'shipped' && 'bg-indigo-100 text-indigo-800',
+                            orderStatus === 'delivered' && 'bg-green-100 text-green-800',
+                            orderStatus === 'cancelled' && 'bg-red-100 text-red-800',
+                        )}
+                    >
+                        {orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1).replaceAll('_', ' ')}
+                    </Badge>
+                    <Badge
+                        variant="outline"
+                        className={cn(
+                            paymentStatus === 'paid' && 'bg-green-100 text-green-800',
+                            paymentStatus === 'unpaid' && 'bg-yellow-100 text-yellow-800',
+                            paymentStatus === 'refunded' && 'bg-red-100 text-red-800',
+                        )}
+                    >
+                        {PAYMENT_STATUS.find(status => status.value === info.row.original.paymentStatus)?.label || 'Unknown'}
+                    </Badge>
+                    {isRepeatOrder && (
+                        <Badge variant="outline" className="bg-purple-100 text-purple-800">
+                            Repeat Order
+                        </Badge>
+                    )}
+                </div>
+            );
+        },
     }),
     columnHelper.accessor('createdAt', {
         header: 'Created At',
@@ -233,18 +260,7 @@ const orderColumns = [
         header: 'Actions',
         cell: (info) => (
             <div className="flex flex-col items-center gap-2">
-                <div className="flex items-center gap-1">
-                    {info.row.original.merchantNote && (
-                        <Tooltip>
-                            <TooltipTrigger>
-                                <FileType/>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                {info.row.original.merchantNote}
-                            </TooltipContent>
-                        </Tooltip>
-                    )}
-                </div>
+                <SellerNote note={info.row.original.merchantNote} orderId={info.row.original.id}/>
                 <CreateOrderSheet orderId={info.row.original.id}/>
                 <TrackingDialog orderId={info.row.original.id}/>
                 <DropdownMenu>
@@ -271,6 +287,7 @@ const orderColumns = [
                             </DropdownMenuSub>
                             <DropdownMenuItem>Add Note</DropdownMenuItem>
                             <DropdownMenuItem>Print Invoice</DropdownMenuItem>
+                            <DropdownMenuItem>Delete</DropdownMenuItem>
                             <DropdownMenuItem>
                                 New Team
                                 <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
