@@ -49,7 +49,7 @@ const SellerNote = ({note, orderId}: { note: string |  null; orderId: string }) 
                 />
                 <InputGroupAddon align="block-end" className="p-0 m-0">
                     {isEditing ? (
-                        <div className={'flex flex-col'}>
+                        <>
                             <InputGroupButton
                                 onClick={() => updateNote()}
                                 disabled={isPending}
@@ -65,7 +65,7 @@ const SellerNote = ({note, orderId}: { note: string |  null; orderId: string }) 
                             >
                                 <X size={16}/>
                             </InputGroupButton>
-                        </div>
+                        </>
                     ) : (
                         <InputGroupButton
                             onClick={() => setIsEditing(true)}

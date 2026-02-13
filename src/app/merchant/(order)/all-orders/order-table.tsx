@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import {useRouter} from "next/navigation"
 
 // TanStack Table
 import { flexRender, getCoreRowModel, PaginationState, useReactTable, } from "@tanstack/react-table"
@@ -84,6 +85,7 @@ function normalizeRange(range: DateRange | undefined): DateRange | undefined {
 }
 
 export default function OrderTable({status}: { status?: OrderStatusType }) {
+    const router = useRouter()
     const [pagination, setPagination] = useState<PaginationState>({
         pageIndex: 0,
         pageSize: 10,
@@ -394,6 +396,10 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
                     variant="outline"
                     size="sm"
                     disabled={Object.keys(rowSelection).length === 0}
+                    onClick={() => {
+                        const selectedIds = Object.keys(rowSelection)
+                        router.push(`/merchant/order/invoice?ids=${selectedIds.join(',')}`)
+                    }}
                 >
                     Print
                 </Button>

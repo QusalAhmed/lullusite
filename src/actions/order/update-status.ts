@@ -41,7 +41,6 @@ export default async function updateOrderStatus(
             where: and(
                 eq(orderTable.merchantId, merchantId),
                 inArray(orderTable.id, orderIds),
-                eq(orderTable.status, 'pending')
             ),
             columns: {
                 orderNumber: true,
