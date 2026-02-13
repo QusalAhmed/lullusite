@@ -42,12 +42,12 @@ const SellerNote = ({note, orderId}: { note: string |  null; orderId: string }) 
                     onChange={(e) => setCurrentNote(e.target.value)}
                     data-slot="input-group-control"
                     className={cn(
-                        'flex field-sizing-content w-full resize-none rounded-md px-2 py-1 m-1',
+                        'flex field-sizing-content w-full resize-none rounded-md px-2 py-1',
                         currentNote ? 'bg-lime-500 font-semibold' : undefined,
                     )}
                     placeholder="Add note..."
                 />
-                <InputGroupAddon align="inline-end">
+                <InputGroupAddon align="block-end" className="p-0 m-0">
                     {isEditing ? (
                         <div className={'flex flex-col'}>
                             <InputGroupButton

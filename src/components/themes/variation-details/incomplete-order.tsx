@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { validatePhoneNumber } from '@/lib/phone-number'
 
 // Actions
-import { createIncompleteOrder } from '@/actions/incomplete-order/create-incomplete-order'
+import createIncompleteOrder from '@/actions/order/create-incomplete-order'
 
 // ShadCN
 import {
@@ -57,14 +57,15 @@ export default function IncompleteOrder() {
                                     autoplay
                                 />
                             </AlertDialogTitle>
-                            <AlertDialogDescription>
-                                <div className="text-center text-lg font-semibold text-green-600">
-                                    আপনার ফোন নাম্বার পেয়েছি। শীঘ্রই আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবে অর্ডার কনফার্ম করার জন্য।
-                                </div>
+                            <AlertDialogDescription className="text-center text-lg font-semibold">
+                                Success! {phoneNumber}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
+                        <div className="text-center text-lg font-semibold text-green-600">
+                            আপনার ফোন নাম্বার পেয়েছি। শীঘ্রই আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবে অর্ডার কনফার্ম করার জন্য।
+                        </div>
                         <AlertDialogFooter>
-                            <AlertDialogAction>Close</AlertDialogAction>
+                            <AlertDialogAction>বন্ধ করুন</AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
@@ -103,7 +104,7 @@ export default function IncompleteOrder() {
                             maxLength={11}
                             pattern="[0-9]*"
                             inputMode="numeric"
-                            className="peer"
+                            className="peer font-semibold text-lg text-center tracking-widest"
                             onChange={(event) => {
                                 event.target.value = event.target.value.replace(/[^0-9+]/g, '');
                                 const response = validatePhoneNumber(event.target.value);
@@ -112,7 +113,10 @@ export default function IncompleteOrder() {
                                     setIsValid(() => true);
                                     setIsOpen(() => true);
                                     setPhoneNumber(() => response.normalized!);
-                                    createIncompleteOrder({phoneNumber: response.normalized!}).then(() => {
+                                    createIncompleteOrder({
+                                        phoneNumber: response.normalized!,
+                                        source: 'incomplete-order-component',
+                                    }).then(() => {
                                         console.log('Incomplete order created successfully');
                                     }).catch((error) => {
                                         console.error('Error creating incomplete order:', error);

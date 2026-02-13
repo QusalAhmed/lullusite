@@ -1,10 +1,10 @@
 interface CreateOrderDataType {
-    name: string;
+    name?: string;
     phoneNumber: string;
-    address: string;
-    division: string;
-    remark: string;
-    variations: Array<{
+    address?: string;
+    division?: string;
+    remark?: string;
+    variations?: Array<{
         variationId: string;
         quantity: number;
     }>;

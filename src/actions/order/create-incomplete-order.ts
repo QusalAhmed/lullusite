@@ -26,7 +26,7 @@ export default async function createIncompleteOrder(orderData: CreateOrderDataTy
     const merchant = await getMerchant()
     const {customerId, isOldCustomer} = await createCustomer({
         phoneNumber: phoneValidation.normalized || orderData.phoneNumber,
-        name: orderData.name,
+        name: orderData.name || '',
         merchantId: merchant.merchantId,
         address: orderData.address,
         division: orderData.division,
@@ -40,7 +40,7 @@ export default async function createIncompleteOrder(orderData: CreateOrderDataTy
     // Handle order item
     let subtotalAmount = 0;
     // Get product variation details
-    if (orderData.variations.length !== 0) {
+    if (orderData.variations && orderData.variations.length !== 0) {
         const variationsDetails = await db
             .query
             .productVariationTable
@@ -70,7 +70,7 @@ export default async function createIncompleteOrder(orderData: CreateOrderDataTy
         console.log('variationsDetails', variationsDetails);
 
         subtotalAmount = variationsDetails.reduce((sum, variation) => {
-            const quantity = orderData.variations.find(v =>
+            const quantity = orderData.variations?.find(v =>
                 v.variationId === variation.id
             )?.quantity || 0;
             return sum + (variation.price * quantity);
@@ -78,7 +78,7 @@ export default async function createIncompleteOrder(orderData: CreateOrderDataTy
     }
 
     let orderId: string | null;
-    const shippingAddress = orderData.address.trim();
+    const shippingAddress = orderData.address?.trim();
     // const postalCode = shippingAddress ? await getPostalCode(shippingAddress) : undefined;
 
     const [existingOrder] = await db
@@ -133,11 +133,11 @@ export default async function createIncompleteOrder(orderData: CreateOrderDataTy
                 merchantId: merchant.merchantId,
 
                 // Shipping details
-                shippingAddress: shippingAddress,
-                shippingFullName: orderData.name,
+                shippingAddress: shippingAddress || '',
+                shippingFullName: orderData.name || '',
                 shippingPhone: phoneValidation.normalized || orderData.phoneNumber,
-                shippingCity: orderData.division,
-                shippingDivision: orderData.division,
+                shippingCity: orderData.division || '',
+                shippingDivision: orderData.division || '',
                 shippingAmount: deliveryCharge,
 
                 // Status
@@ -178,7 +178,7 @@ export default async function createIncompleteOrder(orderData: CreateOrderDataTy
         });
     }
 
-    if(orderData.variations.length > 0) {
+    if(orderData.variations && orderData.variations.length > 0) {
         await addUpdateOrderItem({
             orderId: orderId,
             merchantId: merchant.merchantId,

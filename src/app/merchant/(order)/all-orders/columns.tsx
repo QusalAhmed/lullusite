@@ -43,6 +43,7 @@ import Copy from '@/components/Copy';
 import CourierMarkingDialog from './courier-marking-dialog';
 import CreateOrderSheet from './create-order-sheet';
 import SellerNote from './seller-note';
+import OrderDeleteAlert from "./order-delete-alert";
 
 // Actions
 import updateOrderStatus from "@/actions/order/update-status";
@@ -285,11 +286,11 @@ const orderColumns = [
                                     </DropdownMenuSubContent>
                                 </DropdownMenuPortal>
                             </DropdownMenuSub>
-                            <DropdownMenuItem>Add Note</DropdownMenuItem>
-                            <DropdownMenuItem>Print Invoice</DropdownMenuItem>
-                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <OrderDeleteAlert orderId={[info.row.original.id]}/>
+                            </DropdownMenuItem>
                             <DropdownMenuItem>
-                                New Team
+                                Print Invoice
                                 <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
                             </DropdownMenuItem>
                         </DropdownMenuGroup>

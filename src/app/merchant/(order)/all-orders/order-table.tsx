@@ -579,6 +579,7 @@ export default function OrderTable({status}: { status?: OrderStatusType }) {
 
             {/*<pre>{JSON.stringify(pagination, null, 2)}</pre>*/}
             {/*<pre>{JSON.stringify(selectedRowsData, null, 2)}</pre>*/}
+            {/*<pre>{JSON.stringify(rowSelection, null, 2)}</pre>*/}
         </div>
     )
 }
