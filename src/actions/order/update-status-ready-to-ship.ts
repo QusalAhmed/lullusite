@@ -69,8 +69,8 @@ export default async function updateOrdersReadyToShip(order: { orderId: string, 
             const parcelData = orderSteadfast
                 .map(o => {
                     const details = orderDetails.find(od => od.id === o.orderId)
-                    const totalWeight = details?.items.reduce((sum, item) => sum + (item.weight || 0) * item.quantity, 0) || 0
                     if (details == null) return null
+                    const totalWeight = details.items.reduce((sum, item) => sum + (item.weight || 0) * item.quantity, 0) || 0
                     return {
                         invoice: details.id,
                         recipient_name: details.shippingFullName || 'N/A',

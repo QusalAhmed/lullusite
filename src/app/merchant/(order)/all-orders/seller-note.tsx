@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {cn} from "@/lib/utils";
+import React, { useState } from 'react';
+import { cn } from "@/lib/utils";
 
 // ShadCN
 import {
@@ -8,25 +8,27 @@ import {
     InputGroupButton,
 } from "@/components/ui/input-group"
 import TextareaAutosize from "react-textarea-autosize"
-import {toast} from 'sonner';
+import { toast } from 'sonner';
 
 // Icon
 import { Pencil, Check, X } from 'lucide-react';
 
 // Tanstack Query
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 // Action
 import updateSellerNote from '@/actions/order/update-seller-note';
 
-const SellerNote = ({note, orderId}: { note: string |  null; orderId: string }) => {
+const SellerNote = ({note, orderId}: { note: string | null; orderId: string }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [currentNote, setCurrentNote] = useState(note || '');
-    const { mutate: updateNote, isPending } = useMutation({
-        mutationFn: () => updateSellerNote({ orderId, note: currentNote.trim() }),
+    const queryClient = useQueryClient();
+    const {mutate: updateNote, isPending} = useMutation({
+        mutationFn: () => updateSellerNote({orderId, note: currentNote.trim()}),
         onSuccess: (data) => {
             setIsEditing(false);
             toast.success(data.message);
+            queryClient.invalidateQueries({queryKey: ['order', orderId]}).then(r => console.log(r));
         },
         onError: (error) => {
             console.error('Error updating note:', error);

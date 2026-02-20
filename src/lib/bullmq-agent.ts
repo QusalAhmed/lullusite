@@ -4,9 +4,10 @@ import IORedis from 'ioredis';
 // Facebook Business SDK
 import bizSdk from "facebook-nodejs-business-sdk"
 
-// Send mail
+// Local Action
 import { sendEmail } from "@/lib/mail/incomplete-order/send-email";
 import { sendOrderConfirmationEmail } from "@/lib/mail/order-confirmation/send-email";
+import updateSteadfastParcelStatus from '@/lib/cron-jobs/steadfast-parcel-status';
 
 // db
 import db from '@/lib/drizzle-agent';
@@ -43,13 +44,19 @@ export async function initializeWorker() {
         return;
     }
 
+    await myQueue.upsertJobScheduler('repeatable-job', {
+        every: 60 * 60 * 1000,
+    }, {
+        name: 'steadfast-parcel-status'
+    })
+
     // Initialize my-queue worker
     if (!myWorker) {
         myWorker = new Worker('my-queue', async job => {
             console.log('Processing my-queue job:', job.id, 'with data:', job.data);
-            if (job.name === 'facebook-event-task') {
-                console.log('Executing facebook event task with params:', job.data);
-                // Simulate task processing
+            if (job.name === 'steadfast-parcel-status') {
+                console.log('Executing steadfast parcel status task with params:', job.data);
+                await updateSteadfastParcelStatus();
             }
             await new Promise(resolve => setTimeout(resolve, 100));
             console.log('Completed my-queue job:', job.id);
@@ -262,7 +269,7 @@ export async function initializeWorker() {
             const eventRequest = (new EventRequest(accessToken, pixelId))
                 .setEvents(eventsData)
                 // .setTestEventCode("TEST61190")
-                .setDebugMode(true);
+                // .setDebugMode(true);
 
             await eventRequest.execute();
 

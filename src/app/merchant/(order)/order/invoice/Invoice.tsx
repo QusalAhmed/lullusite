@@ -10,11 +10,50 @@ import { useQuery } from "@tanstack/react-query";
 // ShadCN
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
 
 
 // Constant
 import ORDER_STATUS from "@/constant/order-status";
 import PAYMENT_STATUS from "@/constant/payment-status";
+
+type SellerBusinessDetails = {
+    displayName: string
+    legalName?: string
+    addressLines?: string[]
+    phone?: string
+    email?: string
+    fbPage?: string
+    website?: string
+    taxIdLabel?: string
+    taxIdValue?: string
+    tradeLicenseNo?: string
+    supportNote?: string
+}
+
+const DEFAULT_SELLER_DETAILS: SellerBusinessDetails = {
+    displayName: 'খেজুরের খাটি গুড়',
+    // legalName: 'Your Legal Business Name',
+    addressLines: [
+        'Bagha, Rajshahi'
+    ],
+    phone: '01843557389',
+    fbPage: 'https://www.facebook.com/khejurerkhatigur/',
+    // email: 'support@example.com',
+    // website: 'https://example.com',
+    // taxIdLabel: 'BIN',
+    // taxIdValue: 'XXXXXXXXXXXX',
+    // tradeLicenseNo: 'XXXXXXXX',
+    supportNote: 'WhatsApp ও Imo আছে।',
+}
 
 function safeDate(value: unknown): Date | null {
     if (!value) return null
@@ -34,6 +73,7 @@ function formatMoney(amount: unknown, currency: string | null | undefined) {
             currencyDisplay: 'narrowSymbol',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
+            compactDisplay: 'long',
         }).format(safe)
     } catch {
         // fallback if currency code is invalid
@@ -47,6 +87,52 @@ function labelValue(label: string, value?: React.ReactNode) {
         <div className="text-sm">
             <div className="text-xs text-muted-foreground">{label}</div>
             <div className="font-medium text-foreground wrap-break-word">{value}</div>
+        </div>
+    )
+}
+
+function SellerDetails({ seller }: { seller: SellerBusinessDetails }) {
+    const address = (seller.addressLines ?? []).map((l) => String(l).trim()).filter(Boolean)
+
+    return (
+        <div className="space-y-2 break-inside-avoid">
+            <div className="text-xs text-muted-foreground">Sold by</div>
+
+            <div className="space-y-0.5">
+                <div className="text-xl font-semibold leading-tight wrap-break-word text-center">
+                    {seller.displayName}
+                </div>
+                {seller.legalName ? (
+                    <div className="text-xs text-muted-foreground wrap-break-word">
+                        Legal name: {seller.legalName}
+                    </div>
+                ) : null}
+            </div>
+
+            {address.length ? (
+                <div className="text-sm text-muted-foreground leading-snug">
+                    {address.map((line, idx) => (
+                        <div key={idx} className="wrap-break-word">{line}</div>
+                    ))}
+                </div>
+            ) : null}
+
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                {labelValue('Phone', seller.phone)}
+                {labelValue('Email', seller.email)}
+                {labelValue('Website', seller.website)}
+                {labelValue('Facebook Page', seller.fbPage)}
+                {seller.taxIdLabel && seller.taxIdValue
+                    ? labelValue(seller.taxIdLabel, seller.taxIdValue)
+                    : null}
+                {labelValue('Trade license', seller.tradeLicenseNo)}
+            </div>
+
+            {seller.supportNote ? (
+                <div className="text-xs text-muted-foreground wrap-break-word">
+                    {seller.supportNote}
+                </div>
+            ) : null}
         </div>
     )
 }
@@ -70,7 +156,7 @@ function InvoiceOrderView({order}: { order: InvoiceOrdersResponse[number] }) {
                 <div className="space-y-1">
                     <div className="text-lg font-semibold tracking-tight">INVOICE</div>
                     <div className="text-sm text-muted-foreground">
-                        Order #{order.orderNumber || order.id}
+                        Order <span className={'text-lg text-black font-semibold'}>#{order.orderNumber}</span>
                     </div>
                     {createdAt ? (
                         <div className="text-xs text-muted-foreground">
@@ -105,13 +191,7 @@ function InvoiceOrderView({order}: { order: InvoiceOrdersResponse[number] }) {
 
             {/* Addresses */}
             <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                    <div className="text-xl font-semibold">খেজুরের খাটি গুড়</div>
-                    <div className="text-sm text-muted-foreground">
-                        আমাদের খাঁটি গুড় কিনতে কল করুন <span className={'font-semibold text-lg'}>01843557389</span> নাম্বারে।
-                        এই নাম্বারে WhatsApp ও Imo আছে।
-                    </div>
-                </div>
+                <SellerDetails seller={DEFAULT_SELLER_DETAILS} />
 
                 <div className="space-y-2">
                     <div className="text-sm font-semibold">Ship To</div>
@@ -136,73 +216,72 @@ function InvoiceOrderView({order}: { order: InvoiceOrdersResponse[number] }) {
 
             <Separator className="my-4"/>
 
-            {/* Items */}
-            <div className="space-y-3">
-                <div className="text-md font-semibold text-muted-foreground">Items</div>
+            {/* Table Items */}
+            <Table>
+                <TableCaption>A list of items.</TableCaption>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Product Name</TableHead>
+                        <TableHead>Quantity</TableHead>
+                        <TableHead>Unit Price</TableHead>
+                        <TableHead>Unit Discount</TableHead>
+                        <TableHead className="text-right">Total Amount</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {items.length === 0 ? (
+                        <TableRow>
+                            <TableCell className="py-3 text-muted-foreground" colSpan={5}>
+                                No items found for this order.
+                            </TableCell>
+                        </TableRow>
+                    ) : (
+                        items.map((item) => {
+                            const thumb = item.variation?.images?.[0]?.image?.thumbnailUrl
+                            const alt = item.variation?.images?.[0]?.image?.altText
+                            const name = item.variation?.product?.name || item.variationName || 'Item'
 
-                <div className="w-full overflow-x-auto">
-                    <table className="w-full text-sm border-collapse">
-                        <thead>
-                        <tr className="border-b">
-                            <th className="text-left py-2 pr-2 font-medium">Item</th>
-                            <th className="text-right py-2 px-2 font-medium">Qty</th>
-                            <th className="text-right py-2 px-2 font-medium">Unit</th>
-                            <th className="text-right py-2 pl-2 font-medium">Total</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {items.length === 0 ? (
-                            <tr>
-                                <td className="py-3 text-muted-foreground" colSpan={5}>
-                                    No items found for this order.
-                                </td>
-                            </tr>
-                        ) : (
-                            items.map((item) => {
-                                const thumb = item.variation?.images?.[0]?.image?.thumbnailUrl
-                                const alt = item.variation?.images?.[0]?.image?.altText
-                                const name = item.variation?.product?.name || item.variationName || 'Item'
-
-                                return (
-                                    <tr key={item.id} className="border-b last:border-b-0 break-inside-avoid">
-                                        <td className="py-3 pr-2">
-                                            <div className="flex items-center gap-3 min-w-[220px]">
-                                                {thumb ? (
-                                                    <div className="relative size-10 rounded border overflow-hidden shrink-0">
-                                                        <Image
-                                                            src={thumb}
-                                                            alt={alt || name}
-                                                            fill
-                                                            className="object-cover"
-                                                            sizes="40px"
-                                                        />
+                            return (
+                                <TableRow key={item.id} className="border-b last:border-b-0 break-inside-avoid">
+                                    <TableCell className="py-3 pr-2">
+                                        <div className="flex items-center gap-3 min-w-[220px]">
+                                            {thumb ? (
+                                                <div className="relative size-10 rounded border overflow-hidden shrink-0">
+                                                    <Image
+                                                        src={thumb}
+                                                        alt={alt || name}
+                                                        fill
+                                                        className="object-cover"
+                                                        sizes="40px"
+                                                    />
+                                                </div>
+                                            ) : null}
+                                            <div className="leading-tight">
+                                                <div className="text-xs text-muted-foreground wrap-break-word">{name}</div>
+                                                {item.variationName ? (
+                                                    <div className="font-medium wrap-break-word">
+                                                        {item.variationName}
                                                     </div>
                                                 ) : null}
-                                                <div className="leading-tight">
-                                                    <div className="font-medium wrap-break-word">{name}</div>
-                                                    {item.variationName ? (
-                                                        <div className="text-xs text-muted-foreground wrap-break-word">
-                                                            {item.variationName}
-                                                        </div>
-                                                    ) : null}
-                                                </div>
                                             </div>
-                                        </td>
-                                        <td className="py-3 px-2 text-right">{item.quantity ?? 0}</td>
-                                        <td className="py-3 px-2 text-right whitespace-nowrap">
-                                            {formatMoney(item.unitPrice ?? 0, currency)}
-                                        </td>
-                                        <td className="py-3 pl-2 text-right whitespace-nowrap font-medium">
-                                            {formatMoney(item.lineTotal ?? 0, currency)}
-                                        </td>
-                                    </tr>
-                                )
-                            })
-                        )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-lg">{item.quantity ?? 0}</TableCell>
+                                    <TableCell>
+                                        {formatMoney(item.unitPrice ?? 0, currency)}
+                                    </TableCell>
+                                    <TableCell>
+                                        {formatMoney(item.lineDiscountAmount ?? 0, currency)}
+                                    </TableCell>
+                                    <TableCell className="py-3 pl-2 text-right whitespace-nowrap font-medium">
+                                        {formatMoney(item.lineTotal ?? 0, currency)}
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        })
+                    )}
+                </TableBody>
+            </Table>
 
             <Separator className="my-4"/>
 

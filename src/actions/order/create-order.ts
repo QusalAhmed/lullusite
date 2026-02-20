@@ -11,7 +11,7 @@ import db from "@/lib/drizzle-agent"
 import { eq, and, inArray, sql } from "drizzle-orm";
 
 // Queue
-import { orderConfirmationQueue, incompleteOrderQueue } from "@/lib/bullmq-agent"
+import { orderConfirmationQueue } from "@/lib/bullmq-agent"
 
 // Schema
 import {
@@ -215,15 +215,6 @@ export default async function createOrder(orderData: OrderData, actionSource?: A
             eq(orderTable.merchantId, merchant.merchantId),
             eq(orderTable.status, 'incomplete_order'),
         ));
-
-    // Delete from incomplete order queue as well
-    const incompleteJobs = await incompleteOrderQueue.getJobs(['waiting', 'delayed', 'active']);
-    for (const job of incompleteJobs) {
-        if (job.data.merchantId === merchant.merchantId &&
-            job.data.phoneNumber === orderData.phoneNumber) {
-            await job.remove();
-        }
-    }
 
     // Queue order confirmation email
     await orderConfirmationQueue.add(

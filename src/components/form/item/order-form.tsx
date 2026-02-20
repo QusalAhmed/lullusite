@@ -305,7 +305,7 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
                     queryClient.invalidateQueries({ queryKey: ['order', formData.id] }),
                     queryClient.invalidateQueries({ queryKey: ['orders'] }),
                 ])
-                router.push('/merchant/all-orders');
+                // router.push('/merchant/all-orders');
             } else {
                 toast.error(`Failed to update order: ${response.message || 'Unknown error'}`);
             }

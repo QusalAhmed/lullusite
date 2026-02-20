@@ -89,6 +89,7 @@ const getOrders = async (orderIds: string[]) => {
                     },
                 },
             },
+            orderBy: (order, { asc }) => [asc(order.createdAt)],
         });
 }
 
