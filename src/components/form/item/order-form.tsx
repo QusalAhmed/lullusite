@@ -143,10 +143,10 @@ export default function OrderForm({formData}: { formData?: GetOrderToEditReturnT
             totalAmount: formData?.totalAmount || 0,
 
             // Shipping address snapshot
-            shippingFullName: formData?.shippingFullName || undefined,
-            shippingPhone: formData?.shippingPhone || undefined,
+            shippingFullName: formData?.shippingFullName || '',
+            shippingPhone: formData?.shippingPhone || '',
             shippingEmail: formData?.shippingEmail || null,
-            shippingAddress: formData?.shippingAddress || undefined,
+            shippingAddress: formData?.shippingAddress || '',
             shippingCity: formData?.shippingCity || '',
             shippingDivision: formData?.shippingDivision || 'auto',
             shippingState: formData?.shippingState || null,

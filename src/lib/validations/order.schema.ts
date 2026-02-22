@@ -18,9 +18,9 @@ const orderSelectSchema = createSelectSchema(orderTable, {
     updatedAt: z.undefined(),
 
     // Shipping details
-    // shippingFullName: (schema) => schema.min(1, "Shipping full name is required"),
-    // shippingAddress: (schema) => schema.min(1, "Shipping address is required"),
-    // shippingPhone: (schema) => schema.min(1, "Shipping phone is required"),
+    shippingFullName: (schema) => schema.min(1, "Shipping full name is required"),
+    shippingAddress: (schema) => schema.min(1, "Shipping address is required"),
+    shippingPhone: (schema) => schema.min(1, "Shipping phone is required"),
 }).extend({
     items: z.array(z.object({
         variationId: z.string(),
@@ -63,7 +63,6 @@ const orderSelectSchema = createSelectSchema(orderTable, {
 export { orderSelectSchema }
 
 export type OrderSelectSchemaType = z.infer<typeof orderSelectSchema>
-
 
 // Update Schema
 const orderUpdateSchema = createUpdateSchema(orderTable, {
