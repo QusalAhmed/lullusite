@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffectEvent, useEffect} from 'react';
 import { cn } from "@/lib/utils";
 
 // ShadCN
@@ -23,7 +23,7 @@ const SellerNote = ({note, orderId}: { note: string | null; orderId: string }) =
     const [isEditing, setIsEditing] = useState(false);
     const [currentNote, setCurrentNote] = useState(note || '');
     const queryClient = useQueryClient();
-    const {mutate: updateNote, isPending} = useMutation({
+    const {mutate: mutateNote, isPending} = useMutation({
         mutationFn: () => updateSellerNote({orderId, note: currentNote.trim()}),
         onSuccess: (data) => {
             setIsEditing(false);
@@ -35,6 +35,15 @@ const SellerNote = ({note, orderId}: { note: string | null; orderId: string }) =
             toast.error('Failed to update note. Please try again.');
         },
     });
+    
+    const updateNote = useEffectEvent(() => {
+        if (note) {
+            setCurrentNote(note);
+        }
+    });
+    useEffect(() => {
+        updateNote();
+    }, [note]);
 
     return (
         <div className="grid w-full max-w-sm gap-6">
@@ -53,7 +62,7 @@ const SellerNote = ({note, orderId}: { note: string | null; orderId: string }) =
                     {isEditing ? (
                         <>
                             <InputGroupButton
-                                onClick={() => updateNote()}
+                                onClick={() => mutateNote()}
                                 disabled={isPending}
                             >
                                 <Check size={16}/>
