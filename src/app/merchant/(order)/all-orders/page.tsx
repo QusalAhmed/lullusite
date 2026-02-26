@@ -18,32 +18,32 @@ const Page = () => {
     const searchParams = useSearchParams();
     const status = searchParams.get('status') || 'all-orders'
     const [currentStatus, setCurrentStatus] = useState<string>(status);
-    
-    // const handlePopState = useEffectEvent(() => {
-    //     setCurrentStatus(status);
-    // });
-    //
-    // useEffect(() => {
-    //     window.addEventListener('popstate', handlePopState);
-    //     return () => {
-    //         window.removeEventListener('popstate', handlePopState);
-    //     };
-    // }, []);
-    //
-    // const onStatusChange = useCallback((value: string) => {
-    //     const params = new URLSearchParams(window.location.search);
-    //     if (value === 'all-orders') {
-    //         params.delete('status');
-    //     } else {
-    //         params.set('status', value);
-    //     }
-    //     const queryString = params.toString();
-    //     const newUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}`;
-    //     window.history.pushState(null, '', newUrl);
-    // }, []);
+
+    const handlePopState = useEffectEvent(() => {
+        setCurrentStatus(status);
+    });
+
+    useEffect(() => {
+        window.addEventListener('popstate', handlePopState);
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, []);
+
+    const onStatusChange = useCallback((value: string) => {
+        const params = new URLSearchParams(window.location.search);
+        if (value === 'all-orders') {
+            params.delete('status');
+        } else {
+            params.set('status', value);
+        }
+        const queryString = params.toString();
+        const newUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}`;
+        window.history.pushState(null, '', newUrl);
+    }, []);
 
     return (
-        <Tabs defaultValue={currentStatus}>
+        <Tabs defaultValue={currentStatus} onValueChange={onStatusChange}>
             <ScrollArea>
                 <TabsList className="mb-4">
                     {tabs.map((tab) => (
